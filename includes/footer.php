@@ -90,7 +90,8 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="<?= SITE_URL ?>/assets/js/chatbot.js"></script>
+<script>const CHATBOT_API_URL = '<?= SITE_URL ?>/api/chatbot.php';</script>
+<script src="<?= SITE_URL ?>/assets/js/chatbot.js?v=<?= filemtime(__DIR__ . '/../assets/js/chatbot.js') ?>"></script>
 </body>
 </html>
 <?php ob_end_flush(); ?>

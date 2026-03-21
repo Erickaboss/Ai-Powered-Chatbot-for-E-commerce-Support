@@ -3,6 +3,26 @@
  * AI Chatbot — Full intent engine + Gemini polish
  * Works 100% from DB even when Gemini quota is exhausted
  */
+
+// Suppress warnings from polluting JSON output
+error_reporting(E_ERROR | E_PARSE);
+ini_set('display_errors', '0');
+
+// ── Global error handler — always return JSON, never HTML ──
+set_exception_handler(function($e) {
+    if (!headers_sent()) header('Content-Type: application/json');
+    echo json_encode(['response' => 'Something went wrong. Please try again.', 'quick_replies' => ['Show me products', 'Contact support']]);
+    exit;
+});
+set_error_handler(function($errno, $errstr) {
+    if ($errno === E_ERROR || $errno === E_PARSE) {
+        if (!headers_sent()) header('Content-Type: application/json');
+        echo json_encode(['response' => 'Something went wrong. Please try again.', 'quick_replies' => []]);
+        exit;
+    }
+    return false;
+});
+
 session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/../config/db.php';
@@ -16,32 +36,36 @@ if (empty($message)) {
     exit;
 }
 
-if ($user_id) {
-    $chk = $conn->query("SELECT id FROM users WHERE id=" . (int)$user_id . " LIMIT 1");
-    if (!$chk || $chk->num_rows === 0) { $user_id = null; $_SESSION['user_id'] = null; }
+try {
+    if ($user_id) {
+        $chk = $conn->query("SELECT id FROM users WHERE id=" . (int)$user_id . " LIMIT 1");
+        if (!$chk || $chk->num_rows === 0) { $user_id = null; $_SESSION['user_id'] = null; }
+    }
+
+    if (empty($_SESSION['chat_session_id'])) {
+        $_SESSION['chat_session_id'] = bin2hex(random_bytes(16));
+    }
+    $session_id = $_SESSION['chat_session_id'];
+
+    if (!isset($_SESSION['chat_ctx'])) {
+        $_SESSION['chat_ctx'] = ['awaiting' => null, 'last_products' => [], 'order_cart' => [], 'order_step' => null, 'order_data' => []];
+    }
+    $ctx = &$_SESSION['chat_ctx'];
+
+    $result   = processMessage($message, $user_id, $conn, $ctx, $session_id);
+    $response = $result['response'];
+    $qr       = $result['quick_replies'] ?? [];
+
+    $sm  = $conn->real_escape_string($message);
+    $sr  = $conn->real_escape_string($response);
+    $ui  = $user_id ? (int)$user_id : 'NULL';
+    $sid = $conn->real_escape_string($session_id);
+    $conn->query("INSERT INTO chatbot_logs (user_id,session_id,is_guest,message,response) VALUES ($ui,'$sid'," . ($user_id ? 0 : 1) . ",'$sm','$sr')");
+
+    echo json_encode(['response' => $response, 'quick_replies' => $qr]);
+} catch (Throwable $e) {
+    echo json_encode(['response' => 'Something went wrong. Please try again.', 'quick_replies' => ['Show me products', 'Contact support']]);
 }
-
-if (empty($_SESSION['chat_session_id'])) {
-    $_SESSION['chat_session_id'] = bin2hex(random_bytes(16));
-}
-$session_id = $_SESSION['chat_session_id'];
-
-if (!isset($_SESSION['chat_ctx'])) {
-    $_SESSION['chat_ctx'] = ['awaiting' => null, 'last_products' => [], 'order_cart' => [], 'order_step' => null, 'order_data' => []];
-}
-$ctx = &$_SESSION['chat_ctx'];
-
-$result   = processMessage($message, $user_id, $conn, $ctx, $session_id);
-$response = $result['response'];
-$qr       = $result['quick_replies'] ?? [];
-
-$sm  = $conn->real_escape_string($message);
-$sr  = $conn->real_escape_string($response);
-$ui  = $user_id ? (int)$user_id : 'NULL';
-$sid = $conn->real_escape_string($session_id);
-$conn->query("INSERT INTO chatbot_logs (user_id,session_id,is_guest,message,response) VALUES ($ui,'$sid'," . ($user_id ? 0 : 1) . ",'$sm','$sr')");
-
-echo json_encode(['response' => $response, 'quick_replies' => $qr]);
 exit;
 
 // ================================================================
@@ -94,21 +118,21 @@ function extractPriceRange(string $ml): array {
 // ================================================================
 function detectCategory(string $ml): ?int {
     $map = [
-        1  => 'phone|mobile|smartphone|iphone|samsung|tecno|infinix|xiaomi|oppo|vivo|nokia|redmi|tablet|android',
-        2  => 'laptop|computer|pc|macbook|dell|hp|lenovo|acer|asus|notebook|chromebook',
-        3  => 'tv|television|speaker|headphone|audio|sound|earphone|subwoofer|home theater|soundbar',
-        4  => 'fridge|washing machine|microwave|appliance|cooker|kettle|blender|iron|vacuum|oven|dishwasher',
-        5  => 'men shirt|men trouser|men suit|men shoe|men fashion|men cloth|men wear|men jacket',
-        6  => 'women dress|handbag|heels|ladies|women fashion|women cloth|skirt|blouse|women shoe',
-        7  => 'food|grocery|rice|milk|coffee|tea|sugar|flour|cooking oil|cereal|juice|snack',
-        8  => 'beauty|skincare|lotion|shampoo|perfume|cream|makeup|deodorant|hair|cosmetic|moisturizer',
-        9  => 'sport|gym|fitness|football|running|yoga|exercise|dumbbell|treadmill|bicycle|jersey',
-        10 => 'baby|kids|child|toy|diaper|stroller|crib|nursery|infant|toddler|children',
+        1  => 'phone|phones|mobile|smartphone|smartphones|iphone|samsung|tecno|infinix|xiaomi|oppo|vivo|nokia|redmi|tablet|android',
+        2  => 'laptop|laptops|computer|computers|pc|macbook|dell|hp|lenovo|acer|asus|notebook|chromebook',
+        3  => 'tv|television|televisions|speaker|speakers|headphone|headphones|audio|sound|earphone|earphones|subwoofer|home theater|soundbar',
+        4  => 'fridge|fridges|washing machine|microwave|appliance|appliances|cooker|kettle|blender|iron|vacuum|oven|dishwasher',
+        5  => 'men shirt|men trouser|men suit|men shoe|men fashion|men cloth|men wear|men jacket|men clothing|menswear',
+        6  => 'women dress|handbag|handbags|heels|ladies|women fashion|women cloth|skirt|blouse|women shoe|women clothing|womenswear|fashion|clothing|clothes|dress',
+        7  => 'food|grocery|groceries|rice|milk|coffee|tea|sugar|flour|cooking oil|cereal|juice|snack|snacks',
+        8  => 'beauty|skincare|lotion|shampoo|perfume|cream|makeup|deodorant|hair|cosmetic|moisturizer|cosmetics',
+        9  => 'sport|sports|gym|fitness|football|running|yoga|exercise|dumbbell|treadmill|bicycle|jersey',
+        10 => 'baby|kids|child|children|toy|toys|diaper|stroller|crib|nursery|infant|toddler',
         11 => 'furniture|sofa|bed|table|chair|wardrobe|shelf|decor|lamp|mirror|ottoman|mattress|curtain',
-        12 => 'car|vehicle|tyre|auto|driving|motor|spare part|car accessory',
-        13 => 'book|pen|notebook|stationery|school|pencil|ruler|eraser|calculator',
-        14 => 'watch|jewelry|ring|necklace|bracelet|earring|gold|silver|pendant',
-        15 => 'game|gaming|playstation|xbox|console|controller|nintendo|ps4|ps5',
+        12 => 'car|cars|vehicle|vehicles|tyre|tyres|auto|driving|motor|spare part|car accessory|car accessories',
+        13 => 'book|books|pen|pens|notebook|stationery|school|pencil|ruler|eraser|calculator',
+        14 => 'watch|watches|jewelry|jewellery|ring|necklace|bracelet|earring|gold|silver|pendant|accessories',
+        15 => 'game|games|gaming|playstation|xbox|console|controller|nintendo|ps4|ps5',
     ];
     foreach ($map as $id => $pattern) {
         if (preg_match("/\b($pattern)\b/i", $ml)) return $id;
@@ -123,7 +147,7 @@ function dbProductSearch(string $msg, $conn, ?int $forceCatId = null): array {
     $ml = strtolower($msg);
     [$minPrice, $maxPrice] = extractPriceRange($ml);
     $catId    = $forceCatId ?? detectCategory($ml);
-    $keywords = extractKeywords($msg);
+    $keywords = $msg !== '' ? extractKeywords($msg) : [];
 
     $conditions = ['p.stock > 0'];
     if ($catId)    $conditions[] = "p.category_id = $catId";
@@ -188,6 +212,38 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         return reply(trackOrder((int)$m[1], $uid, $conn), ['View all orders', 'Cancel an order']);
     }
 
+    // ── Awaiting support message — handle BEFORE anything else ──
+    if ($ctx['awaiting'] === 'support_message') {
+        $ctx['awaiting'] = null;
+        $supportMsg = trim($msg);
+        if (strlen($supportMsg) < 3) {
+            return reply("Please type your message so we can help you.");
+        }
+        $customerName  = 'Guest';
+        $customerEmail = '';
+        if ($uid) {
+            $u = $conn->query("SELECT name, email FROM users WHERE id=$uid")->fetch_assoc();
+            if ($u) { $customerName = $u['name']; $customerEmail = $u['email']; }
+        }
+        require_once __DIR__ . '/../includes/mailer.php';
+        $adminSent = sendMail(ADMIN_EMAIL, ADMIN_NAME,
+            "📩 Support Request from $customerName",
+            emailSupportMessage($customerName, $customerEmail ?: 'Not logged in', $supportMsg)
+        );
+        if ($uid && $customerEmail) {
+            sendMail($customerEmail, $customerName,
+                "✅ We received your message — " . SITE_NAME,
+                emailSupportAutoReply($customerName)
+            );
+        }
+        $confirm = $adminSent
+            ? "✅ <strong>Your message has been sent!</strong> Our team will reply to <strong>" . htmlspecialchars($customerEmail ?: 'you') . "</strong> within 24 hours."
+            : "⚠️ Message saved. You can also reach us directly at <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a>.";
+        return reply(
+            $confirm . "<br><br>📱 For urgent issues: <a href='tel:" . ADMIN_PHONE . "'>" . ADMIN_PHONE . "</a>",
+            ['Track my order', 'Return policy', 'Show me products']
+        );
+    }
     // ================================================================
     // CHATBOT ORDER FLOW — multi-step cart + checkout via chat
     // ================================================================
@@ -471,13 +527,14 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
     }
 
     // ── 12. CONTACT / SUPPORT ──
-    if (preg_match('/\b(contact|support|help desk|talk to agent|human agent|call|email support|phone number|customer service|whatsapp)\b/i', $ml)) {
+    if (preg_match('/\b(contact|support|help desk|talk to agent|human agent|call|email support|phone number|customer service|whatsapp|send message|message admin|message us)\b/i', $ml)) {
+        $ctx['awaiting'] = 'support_message';
         return reply(
             "📞 <strong>Contact & Support:</strong><br>" .
             "• 📧 Email: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a><br>" .
             "• 📱 Phone/WhatsApp: <a href='tel:" . ADMIN_PHONE . "'>" . ADMIN_PHONE . "</a><br>" .
-            "• 💬 This chatbot is available <strong>24/7</strong><br>" .
-            "• 🕐 Office Hours: Mon–Sat, 8AM–6PM (Kigali time)",
+            "• 🕐 Office Hours: Mon–Sat, 8AM–6PM (Kigali time)<br><br>" .
+            "💬 <strong>Or type your message below and we'll email it to our team right now:</strong>",
             ['Return policy', 'Delivery info', 'Track my order']
         );
     }
@@ -570,6 +627,71 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
     }
 
     // ── 19. PRODUCT SEARCH (show me / i want / do you have / looking for / find me) ──
+    // "Show me products" / "all products" / "browse" → show random selection from all categories
+    if (preg_match('/^(show me products|all products|browse products|browse|show products|view products|see products)$/i', trim($ml))) {
+        $res  = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.image,c.name as cat_name FROM products p LEFT JOIN categories c ON p.category_id=c.id WHERE p.stock>0 ORDER BY RAND() LIMIT 8");
+        $rows = [];
+        if ($res) while ($r = $res->fetch_assoc()) $rows[] = $r;
+        if (!empty($rows)) {
+            $ctx['last_products'] = $rows;
+            $fp = formatProducts($rows, 'Featured Products');
+            return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me laptops', 'Show me fashion']));
+        }
+        return reply("Browse all our products here: <a href='" . SITE_URL . "/products.php'><strong>All Products →</strong></a>",
+            ['Show me phones', 'Show me laptops']);
+    }
+
+    // "Show me phones/laptops/fashion/..." quick-reply shortcuts → force category search
+    if (preg_match('/^show me (phones?|mobiles?|smartphones?)$/i', trim($ml))) {
+        $rows = dbProductSearch('', $conn, 1);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Phones & Mobiles'); return reply($fp['text'], array_merge($fp['qr'], ['Show me laptops', 'Show me TVs', 'Show me products'])); }
+    }
+    if (preg_match('/^show me (laptops?|computers?|notebooks?)$/i', trim($ml))) {
+        $rows = dbProductSearch('', $conn, 2);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Laptops & Computers'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me TVs', 'Show me products'])); }
+    }
+    if (preg_match('/^show me (fashion|clothes|clothing|dresses?|women|men)$/i', trim($ml))) {
+        $catId = preg_match('/men/i', $ml) ? 5 : 6;
+        $rows = dbProductSearch('', $conn, $catId);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Fashion & Clothing'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me laptops', 'Show me products'])); }
+    }
+    if (preg_match('/^show me (tvs?|televisions?|electronics?|speakers?|audio)$/i', trim($ml))) {
+        $rows = dbProductSearch('', $conn, 3);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'TVs & Electronics'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me laptops', 'Show me products'])); }
+    }
+    if (preg_match('/^show me (appliances?|fridges?|washing machines?|microwaves?)$/i', trim($ml))) {
+        $rows = dbProductSearch('', $conn, 4);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Home Appliances'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me products'])); }
+    }
+    if (preg_match('/^show me (sports?|gym|fitness|exercise)$/i', trim($ml))) {
+        $rows = dbProductSearch('', $conn, 9);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Sports & Fitness'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me products'])); }
+    }
+    if (preg_match('/^show me (beauty|skincare|cosmetics?|perfumes?|makeup)$/i', trim($ml))) {
+        $rows = dbProductSearch('', $conn, 8);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Beauty & Skincare'); return reply($fp['text'], array_merge($fp['qr'], ['Show me fashion', 'Show me products'])); }
+    }
+    if (preg_match('/^show me (watches?|jewelry|jewellery|accessories)$/i', trim($ml))) {
+        $rows = dbProductSearch('', $conn, 14);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Watches & Jewelry'); return reply($fp['text'], array_merge($fp['qr'], ['Show me fashion', 'Show me products'])); }
+    }
+    if (preg_match('/^show me (furniture|sofas?|beds?|chairs?|tables?)$/i', trim($ml))) {
+        $rows = dbProductSearch('', $conn, 11);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Furniture & Home Decor'); return reply($fp['text'], array_merge($fp['qr'], ['Show me appliances', 'Show me products'])); }
+    }
+    if (preg_match('/^show me (baby|kids|toys?|children)$/i', trim($ml))) {
+        $rows = dbProductSearch('', $conn, 10);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Baby & Kids'); return reply($fp['text'], array_merge($fp['qr'], ['Show me fashion', 'Show me products'])); }
+    }
+    if (preg_match('/^show me (cars?|vehicles?|auto|car accessories)$/i', trim($ml))) {
+        $rows = dbProductSearch('', $conn, 12);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Cars & Auto'); return reply($fp['text'], array_merge($fp['qr'], ['Show me products'])); }
+    }
+    if (preg_match('/^show me (games?|gaming|playstation|xbox|consoles?)$/i', trim($ml))) {
+        $rows = dbProductSearch('', $conn, 15);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Gaming'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me products'])); }
+    }
+
     if (preg_match('/\b(show me|do you have|do you sell|looking for|find me|search for|i need|i want|i am looking|got any|list|display|give me)\b/i', $ml)
         || detectCategory($ml)
         || extractPriceRange($ml) !== [null, null]) {

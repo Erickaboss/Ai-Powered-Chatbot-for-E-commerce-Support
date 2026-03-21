@@ -82,12 +82,19 @@ async function sendMessage() {
     showTyping();
 
     try {
-        const res = await fetch('/ecommerce-chatbot/api/chatbot.php', {
+        const res = await fetch(CHATBOT_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: msg })
         });
-        const data = await res.json();
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        let data;
+        try { data = JSON.parse(text); }
+        catch(e) {
+            console.error('Chatbot non-JSON response:', text);
+            throw new Error('Invalid response');
+        }
         removeTyping();
         appendMessage(
             data.response || 'Sorry, I could not process that.',
@@ -96,6 +103,7 @@ async function sendMessage() {
         );
     } catch (err) {
         removeTyping();
-        appendMessage('Connection error. Please try again.', 'bot');
+        console.error('Chatbot error:', err);
+        appendMessage('Sorry, something went wrong. Please try again in a moment.', 'bot', ['Show me products', 'Contact support']);
     }
 }

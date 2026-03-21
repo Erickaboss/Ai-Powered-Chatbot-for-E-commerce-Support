@@ -321,3 +321,50 @@ function emailWrap(string $title, string $content): string {
     </body>
     </html>";
 }
+
+// ── Customer support message → admin email ────────────────────
+function emailSupportMessage(string $customerName, string $customerEmail, string $message): string {
+    return emailWrap("📩 New Support Message", "
+        <h2 style='color:#0f3460;margin-top:0'>📩 New Customer Support Request</h2>
+        <p>A customer has sent a support message via the chatbot:</p>
+        <table width='100%' cellpadding='0' cellspacing='0' style='margin:16px 0'>
+            <tr>
+                <td style='padding:8px 0;color:#888;width:120px'>From:</td>
+                <td style='padding:8px 0;font-weight:600'>" . htmlspecialchars($customerName) . "</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888'>Email:</td>
+                <td style='padding:8px 0'><a href='mailto:" . htmlspecialchars($customerEmail) . "' style='color:#0f3460'>" . htmlspecialchars($customerEmail) . "</a></td>
+            </tr>
+        </table>
+        <div style='background:#f8f9fa;border-left:4px solid #e94560;border-radius:6px;padding:16px 20px;margin:16px 0'>
+            <p style='margin:0;font-size:15px;color:#333;line-height:1.7'>" . nl2br(htmlspecialchars($message)) . "</p>
+        </div>
+        <p style='margin-top:20px'>
+            <a href='mailto:" . htmlspecialchars($customerEmail) . "' 
+               style='background:#0f3460;color:#fff;padding:10px 22px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block'>
+                Reply to Customer →
+            </a>
+        </p>
+        <p style='color:#888;font-size:13px'>Sent via chatbot on " . date('d M Y, H:i') . " (Kigali time)</p>
+    ");
+}
+
+// ── Auto-reply to customer after support message sent ─────────
+function emailSupportAutoReply(string $customerName): string {
+    return emailWrap("✅ We received your message", "
+        <h2 style='color:#0f3460;margin-top:0'>✅ Message Received!</h2>
+        <p>Hi <strong>" . htmlspecialchars($customerName) . "</strong>,</p>
+        <p>Thank you for reaching out. We've received your support message and our team will get back to you as soon as possible.</p>
+        <p><strong>Expected response time:</strong> within 24 hours (Mon–Sat, 8AM–6PM Kigali time)</p>
+        <p>If your issue is urgent, you can also reach us directly:</p>
+        <ul style='line-height:2'>
+            <li>📧 <a href='mailto:" . ADMIN_EMAIL . "' style='color:#0f3460'>" . ADMIN_EMAIL . "</a></li>
+            <li>📱 <a href='tel:" . ADMIN_PHONE . "' style='color:#0f3460'>" . ADMIN_PHONE . "</a></li>
+        </ul>
+        <a href='" . SITE_URL . "/login.php'
+           style='background:#e94560;color:#fff;padding:10px 22px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block;margin-top:8px'>
+            Login to Your Account →
+        </a>
+    ");
+}
