@@ -1,0 +1,875 @@
+﻿<?php
+/**
+ * AI Chatbot — Full intent engine + Gemini polish
+ * Works 100% from DB even when Gemini quota is exhausted
+ */
+session_start();
+header('Content-Type: application/json');
+require_once __DIR__ . '/../config/db.php';
+
+$input   = json_decode(file_get_contents('php://input'), true);
+$message = trim($input['message'] ?? '');
+$user_id = $_SESSION['user_id'] ?? null;
+
+if (empty($message)) {
+    echo json_encode(['response' => 'Please type a message.', 'quick_replies' => []]);
+    exit;
+}
+
+if ($user_id) {
+    $chk = $conn->query("SELECT id FROM users WHERE id=" . (int)$user_id . " LIMIT 1");
+    if (!$chk || $chk->num_rows === 0) { $user_id = null; $_SESSION['user_id'] = null; }
+}
+
+if (empty($_SESSION['chat_session_id'])) {
+    $_SESSION['chat_session_id'] = bin2hex(random_bytes(16));
+}
+$session_id = $_SESSION['chat_session_id'];
+
+if (!isset($_SESSION['chat_ctx'])) {
+    $_SESSION['chat_ctx'] = ['awaiting' => null, 'last_products' => [], 'order_cart' => [], 'order_step' => null, 'order_data' => []];
+}
+$ctx = &$_SESSION['chat_ctx'];
+
+$result   = processMessage($message, $user_id, $conn, $ctx, $session_id);
+$response = $result['response'];
+$qr       = $result['quick_replies'] ?? [];
+
+$sm  = $conn->real_escape_string($message);
+$sr  = $conn->real_escape_string($response);
+$ui  = $user_id ? (int)$user_id : 'NULL';
+$sid = $conn->real_escape_string($session_id);
+$conn->query("INSERT INTO chatbot_logs (user_id,session_id,is_guest,message,response) VALUES ($ui,'$sid'," . ($user_id ? 0 : 1) . ",'$sm','$sr')");
+
+echo json_encode(['response' => $response, 'quick_replies' => $qr]);
+exit;
+
+// ================================================================
+function reply(string $text, array $qr = []): array {
+    return ['response' => $text, 'quick_replies' => $qr];
+}
+
+// ================================================================
+// STOP WORDS + KEYWORD EXTRACTOR
+// ================================================================
+function extractKeywords(string $msg): array {
+    $stop = ['do','you','have','sell','looking','for','find','search','available','is','the','a','an','any',
+             'i','want','need','show','me','got','price','cost','how','much','stock','in','of','what','about',
+             'recommend','suggest','best','popular','check','please','can','get','are','there','some','give',
+             'tell','know','list','all','my','your','our','their','this','that','these','those','and','or',
+             'under','above','below','good','nice','cheap','expensive','which','with','without','buy','purchase',
+             'like','give','find','200k','100k','50k','300k','500k','150k','400k','600k','700k','800k','900k',
+             '1m','rwf','between','less','than','more','minimum','maximum','cheapest','most','least','affordable',
+             'budget','range','also','just','only','very','really','please','sir','madam','hello','hi','hey'];
+    $words = array_filter(
+        explode(' ', preg_replace('/[^a-z0-9\s]/i', '', strtolower(trim($msg)))),
+        fn($w) => strlen($w) >= 3 && !in_array($w, $stop)
+    );
+    return array_values($words);
+}
+
+// ================================================================
+// PRICE RANGE EXTRACTOR
+// ================================================================
+function extractPriceRange(string $ml): array {
+    $min = null; $max = null;
+    // between X and Y
+    if (preg_match('/between\s*(?:rwf\s*)?(\d+)\s*k?\s*(?:and|to|-)\s*(?:rwf\s*)?(\d+)\s*(k|m)?/i', $ml, $m)) {
+        $min = (int)$m[1] * (stripos($m[0],'k')!==false || (int)$m[1]<=999 ? 1000 : 1);
+        $max = (int)$m[2] * (!empty($m[3]) && strtolower($m[3])==='m' ? 1000000 : (stripos($m[0],'k')!==false || (int)$m[2]<=999 ? 1000 : 1));
+    }
+    // under / below / less than / max
+    if (!$max && preg_match('/(?:under|below|less than|cheaper than|maximum|max|at most)\s*(?:rwf\s*)?(\d+)\s*(k|m)?/i', $ml, $m)) {
+        $n = (int)$m[1]; $max = $n * (!empty($m[2]) && strtolower($m[2])==='m' ? 1000000 : (!empty($m[2]) || $n <= 999 ? 1000 : 1));
+    }
+    // above / over / more than / min
+    if (!$min && preg_match('/(?:above|over|more than|minimum|min|at least)\s*(?:rwf\s*)?(\d+)\s*(k|m)?/i', $ml, $m)) {
+        $n = (int)$m[1]; $min = $n * (!empty($m[2]) && strtolower($m[2])==='m' ? 1000000 : (!empty($m[2]) || $n <= 999 ? 1000 : 1));
+    }
+    return [$min, $max];
+}
+
+// ================================================================
+// CATEGORY DETECTOR
+// ================================================================
+function detectCategory(string $ml): ?int {
+    $map = [
+        1  => 'phone|mobile|smartphone|iphone|samsung|tecno|infinix|xiaomi|oppo|vivo|nokia|redmi|tablet|android',
+        2  => 'laptop|computer|pc|macbook|dell|hp|lenovo|acer|asus|notebook|chromebook',
+        3  => 'tv|television|speaker|headphone|audio|sound|earphone|subwoofer|home theater|soundbar',
+        4  => 'fridge|washing machine|microwave|appliance|cooker|kettle|blender|iron|vacuum|oven|dishwasher',
+        5  => 'men shirt|men trouser|men suit|men shoe|men fashion|men cloth|men wear|men jacket',
+        6  => 'women dress|handbag|heels|ladies|women fashion|women cloth|skirt|blouse|women shoe',
+        7  => 'food|grocery|rice|milk|coffee|tea|sugar|flour|cooking oil|cereal|juice|snack',
+        8  => 'beauty|skincare|lotion|shampoo|perfume|cream|makeup|deodorant|hair|cosmetic|moisturizer',
+        9  => 'sport|gym|fitness|football|running|yoga|exercise|dumbbell|treadmill|bicycle|jersey',
+        10 => 'baby|kids|child|toy|diaper|stroller|crib|nursery|infant|toddler|children',
+        11 => 'furniture|sofa|bed|table|chair|wardrobe|shelf|decor|lamp|mirror|ottoman|mattress|curtain',
+        12 => 'car|vehicle|tyre|auto|driving|motor|spare part|car accessory',
+        13 => 'book|pen|notebook|stationery|school|pencil|ruler|eraser|calculator',
+        14 => 'watch|jewelry|ring|necklace|bracelet|earring|gold|silver|pendant',
+        15 => 'game|gaming|playstation|xbox|console|controller|nintendo|ps4|ps5',
+    ];
+    foreach ($map as $id => $pattern) {
+        if (preg_match("/\b($pattern)\b/i", $ml)) return $id;
+    }
+    return null;
+}
+
+// ================================================================
+// SMART PRODUCT SEARCH — category + price + keywords
+// ================================================================
+function dbProductSearch(string $msg, $conn, ?int $forceCatId = null): array {
+    $ml = strtolower($msg);
+    [$minPrice, $maxPrice] = extractPriceRange($ml);
+    $catId    = $forceCatId ?? detectCategory($ml);
+    $keywords = extractKeywords($msg);
+
+    $conditions = ['p.stock > 0'];
+    if ($catId)    $conditions[] = "p.category_id = $catId";
+    if ($maxPrice) $conditions[] = "p.price <= $maxPrice";
+    if ($minPrice) $conditions[] = "p.price >= $minPrice";
+
+    $kwConds = [];
+    foreach (array_slice($keywords, 0, 4) as $w) {
+        $e = $conn->real_escape_string($w);
+        $kwConds[] = "(p.name LIKE '%$e%' OR p.brand LIKE '%$e%' OR p.description LIKE '%$e%')";
+    }
+    if ($kwConds) $conditions[] = '(' . implode(' OR ', $kwConds) . ')';
+
+    $where   = 'WHERE ' . implode(' AND ', $conditions);
+    $firstKw = $conn->real_escape_string($keywords[0] ?? '');
+    $order   = $firstKw ? "CASE WHEN p.name LIKE '%$firstKw%' THEN 0 ELSE 1 END, p.price ASC" : "p.price ASC";
+
+    $res = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
+        FROM products p LEFT JOIN categories c ON p.category_id=c.id $where ORDER BY $order LIMIT 8");
+
+    $rows = [];
+    if ($res) while ($r = $res->fetch_assoc()) $rows[] = $r;
+
+    // Relax: drop keyword conditions if no results but category/price matched
+    if (empty($rows) && $kwConds && ($catId || $maxPrice || $minPrice)) {
+        $conds2 = ['p.stock > 0'];
+        if ($catId)    $conds2[] = "p.category_id = $catId";
+        if ($maxPrice) $conds2[] = "p.price <= $maxPrice";
+        if ($minPrice) $conds2[] = "p.price >= $minPrice";
+        $res2 = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
+            FROM products p LEFT JOIN categories c ON p.category_id=c.id
+            WHERE " . implode(' AND ', $conds2) . " ORDER BY p.price ASC LIMIT 8");
+        if ($res2) while ($r = $res2->fetch_assoc()) $rows[] = $r;
+    }
+    return $rows;
+}
+
+function formatProducts(array $rows, string $label = ''): array {
+    if (empty($rows)) return ['text' => '', 'qr' => []];
+    $out = $label ? "🛍️ <strong>$label</strong><br>" : "🛍️ <strong>Here's what we have:</strong><br>";
+    $qr  = [];
+    foreach ($rows as $p) {
+        $out .= "• <a href='" . SITE_URL . "/product.php?id={$p['id']}'>" . htmlspecialchars($p['name']) . "</a>"
+              . ($p['brand'] ? " <em>({$p['brand']})</em>" : '')
+              . " — <strong>RWF " . number_format($p['price']) . "</strong>"
+              . " ({$p['stock']} in stock)<br>";
+        $qr[] = "🛒 Add: add_to_cart:{$p['id']}";
+    }
+    $out .= "<a href='" . SITE_URL . "/products.php'>Browse all products →</a>";
+    return ['text' => $out, 'qr' => array_slice($qr, 0, 4)];
+}
+
+// ================================================================
+// MAIN PROCESSOR — every intent handled natively from DB
+// ================================================================
+function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $session_id): array {
+    $ml = strtolower(trim($msg));
+
+    // ── Awaiting order number from previous turn ──
+    if ($ctx['awaiting'] === 'order_number' && preg_match('/\b(\d+)\b/', $msg, $m)) {
+        $ctx['awaiting'] = null;
+        return reply(trackOrder((int)$m[1], $uid, $conn), ['View all orders', 'Cancel an order']);
+    }
+
+    // ================================================================
+    // CHATBOT ORDER FLOW — multi-step cart + checkout via chat
+    // ================================================================
+
+    // Step: awaiting quantity for a product being added to chat-cart
+    if ($ctx['order_step'] === 'qty' && isset($ctx['order_pending_product'])) {
+        $qty = (int)preg_replace('/[^0-9]/', '', $msg);
+        if ($qty < 1) $qty = 1;
+        $p = $ctx['order_pending_product'];
+        if ($qty > $p['stock']) {
+            return reply("⚠️ Only <strong>{$p['stock']}</strong> units available. How many would you like (max {$p['stock']})?");
+        }
+        // Add to chat-cart
+        $found = false;
+        foreach ($ctx['order_cart'] as &$item) {
+            if ($item['id'] == $p['id']) { $item['qty'] += $qty; $found = true; break; }
+        }
+        unset($item);
+        if (!$found) $ctx['order_cart'][] = ['id'=>$p['id'],'name'=>$p['name'],'price'=>$p['price'],'qty'=>$qty,'stock'=>$p['stock']];
+        $ctx['order_step'] = null;
+        unset($ctx['order_pending_product']);
+        $cartSummary = chatCartSummary($ctx['order_cart']);
+        return reply(
+            "✅ Added <strong>{$qty}x {$p['name']}</strong> to your cart.<br><br>$cartSummary",
+            ['Add more products', 'Proceed to checkout', 'Clear cart']
+        );
+    }
+
+    // Step: awaiting delivery address
+    if ($ctx['order_step'] === 'address') {
+        $address = trim($msg);
+        if (strlen($address) < 5) {
+            return reply("Please enter a valid delivery address (e.g. KG 15 Ave, Kigali).");
+        }
+        $ctx['order_data']['address'] = $address;
+        $ctx['order_step'] = 'payment';
+        return reply(
+            "📍 Delivery to: <strong>" . htmlspecialchars($address) . "</strong><br><br>" .
+            "💳 <strong>Choose your payment method:</strong><br>" .
+            "1️⃣ Cash on Delivery (COD)<br>" .
+            "2️⃣ MTN Mobile Money (MoMo)<br>" .
+            "3️⃣ Airtel Money<br>" .
+            "4️⃣ Visa / Mastercard<br>" .
+            "5️⃣ Bank Transfer<br><br>" .
+            "Type the number or name of your preferred payment method.",
+            ['1', '2', '3', '4', '5']
+        );
+    }
+
+    // Step: awaiting payment method
+    if ($ctx['order_step'] === 'payment') {
+        $payMap = [
+            '1'=>'cod','cod'=>'cod','cash'=>'cod','cash on delivery'=>'cod',
+            '2'=>'momo','momo'=>'momo','mtn'=>'momo','mtn momo'=>'momo','mobile money'=>'momo',
+            '3'=>'airtel','airtel'=>'airtel','airtel money'=>'airtel',
+            '4'=>'card','visa'=>'card','mastercard'=>'card','card'=>'card',
+            '5'=>'bank','bank'=>'bank','bank transfer'=>'bank',
+        ];
+        $key = strtolower(trim($msg));
+        $payment = $payMap[$key] ?? null;
+        if (!$payment) {
+            return reply("Please choose a valid payment method — type 1, 2, 3, 4, or 5.",
+                ['1', '2', '3', '4', '5']);
+        }
+        $ctx['order_data']['payment'] = $payment;
+        $ctx['order_step'] = 'confirm';
+        // Build confirmation summary
+        $cartSummary = chatCartSummary($ctx['order_cart']);
+        $total = array_sum(array_map(fn($i) => $i['price'] * $i['qty'], $ctx['order_cart']));
+        $payLabels = ['cod'=>'Cash on Delivery','momo'=>'MTN Mobile Money','airtel'=>'Airtel Money','card'=>'Visa/Mastercard','bank'=>'Bank Transfer'];
+        return reply(
+            "📋 <strong>Order Summary — Please Confirm:</strong><br><br>" .
+            $cartSummary . "<br>" .
+            "📍 <strong>Delivery:</strong> " . htmlspecialchars($ctx['order_data']['address']) . "<br>" .
+            "💳 <strong>Payment:</strong> " . ($payLabels[$payment] ?? $payment) . "<br>" .
+            "💰 <strong>Total: RWF " . number_format($total) . "</strong><br><br>" .
+            "Type <strong>confirm</strong> to place your order, or <strong>cancel</strong> to start over.",
+            ['confirm', 'cancel']
+        );
+    }
+
+    // Step: awaiting final confirmation
+    if ($ctx['order_step'] === 'confirm') {
+        if (preg_match('/\bcancel\b/i', $ml)) {
+            $ctx['order_cart'] = [];
+            $ctx['order_step'] = null;
+            $ctx['order_data'] = [];
+            return reply("❌ Order cancelled. Your cart has been cleared. How else can I help you?",
+                ['Show me products', 'Track my order']);
+        }
+        if (preg_match('/\bconfirm\b/i', $ml)) {
+            if (!$uid) {
+                return reply("🔒 You need to be logged in to place an order. <a href='" . SITE_URL . "/login.php'>Login here →</a>",
+                    ['Login', 'Register']);
+            }
+            return reply(placeChatOrder($uid, $ctx, $conn));
+        }
+        return reply("Type <strong>confirm</strong> to place your order or <strong>cancel</strong> to start over.",
+            ['confirm', 'cancel']);
+    }
+
+    // Trigger: "add to cart" with product ID from quick reply
+    if (preg_match('/^add_to_cart:(\d+)$/i', $msg, $m)) {
+        if (!$uid) return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> to add items to your cart.");
+        $pid = (int)$m[1];
+        $p = $conn->query("SELECT id,name,price,stock FROM products WHERE id=$pid AND stock>0")->fetch_assoc();
+        if (!$p) return reply("❌ Product not found or out of stock.");
+        $ctx['order_pending_product'] = $p;
+        $ctx['order_step'] = 'qty';
+        return reply("How many <strong>" . htmlspecialchars($p['name']) . "</strong> would you like? (Available: {$p['stock']})", ['1','2','3']);
+    }
+
+    // Trigger: view/manage chat-cart
+    if (preg_match('/\b(my cart|view cart|show cart|what.*in.*cart|cart items)\b/i', $ml)) {
+        if (empty($ctx['order_cart'])) {
+            return reply("🛒 Your cart is empty. Tell me what you're looking for!", ['Show me products']);
+        }
+        $cartSummary = chatCartSummary($ctx['order_cart']);
+        return reply("🛒 <strong>Your Cart:</strong><br><br>$cartSummary", ['Proceed to checkout', 'Clear cart', 'Add more products']);
+    }
+
+    // Trigger: clear chat-cart
+    if (preg_match('/\bclear cart\b/i', $ml)) {
+        $ctx['order_cart'] = [];
+        $ctx['order_step'] = null;
+        $ctx['order_data'] = [];
+        return reply("🗑️ Cart cleared. What would you like to shop for?", ['Show me products']);
+    }
+
+    // Trigger: proceed to checkout from chat
+    if (preg_match('/\b(proceed to checkout|checkout|place order|buy now|order now|i want to buy|i want to order)\b/i', $ml)) {
+        if (!$uid) return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> first to place an order.", ['Login', 'Register']);
+        if (empty($ctx['order_cart'])) {
+            return reply("🛒 Your cart is empty. Tell me what product you'd like to buy!", ['Show me products']);
+        }
+        $ctx['order_step'] = 'address';
+        $cartSummary = chatCartSummary($ctx['order_cart']);
+        return reply(
+            "🛒 <strong>Your Cart:</strong><br>$cartSummary<br>" .
+            "📍 <strong>Where should we deliver?</strong><br>" .
+            "Please type your full delivery address (e.g. KG 15 Ave, Kigali, Gasabo District)."
+        );
+    }
+
+    // ── 1. GREETING ──
+    if (preg_match('/\b(hi|hello|hey|good morning|good afternoon|good evening|bonjour|salut|muraho|mwaramutse|mwiriwe|howdy|hie|sup|yo)\b/i', $ml)) {
+        $name = $uid ? getFirstName($uid, $conn) : 'there';
+        return reply(
+            "👋 Hello, <strong>$name</strong>! Welcome to <strong>" . SITE_NAME . "</strong>.<br>" .
+            "I can help you with:<br>" .
+            "• 🛍️ Find products & check prices<br>" .
+            "• 📦 Track or cancel orders<br>" .
+            "• 🚚 Delivery info & shipping fees<br>" .
+            "• 💳 Payment methods<br>" .
+            "• ↩️ Returns & refunds<br>" .
+            "What do you need today?",
+            ['Show me products', 'Track my order', 'Delivery info', 'Payment methods']
+        );
+    }
+
+    // ── 2. GOODBYE / THANKS ──
+    if (preg_match('/\b(bye|goodbye|see you|take care|later|thank you|thanks|merci|murakoze|au revoir|ciao)\b/i', $ml)) {
+        return reply("😊 Thank you for visiting <strong>" . SITE_NAME . "</strong>! Have a great day. I'm here 24/7 whenever you need help! 🌟",
+            ['Browse products', 'Contact support']);
+    }
+
+    // ── 3. SMALL TALK ──
+    if (preg_match('/how are you|how r u|how do you do/i', $ml)) {
+        return reply("😊 I'm doing great, thanks for asking! Always ready to help you shop. What can I find for you today?",
+            ['Show me products', 'Track my order']);
+    }
+    if (preg_match('/who are you|what are you|your name|are you (a bot|human|real|ai)/i', $ml)) {
+        return reply("🤖 I'm the AI shopping assistant for <strong>" . SITE_NAME . "</strong>!<br>I can find products, check prices, track orders, and answer any question about our store — in English, French, or Kinyarwanda.",
+            ['Show me products', 'What can you do?']);
+    }
+    if (preg_match('/what can you do|how can you help|help me/i', $ml)) {
+        return reply("Here's what I can do for you:<br>" .
+            "• 🛍️ <em>Show me phones under 200k</em><br>" .
+            "• 💰 <em>Price of Samsung Galaxy A54</em><br>" .
+            "• 📦 <em>Track order 5</em><br>" .
+            "• ❌ <em>Cancel order 3</em><br>" .
+            "• 🚚 <em>Delivery time to Kigali</em><br>" .
+            "• 💳 <em>Payment methods</em><br>" .
+            "• ↩️ <em>Return policy</em><br>" .
+            "• 🛡️ <em>Warranty info</em><br>" .
+            "Just type naturally — I understand English, French & Kinyarwanda!",
+            ['Show me products', 'Track my order', 'Delivery info']);
+    }
+
+    // ── 4. ORDER TRACKING ──
+    if (preg_match('/\b(track|tracking|order status|where is my order|check order|order #|order no|my order)\b/i', $ml)
+        || $ctx['awaiting'] === 'order_number') {
+        if (!$uid) return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> first to track your orders.",
+            ['Login', 'Register']);
+        if (preg_match('/\b(\d+)\b/', $msg, $m)) {
+            return reply(trackOrder((int)$m[1], $uid, $conn), ['View all orders', 'Cancel an order']);
+        }
+        $latest = $conn->query("SELECT id,status FROM orders WHERE user_id=$uid ORDER BY created_at DESC LIMIT 1")->fetch_assoc();
+        if ($latest) {
+            return reply("Your latest order is <strong>#" . $latest['id'] . "</strong> — Status: <strong>" . ucfirst($latest['status']) . "</strong>.<br>Type the order number for full details.",
+                ['Track order ' . $latest['id'], 'View all orders']);
+        }
+        $ctx['awaiting'] = 'order_number';
+        return reply("Please provide your order number. Example: <em>track order 5</em><br>Find it on the <a href='" . SITE_URL . "/orders.php'>My Orders</a> page.");
+    }
+
+    // ── 5. ORDER CANCEL ──
+    if (preg_match('/\b(cancel order|cancel my order|i want to cancel|stop my order)\b/i', $ml)) {
+        if (!$uid) return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> to manage your orders.");
+        if (preg_match('/\b(\d+)\b/', $msg, $m)) return reply(cancelOrder((int)$m[1], $uid, $conn));
+        return reply("To cancel an order, type: <em>cancel order [number]</em><br>Find your order number on the <a href='" . SITE_URL . "/orders.php'>My Orders</a> page.", ['View my orders']);
+    }
+
+    // ── 6. ORDER HISTORY ──
+    if (preg_match('/\b(my orders|order history|past orders|previous orders|all my orders|show orders|all orders)\b/i', $ml)) {
+        if (!$uid) return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> to view your orders.");
+        return reply(orderHistory($uid, $conn), ['Track an order', 'Cancel an order']);
+    }
+
+    // ── 7. DELIVERY TIME ──
+    if (preg_match('/\b(delivery time|how long|when will|shipping time|estimated delivery|dispatch|how many days|livraison|delivery day)\b/i', $ml)) {
+        return reply(
+            "🚚 <strong>Delivery Times (Rwanda):</strong><br>" .
+            "• <strong>Kigali:</strong> 1–2 business days<br>" .
+            "• <strong>Other provinces:</strong> 2–4 business days<br>" .
+            "• <strong>Remote areas:</strong> up to 5–7 days<br>" .
+            "You'll receive an SMS/email update once your order is shipped! 📱",
+            ['Shipping fees', 'Track my order', 'Payment methods']
+        );
+    }
+
+    // ── 8. DELIVERY COST / SHIPPING FEE ──
+    if (preg_match('/\b(shipping fee|delivery fee|shipping cost|free delivery|free shipping|how much.*delivery|frais.*livraison)\b/i', $ml)) {
+        return reply(
+            "📦 <strong>Shipping Fees:</strong><br>" .
+            "• Orders above <strong>RWF 50,000</strong> → <strong>FREE shipping</strong> 🎉<br>" .
+            "• Orders below RWF 50,000 → <strong>RWF 2,000</strong> flat rate<br>" .
+            "• Express delivery (Kigali only) → <strong>RWF 3,500</strong>",
+            ['Delivery time', 'Payment methods', 'Show me products']
+        );
+    }
+
+    // ── 9. PAYMENT METHODS ──
+    if (preg_match('/\b(payment|how to pay|pay with|accept payment|momo|mobile money|cash on delivery|cod|bank transfer|card|visa|mastercard|airtel)\b/i', $ml)) {
+        return reply(
+            "💳 <strong>Payment Methods We Accept:</strong><br>" .
+            "• 💵 Cash on Delivery (COD)<br>" .
+            "• 📱 MTN Mobile Money (MoMo)<br>" .
+            "• 📱 Airtel Money<br>" .
+            "• 🏦 Bank Transfer (BK, Equity, I&M)<br>" .
+            "• 💳 Visa / Mastercard<br>" .
+            "All online payments are <strong>SSL secured</strong> 🔒",
+            ['Delivery info', 'Return policy', 'Show me products']
+        );
+    }
+
+    // ── 10. RETURN / REFUND POLICY ──
+    if (preg_match('/\b(return policy|refund|how to return|can i return|exchange|send back|return item|politique.*retour)\b/i', $ml)) {
+        return reply(
+            "↩️ <strong>Return & Refund Policy:</strong><br>" .
+            "• Items returnable within <strong>7 days</strong> of delivery<br>" .
+            "• Item must be unused and in original packaging<br>" .
+            "• Damaged or wrong items: full refund or free replacement<br>" .
+            "• Refunds processed within <strong>3–5 business days</strong><br>" .
+            "📧 Start a return: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a>",
+            ['Delivery info', 'Contact support', 'Warranty info']
+        );
+    }
+
+    // ── 11. WARRANTY ──
+    if (preg_match('/\b(warranty|guarantee|broken after|stopped working|repair|garantie)\b/i', $ml)) {
+        return reply(
+            "🛡️ <strong>Warranty Information:</strong><br>" .
+            "• 📱 Electronics & Phones: <strong>1 year</strong><br>" .
+            "• 🏠 Home Appliances: <strong>1–2 years</strong><br>" .
+            "• 👗 Clothing & Accessories: <strong>7 days</strong> defect warranty<br>" .
+            "• ⌚ Watches: <strong>6 months</strong><br>" .
+            "📧 Claims: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a> with order number + photos.",
+            ['Return policy', 'Contact support']
+        );
+    }
+
+    // ── 12. CONTACT / SUPPORT ──
+    if (preg_match('/\b(contact|support|help desk|talk to agent|human agent|call|email support|phone number|customer service|whatsapp)\b/i', $ml)) {
+        return reply(
+            "📞 <strong>Contact & Support:</strong><br>" .
+            "• 📧 Email: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a><br>" .
+            "• 📱 Phone/WhatsApp: <a href='tel:" . ADMIN_PHONE . "'>" . ADMIN_PHONE . "</a><br>" .
+            "• 💬 This chatbot is available <strong>24/7</strong><br>" .
+            "• 🕐 Office Hours: Mon–Sat, 8AM–6PM (Kigali time)",
+            ['Return policy', 'Delivery info', 'Track my order']
+        );
+    }
+
+    // ── 13. DISCOUNT / PROMO ──
+    if (preg_match('/\b(discount|promo|sale|voucher|coupon|deal|offer|cheaper|promotion|remise)\b/i', $ml)) {
+        return reply(
+            "🏷️ <strong>Current Deals & Promotions:</strong><br>" .
+            "• 🎉 Free shipping on orders above <strong>RWF 50,000</strong><br>" .
+            "• New arrivals added weekly across all categories<br>" .
+            "• 💡 Tip: Add more items to qualify for free shipping!<br>" .
+            "Check our <a href='" . SITE_URL . "/products.php'>Products page</a> for latest prices.",
+            ['Show me products', 'Delivery info']
+        );
+    }
+
+    // ── 14. ACCOUNT HELP ──
+    if (preg_match('/\b(my account|forgot password|reset password|change password|register|sign up|create account|login help|sign in)\b/i', $ml)) {
+        if (preg_match('/forgot|reset|change password/i', $ml))
+            return reply("🔑 To reset your password, visit your <a href='" . SITE_URL . "/profile.php'>Profile page</a> or email <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a>.", ['Login', 'Contact support']);
+        if (preg_match('/register|sign up|create/i', $ml))
+            return reply("📝 <a href='" . SITE_URL . "/register.php'><strong>Click here to create an account →</strong></a><br>You'll need your name, email, and a password.", ['Login']);
+        if (preg_match('/login|sign in/i', $ml))
+            return reply("🔐 <a href='" . SITE_URL . "/login.php'><strong>Click here to login →</strong></a>", ['Register', 'Forgot password']);
+        return reply("👤 <strong>Account Help:</strong><br>• <a href='" . SITE_URL . "/login.php'>Login</a> | <a href='" . SITE_URL . "/register.php'>Register</a><br>• <a href='" . SITE_URL . "/profile.php'>Edit Profile</a><br>• Password issues: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a>", ['Login', 'Register']);
+    }
+
+    // ── 15. COMPLAINT ──
+    if (preg_match('/\b(wrong item|damaged|broken|missing item|not received|bad quality|complaint|defective|fake|never arrived|plainte)\b/i', $ml)) {
+        $r = "😔 I'm really sorry to hear that! We take all issues seriously.<br><br>";
+        if (preg_match('/wrong/i', $ml))
+            $r .= "📦 <strong>Wrong Item:</strong> Email <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a> with your order number + photo. We'll send the correct item within 2–3 days.";
+        elseif (preg_match('/damaged|broken|defective/i', $ml))
+            $r .= "🔧 <strong>Damaged Item:</strong> Document with photos and contact us within 7 days for a full replacement or refund.";
+        elseif (preg_match('/not received|missing|never arrived/i', $ml))
+            $r .= "📭 <strong>Not Received:</strong> Type <em>track order [number]</em> to check status. If it shows delivered but you didn't receive it, contact us immediately.";
+        else
+            $r .= "Please contact us:<br>📧 <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a> | 📱 " . ADMIN_PHONE . "<br>Include your order number for faster help.";
+        return reply($r, ['Return policy', 'Contact support', 'Track my order']);
+    }
+
+    // ── 16. PRODUCT PRICE QUERY ──
+    if (preg_match('/\b(price of|how much is|cost of|how much does|what is the price|price for|how much.*cost|combien)\b/i', $ml)) {
+        $rows = dbProductSearch($msg, $conn);
+        if (!empty($rows)) {
+            $out = "💰 <strong>Prices:</strong><br>";
+            foreach ($rows as $p) {
+                $out .= "• <a href='" . SITE_URL . "/product.php?id={$p['id']}'>" . htmlspecialchars($p['name']) . "</a>"
+                      . " — <strong>RWF " . number_format($p['price']) . "</strong><br>";
+            }
+            return reply($out, ['Add to cart', 'Show me more', 'Check stock']);
+        }
+        $range = $conn->query("SELECT MIN(price) as mn, MAX(price) as mx FROM products")->fetch_assoc();
+        return reply("💰 Our prices range from <strong>RWF " . number_format($range['mn']) . "</strong> to <strong>RWF " . number_format($range['mx']) . "</strong>.<br>Tell me the product name for an exact price!", ['Show me products']);
+    }
+
+    // ── 17. STOCK CHECK ──
+    if (preg_match('/\b(in stock|out of stock|is available|do you have in stock|how many left|stock of|available stock|is there)\b/i', $ml)) {
+        $rows = dbProductSearch($msg, $conn);
+        if (!empty($rows)) {
+            $p = $rows[0];
+            return reply(
+                $p['stock'] > 0
+                    ? "✅ <strong>" . htmlspecialchars($p['name']) . "</strong> is in stock — <strong>" . $p['stock'] . " units</strong> available.<br><a href='" . SITE_URL . "/product.php?id={$p['id']}'>View product →</a>"
+                    : "❌ <strong>" . htmlspecialchars($p['name']) . "</strong> is currently out of stock. Would you like a similar product?",
+                ['Show similar products', 'Browse all products']
+            );
+        }
+        return reply("Which product would you like to check? Type the product name, e.g. <em>is Samsung A54 in stock?</em>");
+    }
+
+    // ── 18. RECOMMENDATION ──
+    if (preg_match('/\b(recommend|suggest|best|popular|top rated|what should i buy|which is better|advise|good phone|good laptop|best phone|best laptop|best tv)\b/i', $ml)) {
+        $catId = detectCategory($ml);
+        $where = $catId ? "WHERE p.stock>0 AND p.category_id=$catId" : "WHERE p.stock>0";
+        $res   = $conn->query("SELECT p.id,p.name,p.brand,p.price,c.name as cat FROM products p LEFT JOIN categories c ON p.category_id=c.id $where ORDER BY RAND() LIMIT 5");
+        $rows  = [];
+        if ($res) while ($r = $res->fetch_assoc()) $rows[] = $r;
+        if (!empty($rows)) {
+            $out = "⭐ <strong>Recommended for you:</strong><br>";
+            foreach ($rows as $p) {
+                $out .= "• <a href='" . SITE_URL . "/product.php?id={$p['id']}'>" . htmlspecialchars($p['name']) . "</a>"
+                      . ($p['brand'] ? " <em>({$p['brand']})</em>" : '')
+                      . " — RWF " . number_format($p['price']) . "<br>";
+            }
+            $out .= "<a href='" . SITE_URL . "/products.php'>Browse all products →</a>";
+            $qr = array_map(fn($p) => "🛒 Add: add_to_cart:{$p['id']}", array_slice($rows, 0, 3));
+            return reply($out, array_merge($qr, ['Delivery info']));
+        }
+    }
+
+    // ── 19. PRODUCT SEARCH (show me / i want / do you have / looking for / find me) ──
+    if (preg_match('/\b(show me|do you have|do you sell|looking for|find me|search for|i need|i want|i am looking|got any|list|display|give me)\b/i', $ml)
+        || detectCategory($ml)
+        || extractPriceRange($ml) !== [null, null]) {
+
+        $rows = dbProductSearch($msg, $conn);
+        if (!empty($rows)) {
+            $ctx['last_products'] = $rows;
+            [$minP, $maxP] = extractPriceRange($ml);
+            $label = '';
+            if ($minP && $maxP) $label = "Products RWF " . number_format($minP) . " – RWF " . number_format($maxP);
+            elseif ($maxP)      $label = "Products under RWF " . number_format($maxP);
+            elseif ($minP)      $label = "Products above RWF " . number_format($minP);
+            $fp = formatProducts($rows, $label);
+            return reply($fp['text'], array_merge($fp['qr'], ['Show me more', 'Recommend something']));
+        }
+        $kws = extractKeywords($msg);
+        $kw  = implode(' ', array_slice($kws, 0, 2));
+        return reply(
+            "😕 No products found" . ($kw ? " for \"<strong>$kw</strong>\"" : "") . ".<br>" .
+            "Try browsing: <a href='" . SITE_URL . "/products.php'>All products →</a>",
+            ['Show me phones', 'Show me laptops', 'Show me fashion']
+        );
+    }
+
+    // ── 20. ML MODEL — Python Flask classifier (if running) ──
+    $ml = askMLModel($msg);
+    if ($ml) {
+        // ML detected an intent with high confidence — log it and let Gemini polish
+        $intent     = $ml['intent'];
+        $confidence = round($ml['confidence'] * 100, 1);
+        $model_used = $ml['model_used'];
+        // Try Gemini with ML intent context for a polished response
+        $gemini = askGemini("[$intent intent detected by $model_used with {$confidence}% confidence] " . $msg, $uid, $conn, $session_id);
+        if ($gemini) return reply($gemini . "<br><small style='color:#aaa;font-size:.7rem'>🤖 ML: $model_used ({$confidence}%)</small>",
+            ['Show me products', 'Track my order', 'Delivery info', 'Contact support']);
+    }
+
+    // ── 21. GEMINI — for anything else (multilingual, complex questions) ──
+    $gemini = askGemini($msg, $uid, $conn, $session_id);
+    if ($gemini) return reply($gemini, ['Show me products', 'Track my order', 'Delivery info', 'Contact support']);
+
+    // ── 22. FINAL FALLBACK ──
+    return reply(
+        "😊 I'm not sure I understood that. Here's what I can help with:<br>" .
+        "• 🛍️ <em>Show me phones / laptops / fashion</em><br>" .
+        "• 💰 <em>Price of Samsung Galaxy</em><br>" .
+        "• 📦 <em>Track order 5</em><br>" .
+        "• 🚚 <em>Delivery time / Shipping fees</em><br>" .
+        "• ↩️ <em>Return policy</em><br>" .
+        "• 💳 <em>Payment methods</em>",
+        ['Show me products', 'Track my order', 'Delivery info', 'Return policy']
+    );
+}
+
+// ================================================================
+// DB HELPERS
+// ================================================================
+function chatCartSummary(array $cart): string {
+    if (empty($cart)) return "🛒 Cart is empty.";
+    $out   = '';
+    $total = 0;
+    foreach ($cart as $item) {
+        $sub    = $item['price'] * $item['qty'];
+        $total += $sub;
+        $out   .= "• {$item['qty']}x <strong>" . htmlspecialchars($item['name']) . "</strong> — RWF " . number_format($sub) . "<br>";
+    }
+    $out .= "<strong>Total: RWF " . number_format($total) . "</strong>";
+    return $out;
+}
+
+function placeChatOrder(int $uid, array &$ctx, $conn): array {
+    $cart    = $ctx['order_cart'];
+    $address = $conn->real_escape_string($ctx['order_data']['address']);
+    $payment = $conn->real_escape_string($ctx['order_data']['payment']);
+    $total   = array_sum(array_map(fn($i) => $i['price'] * $i['qty'], $cart));
+
+    // Validate stock one more time
+    foreach ($cart as $item) {
+        $stock = $conn->query("SELECT stock FROM products WHERE id={$item['id']}")->fetch_assoc()['stock'] ?? 0;
+        if ($stock < $item['qty']) {
+            return reply("⚠️ Sorry, <strong>" . htmlspecialchars($item['name']) . "</strong> only has $stock units left. Please update your cart.",
+                ['View cart', 'Clear cart']);
+        }
+    }
+
+    // Insert order
+    $conn->query("INSERT INTO orders (user_id, total_price, address, payment_method, status) VALUES ($uid, $total, '$address', '$payment', 'pending')");
+    $order_id = (int)$conn->insert_id;
+
+    if (!$order_id) {
+        return reply("❌ Could not place order. Please try again or use the <a href='" . SITE_URL . "/checkout.php'>checkout page</a>.");
+    }
+
+    // Insert items & update stock
+    foreach ($cart as $item) {
+        $price = (float)$item['price'];
+        $conn->query("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($order_id, {$item['id']}, {$item['qty']}, $price)");
+        $conn->query("UPDATE products SET stock=stock-{$item['qty']} WHERE id={$item['id']}");
+    }
+
+    // Send confirmation email
+    require_once __DIR__ . '/../includes/mailer.php';
+    $user = $conn->query("SELECT name, email FROM users WHERE id=$uid")->fetch_assoc();
+    $emailItems = array_map(fn($i) => ['name'=>$i['name'],'price'=>$i['price'],'quantity'=>$i['qty']], $cart);
+    $orderData  = ['id'=>$order_id,'customer_name'=>$user['name'],'address'=>$ctx['order_data']['address'],
+                   'payment_method'=>$payment,'status'=>'pending','created_at'=>date('Y-m-d H:i:s')];
+    sendMail($user['email'], $user['name'],
+        'Order Confirmed — #' . str_pad($order_id, 6, '0', STR_PAD_LEFT) . ' | ' . SITE_NAME,
+        emailOrderConfirmation($orderData, $emailItems)
+    );
+
+    // Clear chat cart
+    $savedAddress = $ctx['order_data']['address'] ?? $address;
+    $ctx['order_cart'] = [];
+    $ctx['order_step'] = null;
+    $ctx['order_data'] = [];
+
+    $payLabels = ['cod'=>'Cash on Delivery','momo'=>'MTN Mobile Money','airtel'=>'Airtel Money','card'=>'Visa/Mastercard','bank'=>'Bank Transfer'];
+    return reply(
+        "🎉 <strong>Order Placed Successfully!</strong><br><br>" .
+        "📦 <strong>Order #" . str_pad($order_id, 6, '0', STR_PAD_LEFT) . "</strong><br>" .
+        "💰 Total: <strong>RWF " . number_format($total) . "</strong><br>" .
+        "📍 Delivery to: " . htmlspecialchars($savedAddress) . "<br>" .
+        "💳 Payment: " . ($payLabels[$payment] ?? $payment) . "<br>" .
+        "📧 A confirmation email has been sent to <strong>" . htmlspecialchars($user['email']) . "</strong><br><br>" .
+        "🚚 Expected delivery: <strong>1–4 business days</strong><br>" .
+        "<a href='" . SITE_URL . "/order_detail.php?id=$order_id'>View Order Details →</a>",
+        ['Track my order', 'Continue shopping', 'Contact support']
+    );
+}
+
+function trackOrder(int $oid, ?int $uid, $conn): string {
+    if (!$uid) return "🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> to track orders.";
+    $o = $conn->query("SELECT o.*, GROUP_CONCAT(p.name SEPARATOR ', ') as items
+        FROM orders o LEFT JOIN order_items oi ON o.id=oi.order_id
+        LEFT JOIN products p ON oi.product_id=p.id
+        WHERE o.id=$oid AND o.user_id=$uid GROUP BY o.id")->fetch_assoc();
+    if (!$o) return "❌ Order #$oid not found under your account. Please check the order number.";
+    $emoji = ['pending'=>'⏳','processing'=>'⚙️','shipped'=>'🚚','delivered'=>'✅','cancelled'=>'❌'][$o['status']] ?? '📦';
+    return "$emoji <strong>Order #" . $o['id'] . "</strong><br>"
+         . "Status: <strong>" . ucfirst($o['status']) . "</strong><br>"
+         . "Items: " . htmlspecialchars($o['items'] ?? 'N/A') . "<br>"
+         . "Total: <strong>RWF " . number_format($o['total_price']) . "</strong><br>"
+         . "Placed: " . date('d M Y, H:i', strtotime($o['created_at'])) . "<br>"
+         . "<a href='" . SITE_URL . "/order_detail.php?id=" . $o['id'] . "'>View full details →</a>";
+}
+
+function cancelOrder(int $oid, int $uid, $conn): string {
+    $o = $conn->query("SELECT id,status FROM orders WHERE id=$oid AND user_id=$uid")->fetch_assoc();
+    if (!$o) return "❌ Order #$oid not found under your account.";
+    if (in_array($o['status'], ['shipped','delivered']))
+        return "⚠️ Order #$oid cannot be cancelled — it has already been <strong>" . $o['status'] . "</strong>.<br>Contact <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a> | " . ADMIN_PHONE . " for a return/refund.";
+    if ($o['status'] === 'cancelled') return "Order #$oid is already cancelled.";
+    $conn->query("UPDATE orders SET status='cancelled' WHERE id=$oid AND user_id=$uid");
+    return "✅ Order #$oid has been <strong>cancelled</strong> successfully.<br>Refunds processed within 3–5 business days.";
+}
+
+function orderHistory(int $uid, $conn): string {
+    $orders = $conn->query("SELECT id,status,total_price,created_at FROM orders WHERE user_id=$uid ORDER BY created_at DESC LIMIT 5");
+    if ($orders->num_rows === 0) return "You haven't placed any orders yet. <a href='" . SITE_URL . "/products.php'>Start shopping →</a>";
+    $list = "📋 <strong>Your Recent Orders:</strong><br>";
+    while ($o = $orders->fetch_assoc()) {
+        $list .= "• <a href='" . SITE_URL . "/order_detail.php?id=" . $o['id'] . "'>#" . $o['id'] . "</a> — "
+               . ucfirst($o['status']) . " — RWF " . number_format($o['total_price'])
+               . " (" . date('d M Y', strtotime($o['created_at'])) . ")<br>";
+    }
+    $list .= "<a href='" . SITE_URL . "/orders.php'>View all orders →</a>";
+    return $list;
+}
+
+function getFirstName(int $uid, $conn): string {
+    $r = $conn->query("SELECT name FROM users WHERE id=$uid LIMIT 1")->fetch_assoc();
+    return $r ? explode(' ', $r['name'])[0] : 'there';
+}
+
+// ================================================================
+// ML API — Python Flask intent classifier
+// Called before Gemini for fast local intent detection
+// ================================================================
+function askMLModel(string $message): ?array {
+    $url = 'http://localhost:5000/predict';
+    $ch  = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => json_encode(['message' => $message, 'model' => 'best']),
+        CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+        CURLOPT_TIMEOUT        => 3,   // fast timeout — fallback to PHP engine if slow
+        CURLOPT_CONNECTTIMEOUT => 2,
+    ]);
+    $resp = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($code !== 200 || !$resp) return null;
+    $data = json_decode($resp, true);
+    if (!isset($data['intent'], $data['confidence'])) return null;
+
+    // Only trust ML model if confidence is high enough
+    if ($data['confidence'] < 0.55) return null;
+
+    return [
+        'intent'     => $data['intent'],
+        'confidence' => $data['confidence'],
+        'model_used' => $data['model_used'] ?? 'ML Model',
+    ];
+}
+
+// ================================================================
+// GEMINI — multilingual polish + anything not caught above
+// ================================================================
+function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?string {
+    $apiKey = GEMINI_API_KEY ?? '';
+    if (empty($apiKey) || $apiKey === 'your-gemini-api-key-here') return null;
+
+    // Category catalog
+    $catRows    = $conn->query("SELECT c.name AS cat, COUNT(p.id) AS total, MIN(p.price) AS mn, MAX(p.price) AS mx FROM categories c LEFT JOIN products p ON p.category_id=c.id AND p.stock>0 GROUP BY c.id ORDER BY c.id");
+    $catalogCtx = "STORE CATALOG:\n";
+    while ($row = $catRows->fetch_assoc())
+        $catalogCtx .= "- {$row['cat']}: {$row['total']} products, RWF " . number_format($row['mn']) . " – RWF " . number_format($row['mx']) . "\n";
+
+    // Smart product fetch
+    $rows       = dbProductSearch($userMessage, $conn);
+    $productCtx = '';
+    if (!empty($rows)) {
+        $productCtx = "\nMATCHING PRODUCTS FROM DATABASE:\n";
+        foreach ($rows as $p) {
+            $productCtx .= "- [ID:{$p['id']}] {$p['name']}"
+                . ($p['brand'] ? " ({$p['brand']})" : '')
+                . " — RWF " . number_format($p['price'])
+                . " | Stock: {$p['stock']}"
+                . (!empty($p['description']) ? " | " . mb_substr(strip_tags($p['description']), 0, 80) : '') . "\n";
+        }
+    }
+
+    // User context
+    $userCtx = '';
+    if ($uid) {
+        $u  = $conn->query("SELECT name FROM users WHERE id=$uid")->fetch_assoc();
+        $oc = $conn->query("SELECT COUNT(*) as c FROM orders WHERE user_id=$uid")->fetch_assoc();
+        $userCtx = "\nCUSTOMER: {$u['name']}, Total orders: {$oc['c']}";
+    }
+
+    // Conversation history (last 6 turns)
+    $sid  = $conn->real_escape_string($session_id);
+    $hist = $conn->query("SELECT message,response FROM chatbot_logs WHERE session_id='$sid' ORDER BY created_at DESC LIMIT 6");
+    $history = [];
+    if ($hist) {
+        $rows2 = [];
+        while ($r = $hist->fetch_assoc()) $rows2[] = $r;
+        foreach (array_reverse($rows2) as $r) {
+            $history[] = ['role' => 'user',  'parts' => [['text' => $r['message']]]];
+            $history[] = ['role' => 'model', 'parts' => [['text' => strip_tags($r['response'])]]];
+        }
+    }
+    $history[] = ['role' => 'user', 'parts' => [['text' => $userMessage]]];
+
+    $system = "You are the AI shopping assistant for \"" . SITE_NAME . "\", an e-commerce store in Rwanda.\n"
+        . "Answer ONLY from the database data below. Never invent products or prices.\n"
+        . "Always show prices in RWF. Be friendly and concise (max 200 words).\n"
+        . "Respond in the SAME language the customer uses (English, French, or Kinyarwanda).\n"
+        . "Store policies: Free shipping above RWF 50,000 | Delivery 1-2 days Kigali | Returns 7 days | "
+        . "Payment: MTN MoMo, Airtel, COD, Bank Transfer, Visa/Mastercard\n"
+        . "Support: " . ADMIN_EMAIL . " | " . ADMIN_PHONE . "\n\n"
+        . $catalogCtx . $productCtx . $userCtx;
+
+    $payload = json_encode([
+        'system_instruction' => ['parts' => [['text' => $system]]],
+        'contents'           => $history,
+        'generationConfig'   => ['temperature' => 0.3, 'maxOutputTokens' => 400],
+    ]);
+
+    // Try models in order until one works
+    $models = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+    foreach ($models as $model) {
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
+        $ch  = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+            CURLOPT_TIMEOUT        => 12,
+        ]);
+        $resp = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($code === 200) {
+            $data = json_decode($resp, true);
+            $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
+            if ($text) {
+                $text = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $text);
+                $text = preg_replace('/\*(.*?)\*/s',     '<em>$1</em>',         $text);
+                $text = preg_replace('/\n/',             '<br>',                $text);
+                return '🤖 ' . trim($text);
+            }
+        }
+        // 429 = quota exhausted, try next model; anything else = stop
+        if ($code !== 429 && $code !== 404) break;
+    }
+    return null;
+}

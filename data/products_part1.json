@@ -1,0 +1,362 @@
+﻿[
+    {
+        "name":  "Samsung Galaxy A54 5G 128GB",
+        "seed":  10,
+        "cat":  1,
+        "price":  450000,
+        "stock":  25,
+        "desc":  "6.4 inch Super AMOLED 120Hz, 5000mAh, 50MP triple camera, Android 13, IP67 water resistant",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung Galaxy A34 5G 128GB",
+        "seed":  11,
+        "cat":  1,
+        "price":  320000,
+        "stock":  30,
+        "desc":  "6.6 inch Super AMOLED, 5000mAh, 48MP camera, Dimensity 1080, 25W fast charge, dual SIM",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung Galaxy A14 64GB",
+        "seed":  12,
+        "cat":  1,
+        "price":  130000,
+        "stock":  50,
+        "desc":  "6.6 inch PLS LCD, 5000mAh, 50MP triple camera, entry-level smartphone, Android 13",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung Galaxy A24 128GB",
+        "seed":  13,
+        "cat":  1,
+        "price":  210000,
+        "stock":  35,
+        "desc":  "6.5 inch Super AMOLED 90Hz, 5000mAh, 50MP camera, 25W fast charge, NFC",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung Galaxy S23 256GB",
+        "seed":  14,
+        "cat":  1,
+        "price":  980000,
+        "stock":  12,
+        "desc":  "6.1 inch Dynamic AMOLED 120Hz, Snapdragon 8 Gen 2, 50MP triple camera, 3900mAh",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung Galaxy S23 Ultra 512GB",
+        "seed":  15,
+        "cat":  1,
+        "price":  1650000,
+        "stock":  6,
+        "desc":  "6.8 inch QHD+ AMOLED, 200MP camera, S Pen included, 5000mAh, Snapdragon 8 Gen 2",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung Galaxy Z Fold5 256GB",
+        "seed":  16,
+        "cat":  1,
+        "price":  2200000,
+        "stock":  4,
+        "desc":  "7.6 inch foldable AMOLED, 12GB RAM, Snapdragon 8 Gen 2, dual screen, IPX8",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung Galaxy Z Flip5 256GB",
+        "seed":  17,
+        "cat":  1,
+        "price":  1450000,
+        "stock":  5,
+        "desc":  "6.7 inch foldable AMOLED, Snapdragon 8 Gen 2, 3700mAh, compact flip design",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "iPhone 14 128GB",
+        "seed":  18,
+        "cat":  1,
+        "price":  1350000,
+        "stock":  10,
+        "desc":  "6.1 inch Super Retina XDR, A15 Bionic chip, 12MP dual camera, iOS 16, 5G, Ceramic Shield",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "iPhone 14 Pro 256GB",
+        "seed":  19,
+        "cat":  1,
+        "price":  1750000,
+        "stock":  7,
+        "desc":  "6.1 inch ProMotion OLED, A16 Bionic, 48MP triple camera, Dynamic Island, Always-On display",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "iPhone 15 128GB",
+        "seed":  20,
+        "cat":  1,
+        "price":  1480000,
+        "stock":  9,
+        "desc":  "6.1 inch Super Retina XDR, A16 Bionic, 48MP main camera, USB-C, iOS 17, Ceramic Shield",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "iPhone 15 Pro 256GB",
+        "seed":  21,
+        "cat":  1,
+        "price":  1850000,
+        "stock":  7,
+        "desc":  "6.1 inch ProMotion OLED, A17 Pro chip, 48MP triple camera, titanium design, USB-C 3",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "iPhone 15 Pro Max 256GB",
+        "seed":  22,
+        "cat":  1,
+        "price":  2100000,
+        "stock":  5,
+        "desc":  "6.7 inch ProMotion OLED, A17 Pro, 48MP periscope camera, titanium, 4422mAh",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "Tecno Spark 20 Pro 256GB",
+        "seed":  23,
+        "cat":  1,
+        "price":  180000,
+        "stock":  40,
+        "desc":  "6.78 inch AMOLED 120Hz, 5000mAh, 50MP AI camera, 33W fast charge, Helio G99",
+        "brand":  "Tecno"
+    },
+    {
+        "name":  "Tecno Spark 20C 128GB",
+        "seed":  24,
+        "cat":  1,
+        "price":  120000,
+        "stock":  55,
+        "desc":  "6.56 inch IPS, 5000mAh, 50MP camera, 18W fast charge, budget smartphone Rwanda",
+        "brand":  "Tecno"
+    },
+    {
+        "name":  "Tecno Camon 20 Pro 256GB",
+        "seed":  25,
+        "cat":  1,
+        "price":  280000,
+        "stock":  22,
+        "desc":  "6.67 inch AMOLED, 64MP RGBW camera, 5000mAh, 33W fast charge, portrait photography",
+        "brand":  "Tecno"
+    },
+    {
+        "name":  "Tecno Phantom X2 Pro 256GB",
+        "seed":  26,
+        "cat":  1,
+        "price":  420000,
+        "stock":  15,
+        "desc":  "6.8 inch AMOLED 120Hz, 50MP retractable portrait lens, 5160mAh, 45W fast charge",
+        "brand":  "Tecno"
+    },
+    {
+        "name":  "Infinix Hot 40 Pro 256GB",
+        "seed":  27,
+        "cat":  1,
+        "price":  160000,
+        "stock":  35,
+        "desc":  "6.78 inch IPS LCD, 108MP camera, 5000mAh, 33W fast charge, Helio G99, gaming phone",
+        "brand":  "Infinix"
+    },
+    {
+        "name":  "Infinix Hot 40i 128GB",
+        "seed":  28,
+        "cat":  1,
+        "price":  100000,
+        "stock":  60,
+        "desc":  "6.56 inch IPS, 50MP camera, 5000mAh, 18W charge, budget smartphone for students",
+        "brand":  "Infinix"
+    },
+    {
+        "name":  "Infinix Zero 30 5G 256GB",
+        "seed":  29,
+        "cat":  1,
+        "price":  250000,
+        "stock":  20,
+        "desc":  "6.78 inch AMOLED 144Hz, 50MP front camera, 5000mAh, 68W fast charge, 5G",
+        "brand":  "Infinix"
+    },
+    {
+        "name":  "Xiaomi Redmi Note 13 128GB",
+        "seed":  30,
+        "cat":  1,
+        "price":  220000,
+        "stock":  30,
+        "desc":  "6.67 inch AMOLED 120Hz, 108MP camera, 5000mAh, Snapdragon 685, 33W fast charge",
+        "brand":  "Xiaomi"
+    },
+    {
+        "name":  "Xiaomi Redmi Note 13 Pro 256GB",
+        "seed":  31,
+        "cat":  1,
+        "price":  350000,
+        "stock":  18,
+        "desc":  "6.67 inch AMOLED 120Hz, 200MP camera, 5100mAh, 67W fast charge, Dimensity 7200",
+        "brand":  "Xiaomi"
+    },
+    {
+        "name":  "Xiaomi 13T Pro 256GB",
+        "seed":  32,
+        "cat":  1,
+        "price":  780000,
+        "stock":  10,
+        "desc":  "6.67 inch AMOLED 144Hz, Dimensity 9200+, 50MP Leica camera, 5000mAh, 120W charge",
+        "brand":  "Xiaomi"
+    },
+    {
+        "name":  "Oppo A78 128GB",
+        "seed":  33,
+        "cat":  1,
+        "price":  230000,
+        "stock":  25,
+        "desc":  "6.43 inch AMOLED, 50MP camera, 5000mAh, 67W SUPERVOOC, Snapdragon 680, slim 7.4mm",
+        "brand":  "Oppo"
+    },
+    {
+        "name":  "Oppo Reno10 Pro 256GB",
+        "seed":  34,
+        "cat":  1,
+        "price":  580000,
+        "stock":  12,
+        "desc":  "6.74 inch AMOLED 120Hz, 50MP triple camera, 80W fast charge, 4600mAh, 3D curved",
+        "brand":  "Oppo"
+    },
+    {
+        "name":  "Vivo Y36 128GB",
+        "seed":  35,
+        "cat":  1,
+        "price":  195000,
+        "stock":  28,
+        "desc":  "6.64 inch IPS, 50MP camera, 5000mAh, 44W FlashCharge, Snapdragon 680, slim design",
+        "brand":  "Vivo"
+    },
+    {
+        "name":  "Vivo V29 256GB",
+        "seed":  36,
+        "cat":  1,
+        "price":  520000,
+        "stock":  14,
+        "desc":  "6.78 inch AMOLED 120Hz, 50MP OIS camera, 4600mAh, 80W fast charge, 3D curved glass",
+        "brand":  "Vivo"
+    },
+    {
+        "name":  "Huawei Nova 11i 128GB",
+        "seed":  37,
+        "cat":  1,
+        "price":  210000,
+        "stock":  20,
+        "desc":  "6.8 inch IPS, 48MP camera, 6000mAh, EMUI 13, dual SIM, 40W fast charge",
+        "brand":  "Huawei"
+    },
+    {
+        "name":  "Nokia G42 5G 128GB",
+        "seed":  38,
+        "cat":  1,
+        "price":  185000,
+        "stock":  22,
+        "desc":  "6.56 inch IPS, 50MP camera, 5000mAh, 20W fast charge, 3-year OS updates, repairable",
+        "brand":  "Nokia"
+    },
+    {
+        "name":  "Motorola Moto G84 256GB",
+        "seed":  39,
+        "cat":  1,
+        "price":  280000,
+        "stock":  18,
+        "desc":  "6.55 inch pOLED 120Hz, 50MP OIS camera, 5000mAh, 33W TurboPower, stereo speakers",
+        "brand":  "Motorola"
+    },
+    {
+        "name":  "Itel P40 64GB",
+        "seed":  40,
+        "cat":  1,
+        "price":  75000,
+        "stock":  60,
+        "desc":  "6.6 inch IPS, 13MP camera, 6000mAh ultra battery, ultra affordable entry phone Rwanda",
+        "brand":  "Itel"
+    },
+    {
+        "name":  "Samsung Galaxy Tab A8 64GB",
+        "seed":  41,
+        "cat":  1,
+        "price":  320000,
+        "stock":  18,
+        "desc":  "10.5 inch TFT, 7040mAh, Android 11, 8MP camera, ideal for students and work",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung Galaxy Tab S9 FE 128GB",
+        "seed":  42,
+        "cat":  1,
+        "price":  580000,
+        "stock":  10,
+        "desc":  "10.9 inch TFT 90Hz, Exynos 1380, 8000mAh, S Pen included, IP68 water resistant",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "iPad 10th Gen 64GB WiFi",
+        "seed":  43,
+        "cat":  1,
+        "price":  750000,
+        "stock":  10,
+        "desc":  "10.9 inch Liquid Retina, A14 Bionic, 12MP camera, USB-C, iPadOS 17, all-day battery",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "iPad Air M1 64GB WiFi",
+        "seed":  44,
+        "cat":  1,
+        "price":  1050000,
+        "stock":  7,
+        "desc":  "10.9 inch Liquid Retina, M1 chip, 12MP camera, USB-C, 5G optional, Touch ID",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "Xiaomi Pad 6 128GB",
+        "seed":  45,
+        "cat":  1,
+        "price":  420000,
+        "stock":  12,
+        "desc":  "11 inch IPS 144Hz, Snapdragon 870, 8840mAh, 33W fast charge, stylus support",
+        "brand":  "Xiaomi"
+    },
+    {
+        "name":  "Lenovo Tab M10 Plus 64GB",
+        "seed":  46,
+        "cat":  1,
+        "price":  220000,
+        "stock":  20,
+        "desc":  "10.6 inch 2K IPS, Helio G80, 7700mAh, 4G LTE, kids mode, face unlock",
+        "brand":  "Lenovo"
+    },
+    {
+        "name":  "Samsung Galaxy Buds2 Pro",
+        "seed":  47,
+        "cat":  1,
+        "price":  180000,
+        "stock":  30,
+        "desc":  "True wireless earbuds, ANC, 360 audio, IPX7, 8hr battery + 29hr case, Bluetooth 5.3",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Apple AirPods Pro 2nd Gen",
+        "seed":  48,
+        "cat":  1,
+        "price":  280000,
+        "stock":  12,
+        "desc":  "True wireless ANC earbuds, H2 chip, 6hr battery, MagSafe case, IPX4, spatial audio",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "Jabra Elite 4 Active Earbuds",
+        "seed":  49,
+        "cat":  1,
+        "price":  120000,
+        "stock":  20,
+        "desc":  "True wireless earbuds, ANC, IP57, 7hr battery, multipoint connection, Spotify Tap",
+        "brand":  "Jabra"
+    }
+]

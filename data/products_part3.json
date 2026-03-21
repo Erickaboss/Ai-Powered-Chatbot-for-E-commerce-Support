@@ -1,0 +1,497 @@
+﻿[
+    {
+        "name":  "Samsung 32 inch Smart TV HD",
+        "seed":  100,
+        "cat":  3,
+        "price":  220000,
+        "stock":  20,
+        "desc":  "32 inch HD LED, Tizen OS, Netflix YouTube built-in, 2 HDMI, WiFi, slim design",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung 43 inch Crystal UHD 4K",
+        "seed":  101,
+        "cat":  3,
+        "price":  550000,
+        "stock":  12,
+        "desc":  "43 inch Crystal UHD 4K, HDR, Tizen OS, Netflix YouTube, 3 HDMI, AirPlay 2",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung 55 inch QLED 4K Smart TV",
+        "seed":  102,
+        "cat":  3,
+        "price":  980000,
+        "stock":  7,
+        "desc":  "55 inch QLED 4K, Quantum HDR, 120Hz, Tizen, Alexa built-in, 4 HDMI ports",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung 65 inch Neo QLED 8K TV",
+        "seed":  103,
+        "cat":  3,
+        "price":  2800000,
+        "stock":  2,
+        "desc":  "65 inch Neo QLED 8K, Mini LED, 120Hz, Dolby Atmos, premium flagship television",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "LG 43 inch UHD 4K Smart TV",
+        "seed":  104,
+        "cat":  3,
+        "price":  520000,
+        "stock":  10,
+        "desc":  "43 inch UHD 4K, webOS, ThinQ AI, Google Assistant, 3 HDMI, WiFi, Bluetooth",
+        "brand":  "LG"
+    },
+    {
+        "name":  "LG 55 inch OLED 4K Smart TV",
+        "seed":  105,
+        "cat":  3,
+        "price":  1450000,
+        "stock":  5,
+        "desc":  "55 inch OLED 4K, 120Hz, webOS, Dolby Vision, AI ThinQ, perfect blacks, thin design",
+        "brand":  "LG"
+    },
+    {
+        "name":  "LG 65 inch OLED evo C3 4K TV",
+        "seed":  106,
+        "cat":  3,
+        "price":  2200000,
+        "stock":  3,
+        "desc":  "65 inch OLED evo 4K, 120Hz, G-Sync compatible, Dolby Vision IQ, gaming TV",
+        "brand":  "LG"
+    },
+    {
+        "name":  "Hisense 32 inch Smart TV HD",
+        "seed":  107,
+        "cat":  3,
+        "price":  180000,
+        "stock":  25,
+        "desc":  "32 inch HD Smart TV, VIDAA OS, Netflix YouTube, 2 HDMI, budget-friendly pick",
+        "brand":  "Hisense"
+    },
+    {
+        "name":  "Hisense 50 inch ULED 4K Smart TV",
+        "seed":  108,
+        "cat":  3,
+        "price":  480000,
+        "stock":  10,
+        "desc":  "50 inch ULED 4K, Quantum Dot, 60Hz, VIDAA OS, Dolby Vision, HDR10+",
+        "brand":  "Hisense"
+    },
+    {
+        "name":  "Sony 50 inch Bravia 4K XR TV",
+        "seed":  109,
+        "cat":  3,
+        "price":  780000,
+        "stock":  8,
+        "desc":  "50 inch 4K HDR, X1 processor, Android TV, Google Assistant, Dolby Atmos",
+        "brand":  "Sony"
+    },
+    {
+        "name":  "Sony 65 inch Bravia OLED A80L",
+        "seed":  110,
+        "cat":  3,
+        "price":  2500000,
+        "stock":  3,
+        "desc":  "65 inch OLED 4K, 120Hz, XR Processor, Dolby Vision, Google TV, premium",
+        "brand":  "Sony"
+    },
+    {
+        "name":  "TCL 43 inch 4K Smart TV",
+        "seed":  111,
+        "cat":  3,
+        "price":  380000,
+        "stock":  15,
+        "desc":  "43 inch 4K HDR, Android TV, Google Assistant, Chromecast built-in, 3 HDMI",
+        "brand":  "TCL"
+    },
+    {
+        "name":  "JBL Charge 5 Bluetooth Speaker",
+        "seed":  112,
+        "cat":  3,
+        "price":  120000,
+        "stock":  25,
+        "desc":  "Portable speaker, 20hr battery, IP67 waterproof, PartyBoost, USB-C, bold sound",
+        "brand":  "JBL"
+    },
+    {
+        "name":  "JBL Flip 6 Bluetooth Speaker",
+        "seed":  113,
+        "cat":  3,
+        "price":  85000,
+        "stock":  30,
+        "desc":  "Portable speaker, 12hr battery, IP67 waterproof, bold sound, USB-C charging",
+        "brand":  "JBL"
+    },
+    {
+        "name":  "JBL Xtreme 3 Bluetooth Speaker",
+        "seed":  114,
+        "cat":  3,
+        "price":  220000,
+        "stock":  15,
+        "desc":  "Portable speaker, 15hr battery, IP67, 100W powerful sound, shoulder strap",
+        "brand":  "JBL"
+    },
+    {
+        "name":  "Sony WH-1000XM5 Headphones",
+        "seed":  115,
+        "cat":  3,
+        "price":  280000,
+        "stock":  15,
+        "desc":  "Wireless ANC headphones, 30hr battery, Hi-Res Audio, foldable, multipoint",
+        "brand":  "Sony"
+    },
+    {
+        "name":  "Sony WF-1000XM5 Earbuds",
+        "seed":  116,
+        "cat":  3,
+        "price":  250000,
+        "stock":  12,
+        "desc":  "True wireless ANC earbuds, 8hr battery, Hi-Res Audio, IPX4, multipoint",
+        "brand":  "Sony"
+    },
+    {
+        "name":  "Bose QuietComfort 45 Headphones",
+        "seed":  117,
+        "cat":  3,
+        "price":  320000,
+        "stock":  8,
+        "desc":  "Wireless ANC headphones, 24hr battery, premium comfort, foldable, multipoint",
+        "brand":  "Bose"
+    },
+    {
+        "name":  "Bose SoundLink Flex Speaker",
+        "seed":  118,
+        "cat":  3,
+        "price":  150000,
+        "stock":  18,
+        "desc":  "Portable Bluetooth speaker, IP67, 12hr battery, PositionIQ, waterproof",
+        "brand":  "Bose"
+    },
+    {
+        "name":  "Samsung Soundbar HW-B450 2.1ch",
+        "seed":  119,
+        "cat":  3,
+        "price":  180000,
+        "stock":  10,
+        "desc":  "2.1ch soundbar, 300W, Dolby Audio, Bluetooth, wireless subwoofer, DTS Virtual:X",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung Soundbar HW-Q600C 3.1.2ch",
+        "seed":  120,
+        "cat":  3,
+        "price":  380000,
+        "stock":  7,
+        "desc":  "3.1.2ch soundbar, 360W, Dolby Atmos, DTS:X, wireless subwoofer, SpaceFit Sound",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Apple AirPods Pro 2nd Gen",
+        "seed":  121,
+        "cat":  3,
+        "price":  280000,
+        "stock":  12,
+        "desc":  "True wireless ANC earbuds, H2 chip, 6hr battery, MagSafe case, IPX4, spatial audio",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "Apple AirPods 3rd Gen",
+        "seed":  122,
+        "cat":  3,
+        "price":  180000,
+        "stock":  15,
+        "desc":  "True wireless earbuds, spatial audio, 6hr battery, IPX4, Lightning case",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "Xiaomi Mi TV Stick 4K",
+        "seed":  123,
+        "cat":  3,
+        "price":  45000,
+        "stock":  40,
+        "desc":  "Streaming stick, 4K HDR, Android TV, Google Assistant, Chromecast built-in",
+        "brand":  "Xiaomi"
+    },
+    {
+        "name":  "Amazon Fire TV Stick 4K Max",
+        "seed":  124,
+        "cat":  3,
+        "price":  55000,
+        "stock":  35,
+        "desc":  "4K streaming stick, WiFi 6, Alexa voice remote, Dolby Vision, HDR10+",
+        "brand":  "Amazon"
+    },
+    {
+        "name":  "Samsung 253L Double Door Fridge",
+        "seed":  130,
+        "cat":  4,
+        "price":  650000,
+        "stock":  8,
+        "desc":  "Double door, frost-free, digital inverter compressor, energy saving, silver finish",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Samsung 400L French Door Fridge",
+        "seed":  131,
+        "cat":  4,
+        "price":  1200000,
+        "stock":  4,
+        "desc":  "French door, 400L, Twin Cooling Plus, ice maker, stainless steel, premium",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "LG 7kg Front Load Washing Machine",
+        "seed":  132,
+        "cat":  4,
+        "price":  580000,
+        "stock":  6,
+        "desc":  "Front load, 1400 RPM, steam wash, AI DD technology, A+++ energy class",
+        "brand":  "LG"
+    },
+    {
+        "name":  "LG 9kg Front Load Washing Machine",
+        "seed":  133,
+        "cat":  4,
+        "price":  780000,
+        "stock":  5,
+        "desc":  "Front load, 1400 RPM, TurboWash 360, steam, AI DD, A+++ energy class",
+        "brand":  "LG"
+    },
+    {
+        "name":  "Hisense 150L Single Door Fridge",
+        "seed":  134,
+        "cat":  4,
+        "price":  280000,
+        "stock":  15,
+        "desc":  "Single door, direct cool, low energy consumption, ideal for small homes Rwanda",
+        "brand":  "Hisense"
+    },
+    {
+        "name":  "Hisense 320L Double Door Fridge",
+        "seed":  135,
+        "cat":  4,
+        "price":  520000,
+        "stock":  8,
+        "desc":  "Double door, frost-free, multi-flow cooling, LED interior light, energy saving",
+        "brand":  "Hisense"
+    },
+    {
+        "name":  "Ramtons 20L Solo Microwave",
+        "seed":  136,
+        "cat":  4,
+        "price":  65000,
+        "stock":  20,
+        "desc":  "700W, 5 power levels, defrost function, white, 30min timer, easy clean interior",
+        "brand":  "Ramtons"
+    },
+    {
+        "name":  "Samsung 28L Convection Microwave",
+        "seed":  137,
+        "cat":  4,
+        "price":  180000,
+        "stock":  10,
+        "desc":  "28L, 900W, convection plus grill, slim fry, ceramic enamel interior, digital",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Bruhm 4-Burner Gas Cooker with Oven",
+        "seed":  138,
+        "cat":  4,
+        "price":  180000,
+        "stock":  12,
+        "desc":  "4-burner gas cooker with oven, stainless steel, auto ignition, safety valve",
+        "brand":  "Bruhm"
+    },
+    {
+        "name":  "Ramtons 4-Burner Electric Cooker",
+        "seed":  139,
+        "cat":  4,
+        "price":  220000,
+        "stock":  8,
+        "desc":  "4-burner electric cooker with oven, 60cm, stainless steel, timer, grill",
+        "brand":  "Ramtons"
+    },
+    {
+        "name":  "Philips Air Fryer 4.1L Digital",
+        "seed":  140,
+        "cat":  4,
+        "price":  120000,
+        "stock":  18,
+        "desc":  "4.1L, 1400W, rapid air technology, up to 90% less fat, digital display, timer",
+        "brand":  "Philips"
+    },
+    {
+        "name":  "Philips Air Fryer XXL 7.3L Family",
+        "seed":  141,
+        "cat":  4,
+        "price":  220000,
+        "stock":  10,
+        "desc":  "7.3L family size, 2000W, fat removal technology, digital display, 5 presets",
+        "brand":  "Philips"
+    },
+    {
+        "name":  "Ramtons Electric Kettle 1.7L",
+        "seed":  142,
+        "cat":  4,
+        "price":  18000,
+        "stock":  50,
+        "desc":  "1.7L stainless steel, 2200W, auto shut-off, boil-dry protection, cool touch",
+        "brand":  "Ramtons"
+    },
+    {
+        "name":  "Philips Electric Kettle 1.7L",
+        "seed":  143,
+        "cat":  4,
+        "price":  28000,
+        "stock":  35,
+        "desc":  "1.7L, 2400W, double wall insulation, keep warm function, LED indicator",
+        "brand":  "Philips"
+    },
+    {
+        "name":  "Panasonic Rice Cooker 1.8L",
+        "seed":  144,
+        "cat":  4,
+        "price":  28000,
+        "stock":  35,
+        "desc":  "1.8L, 10 cups, keep-warm function, non-stick inner pot, steam tray included",
+        "brand":  "Panasonic"
+    },
+    {
+        "name":  "Zojirushi Rice Cooker 1.8L Premium",
+        "seed":  145,
+        "cat":  4,
+        "price":  85000,
+        "stock":  12,
+        "desc":  "1.8L, fuzzy logic, multiple cooking modes, keep warm 24hr, Japanese quality",
+        "brand":  "Zojirushi"
+    },
+    {
+        "name":  "Dyson V12 Detect Slim Vacuum",
+        "seed":  146,
+        "cat":  4,
+        "price":  480000,
+        "stock":  5,
+        "desc":  "Cordless vacuum, 150AW suction, HEPA filtration, 60min battery, lightweight",
+        "brand":  "Dyson"
+    },
+    {
+        "name":  "Midea 1.5HP Inverter Split AC",
+        "seed":  147,
+        "cat":  4,
+        "price":  420000,
+        "stock":  7,
+        "desc":  "1.5HP, 12000 BTU, WiFi control, energy saving, R32 refrigerant, quiet 19dB",
+        "brand":  "Midea"
+    },
+    {
+        "name":  "LG 2HP Dual Inverter Split AC",
+        "seed":  148,
+        "cat":  4,
+        "price":  680000,
+        "stock":  5,
+        "desc":  "2HP, 18000 BTU, dual inverter, WiFi, 10yr compressor warranty, auto clean",
+        "brand":  "LG"
+    },
+    {
+        "name":  "Blueflame 2000W Fan Heater",
+        "seed":  149,
+        "cat":  4,
+        "price":  35000,
+        "stock":  25,
+        "desc":  "2000W, 3 heat settings, overheat protection, portable, thermostat, Rwanda",
+        "brand":  "Blueflame"
+    },
+    {
+        "name":  "Kenwood Stand Mixer 5L",
+        "seed":  150,
+        "cat":  4,
+        "price":  145000,
+        "stock":  10,
+        "desc":  "5L bowl, 1000W, 6 speeds, dough hook plus whisk plus beater, stainless steel",
+        "brand":  "Kenwood"
+    },
+    {
+        "name":  "KitchenAid Stand Mixer 4.8L",
+        "seed":  151,
+        "cat":  4,
+        "price":  380000,
+        "stock":  6,
+        "desc":  "4.8L, 300W, 10 speeds, tilt-head, 3 attachments, iconic design, multiple colors",
+        "brand":  "KitchenAid"
+    },
+    {
+        "name":  "Breville Espresso Machine 15 Bar",
+        "seed":  152,
+        "cat":  4,
+        "price":  280000,
+        "stock":  8,
+        "desc":  "15 bar pump, steam wand, 1.8L tank, 1600W, stainless steel, barista quality",
+        "brand":  "Breville"
+    },
+    {
+        "name":  "Nespresso Vertuo Pop Coffee Machine",
+        "seed":  153,
+        "cat":  4,
+        "price":  180000,
+        "stock":  12,
+        "desc":  "Centrifusion technology, 5 cup sizes, 0.56L tank, fast heat-up, compact",
+        "brand":  "Nespresso"
+    },
+    {
+        "name":  "Tefal Steam Iron 2600W",
+        "seed":  154,
+        "cat":  4,
+        "price":  35000,
+        "stock":  30,
+        "desc":  "2600W, 45g/min steam, anti-drip, auto shut-off, non-stick soleplate, vertical",
+        "brand":  "Tefal"
+    },
+    {
+        "name":  "Rowenta Garment Steamer 1800W",
+        "seed":  155,
+        "cat":  4,
+        "price":  55000,
+        "stock":  15,
+        "desc":  "1800W, 1.5L tank, 40g/min steam, travel-ready, anti-calc, vertical steaming",
+        "brand":  "Rowenta"
+    },
+    {
+        "name":  "Honeywell Air Purifier HPA300",
+        "seed":  156,
+        "cat":  4,
+        "price":  180000,
+        "stock":  10,
+        "desc":  "True HEPA, covers 465 sq ft, 3 cleaning levels, auto shut-off, quiet operation",
+        "brand":  "Honeywell"
+    },
+    {
+        "name":  "Xiaomi Air Purifier 4 Pro",
+        "seed":  157,
+        "cat":  4,
+        "price":  120000,
+        "stock":  12,
+        "desc":  "HEPA filter, 500m3/h CADR, WiFi, OLED display, quiet 19dB, smart home",
+        "brand":  "Xiaomi"
+    },
+    {
+        "name":  "Instant Pot Duo 7-in-1 6L",
+        "seed":  158,
+        "cat":  4,
+        "price":  120000,
+        "stock":  15,
+        "desc":  "Pressure cooker, slow cooker, rice cooker, steamer, saute, yogurt, warmer",
+        "brand":  "Instant Pot"
+    },
+    {
+        "name":  "Cuisinart Food Processor 1.9L",
+        "seed":  159,
+        "cat":  4,
+        "price":  95000,
+        "stock":  12,
+        "desc":  "1.9L, 600W, 3 speeds, stainless steel blade, shredding disc, dishwasher safe",
+        "brand":  "Cuisinart"
+    }
+]

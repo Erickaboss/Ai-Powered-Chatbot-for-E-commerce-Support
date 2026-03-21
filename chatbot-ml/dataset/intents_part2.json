@@ -1,0 +1,435 @@
+{
+  "intents_part2": [
+    {
+      "tag": "order_track",
+      "patterns": [
+        "track my order", "where is my order", "order status", "check my order",
+        "track order", "order tracking", "where is my package", "my order",
+        "order number", "find my order", "check order status", "order update",
+        "when will my order arrive", "is my order shipped", "order location",
+        "track package", "delivery status", "shipment status",
+        "has my order been shipped", "order confirmation",
+        "i want to track my order", "can you track my order",
+        "where is my delivery", "track my delivery", "delivery tracking",
+        "check delivery status", "what is my order status",
+        "has my package been sent", "when is my order coming",
+        "is my package on the way", "order dispatch status",
+        "track order number", "check my package", "find my package",
+        "where did my order go", "my order is late", "order not arrived",
+        "check shipment", "shipment tracking", "package tracking",
+        "i want to know my order status", "tell me about my order",
+        "what happened to my order", "order inquiry", "order follow up",
+        "follow up on order", "check on my order", "order whereabouts"
+      ],
+      "responses": [
+        "I can help you track your order! Please provide your order number.",
+        "To track your order, please share your order number.",
+        "Let me check your order status. What's your order number?"
+      ]
+    },
+    {
+      "tag": "order_cancel",
+      "patterns": [
+        "cancel my order", "i want to cancel", "cancel order", "stop my order",
+        "delete my order", "remove my order", "i don't want my order",
+        "cancel purchase", "undo my order", "reverse my order",
+        "how to cancel", "can i cancel", "order cancellation",
+        "cancel delivery", "i changed my mind", "don't want it anymore",
+        "i want to cancel my order", "please cancel my order",
+        "cancel my purchase", "i no longer want this", "i don't need it",
+        "cancel the order please", "stop the order", "abort order",
+        "i want to stop my order", "cancel order number",
+        "how do i cancel my order", "is it possible to cancel",
+        "can i still cancel", "cancel before delivery",
+        "cancel before shipping", "i made a mistake in my order",
+        "wrong order placed", "ordered by mistake", "accidental order",
+        "i want to return before delivery", "cancel and refund",
+        "cancel order and get refund", "i want my money back cancel",
+        "please stop my order", "terminate my order"
+      ],
+      "responses": [
+        "I can help you cancel your order. Please provide your order number.",
+        "To cancel an order, I need your order number. What is it?",
+        "Order cancellation is possible if it hasn't shipped yet. What's your order number?"
+      ]
+    },
+    {
+      "tag": "order_history",
+      "patterns": [
+        "my orders", "order history", "past orders", "previous orders",
+        "all my orders", "show my orders", "list my orders", "view orders",
+        "what did i order", "my purchases", "my transactions",
+        "show purchase history", "all orders", "recent orders",
+        "what have i bought", "my buying history",
+        "show me my orders", "i want to see my orders",
+        "display my orders", "my order list", "orders i placed",
+        "orders i made", "my recent purchases", "my last order",
+        "what was my last order", "show last order", "previous purchases",
+        "purchase history", "buying history", "shopping history",
+        "what have i purchased", "items i ordered", "products i bought",
+        "my order records", "order records", "view my purchases",
+        "see my orders", "check my orders", "my account orders",
+        "orders in my account", "list all my orders", "all purchases"
+      ],
+      "responses": [
+        "I can show you your order history! Please log in to view your orders.",
+        "Your order history is available in your account. Shall I show you?",
+        "Let me pull up your recent orders for you."
+      ]
+    },
+    {
+      "tag": "delivery_time",
+      "patterns": [
+        "how long does delivery take", "delivery time", "when will i receive",
+        "how many days", "shipping time", "estimated delivery",
+        "when will it arrive", "delivery days", "how fast is delivery",
+        "express delivery", "same day delivery", "next day delivery",
+        "delivery to kigali", "delivery to provinces", "how long shipping",
+        "dispatch time", "when will it be delivered", "delivery duration",
+        "how long will it take", "delivery schedule", "delivery timeline",
+        "when can i expect delivery", "how soon will i get it",
+        "how quickly do you deliver", "fast delivery", "quick delivery",
+        "urgent delivery", "how many business days", "working days delivery",
+        "delivery to musanze", "delivery to huye", "delivery to rubavu",
+        "delivery to northern province", "delivery to southern province",
+        "delivery to eastern province", "delivery to western province",
+        "delivery outside kigali", "rural delivery", "remote area delivery",
+        "how long to deliver to kigali", "kigali delivery time",
+        "province delivery time", "when will my package arrive",
+        "package arrival time", "estimated arrival", "arrival time"
+      ],
+      "responses": [
+        "Delivery to Kigali takes 1-2 business days. Other provinces take 2-4 days.",
+        "We deliver within 1-2 days in Kigali and 2-4 days in other provinces.",
+        "Standard delivery: Kigali 1-2 days, Provinces 2-4 days, Remote areas up to 7 days."
+      ]
+    },
+    {
+      "tag": "shipping_fee",
+      "patterns": [
+        "shipping fee", "delivery fee", "shipping cost", "how much is delivery",
+        "free delivery", "free shipping", "delivery charges", "shipping charges",
+        "cost of delivery", "do you offer free shipping", "is delivery free",
+        "frais de livraison", "delivery price", "how much to deliver",
+        "shipping price", "what is the delivery cost",
+        "how much does shipping cost", "delivery cost", "shipping rates",
+        "delivery rates", "how much for delivery", "delivery fee amount",
+        "what are the shipping fees", "shipping fee to kigali",
+        "delivery fee to provinces", "how much is the delivery fee",
+        "is there a delivery charge", "do i pay for delivery",
+        "delivery is free", "free delivery conditions", "when is delivery free",
+        "minimum for free shipping", "free shipping threshold",
+        "how to get free delivery", "qualify for free shipping",
+        "shipping fee waiver", "no delivery fee", "zero delivery fee",
+        "delivery fee discount", "reduced shipping", "flat rate shipping"
+      ],
+      "responses": [
+        "Free shipping on orders above RWF 50,000! Below that, it's RWF 2,000 flat.",
+        "Orders above RWF 50,000 get FREE shipping. Otherwise RWF 2,000.",
+        "Shipping is free for orders over RWF 50,000. Standard rate is RWF 2,000."
+      ]
+    },
+    {
+      "tag": "payment_methods",
+      "patterns": [
+        "payment methods", "how to pay", "payment options", "ways to pay",
+        "do you accept momo", "mobile money", "mtn momo", "airtel money",
+        "cash on delivery", "cod", "pay with card", "visa", "mastercard",
+        "bank transfer", "how can i pay", "payment", "accepted payments",
+        "what payment do you accept", "can i pay cash", "online payment",
+        "pay on delivery", "payment gateway",
+        "what are the payment methods", "available payment options",
+        "how do i pay", "payment modes", "modes of payment",
+        "can i pay with momo", "can i pay with airtel", "can i use visa",
+        "can i use mastercard", "can i do bank transfer", "pay by card",
+        "pay by mobile money", "pay by bank", "pay cash on delivery",
+        "is momo accepted", "is airtel money accepted", "is visa accepted",
+        "do you accept bank transfer", "do you accept cash",
+        "payment on delivery", "pay when delivered", "pay at door",
+        "secure payment", "safe payment", "payment security",
+        "how to pay online", "online payment methods", "digital payment",
+        "electronic payment", "i want to pay with momo", "pay using momo"
+      ],
+      "responses": [
+        "We accept: Cash on Delivery, MTN MoMo, Airtel Money, Visa/Mastercard, Bank Transfer.",
+        "Payment options: COD, MTN Mobile Money, Airtel Money, Card, Bank Transfer.",
+        "You can pay via Cash on Delivery, Mobile Money (MTN/Airtel), Card, or Bank Transfer."
+      ]
+    },
+    {
+      "tag": "return_policy",
+      "patterns": [
+        "return policy", "how to return", "can i return", "refund policy",
+        "return item", "send back", "exchange item", "refund request",
+        "i want a refund", "return product", "how do returns work",
+        "return process", "money back", "get refund", "return conditions",
+        "politique de retour", "return within", "days to return",
+        "can i exchange", "product return",
+        "what is your return policy", "how many days to return",
+        "return window", "return period", "refund period",
+        "can i get my money back", "how do i return an item",
+        "return instructions", "return procedure", "how to send back",
+        "return shipping", "who pays return shipping", "return label",
+        "exchange policy", "can i exchange for another product",
+        "swap product", "replace product", "product replacement",
+        "i want to exchange", "i want to swap", "wrong size return",
+        "wrong color return", "not satisfied return", "unhappy with product",
+        "return damaged item", "return defective item", "return wrong item",
+        "refund timeline", "when will i get refund", "refund processing time",
+        "how long for refund", "refund to account", "refund to mobile money"
+      ],
+      "responses": [
+        "You can return items within 7 days of delivery in original packaging.",
+        "Our return policy: 7 days from delivery, unused items, original packaging.",
+        "Returns accepted within 7 days. Contact us at our support email to start a return."
+      ]
+    },
+    {
+      "tag": "warranty",
+      "patterns": [
+        "warranty", "guarantee", "product warranty", "how long is warranty",
+        "warranty period", "is there warranty", "warranty information",
+        "broken after buying", "stopped working", "defective product",
+        "warranty claim", "repair service", "garantie", "product guarantee",
+        "warranty coverage", "what is covered", "warranty terms",
+        "does it come with warranty", "warranty on electronics",
+        "warranty on phones", "warranty on laptops", "warranty on appliances",
+        "how long is the warranty", "warranty duration", "warranty length",
+        "1 year warranty", "2 year warranty", "6 month warranty",
+        "my product stopped working", "product broke down", "product malfunction",
+        "product not working after purchase", "defective after purchase",
+        "broken within warranty", "warranty repair", "warranty replacement",
+        "warranty claim process", "how to claim warranty", "submit warranty claim",
+        "warranty service center", "where to claim warranty",
+        "is my product under warranty", "check warranty status",
+        "warranty expired", "warranty still valid", "within warranty period",
+        "product died", "product failed", "product fault"
+      ],
+      "responses": [
+        "Electronics: 1 year warranty. Appliances: 1-2 years. Clothing: 7 days defect warranty.",
+        "We offer warranty on all electronics (1 year) and home appliances (1-2 years).",
+        "Warranty varies by product. Electronics get 1 year, appliances 1-2 years."
+      ]
+    },
+    {
+      "tag": "contact_support",
+      "patterns": [
+        "contact support", "customer service", "talk to agent", "human agent",
+        "call support", "email support", "phone number", "contact us",
+        "how to contact", "support team", "help desk", "reach you",
+        "whatsapp number", "customer care", "speak to someone",
+        "get help", "need assistance", "contact information",
+        "support contact", "how do i reach you",
+        "i want to talk to a person", "connect me to agent",
+        "live agent", "real person", "human support", "speak to human",
+        "customer support number", "support phone number", "support email",
+        "contact email", "contact phone", "contact whatsapp",
+        "how do i contact you", "ways to contact", "contact options",
+        "reach customer service", "customer service number",
+        "i need to speak to someone", "i need human help",
+        "escalate to agent", "transfer to agent", "agent please",
+        "support hours", "when is support available", "office hours",
+        "support availability", "24 hour support", "weekend support",
+        "emergency contact", "urgent help", "i need urgent help"
+      ],
+      "responses": [
+        "Contact us: Email: ericniringiyimana123@gmail.com | Phone: +250782977559",
+        "Our support team is available Mon-Sat 8AM-6PM. Email or call us anytime.",
+        "Reach us at ericniringiyimana123@gmail.com or +250782977559 (WhatsApp available)."
+      ]
+    },
+    {
+      "tag": "discount_promo",
+      "patterns": [
+        "discount", "promo code", "coupon", "sale", "offer", "deal",
+        "promotion", "voucher", "special offer", "any discounts",
+        "is there a sale", "reduced price", "cheaper", "best deal",
+        "flash sale", "seasonal sale", "discount code", "promo",
+        "remise", "rabais", "any offers today", "current promotions",
+        "do you have discounts", "any coupons", "discount available",
+        "promo available", "sale going on", "any sales", "special deals",
+        "today's deals", "weekly deals", "monthly deals", "holiday sale",
+        "black friday", "end of year sale", "clearance sale",
+        "buy one get one", "bogo", "bundle deal", "combo deal",
+        "loyalty discount", "first order discount", "new customer discount",
+        "referral discount", "discount for students", "bulk discount",
+        "wholesale price", "discounted products", "on sale products",
+        "reduced items", "price cut", "price reduction", "markdown",
+        "how to get discount", "how to save money", "save on purchase",
+        "cheapest way to buy", "best value for money"
+      ],
+      "responses": [
+        "Free shipping on orders above RWF 50,000! Check our products page for latest prices.",
+        "We have great prices across all categories. Free shipping is our biggest offer!",
+        "No promo codes currently, but we offer free shipping on orders above RWF 50,000."
+      ]
+    },
+    {
+      "tag": "account_help",
+      "patterns": [
+        "forgot password", "reset password", "change password", "login help",
+        "can't login", "account problem", "create account", "register",
+        "sign up", "how to register", "new account", "my account",
+        "account settings", "update profile", "edit profile",
+        "account issue", "login problem", "password help",
+        "i forgot my password", "how to create account",
+        "i can't log in", "login not working", "password not working",
+        "account locked", "account suspended", "account blocked",
+        "how to unlock account", "verify account", "account verification",
+        "email verification", "verify email", "resend verification",
+        "update email", "change email", "update phone number",
+        "change phone number", "update name", "change name",
+        "delete account", "close account", "deactivate account",
+        "how to delete my account", "i want to delete my account",
+        "profile settings", "account preferences", "notification settings",
+        "how to sign up", "registration process", "how to make account",
+        "i need an account", "i want to register", "new user registration",
+        "first time user", "new to the site", "how to get started"
+      ],
+      "responses": [
+        "For password reset, visit your profile page or email our support team.",
+        "You can create an account by clicking Register on our website.",
+        "Account help: Visit profile page to update info or reset password."
+      ]
+    },
+    {
+      "tag": "complaint",
+      "patterns": [
+        "wrong item", "damaged product", "broken item", "missing item",
+        "not received", "bad quality", "fake product", "complaint",
+        "defective item", "never arrived", "wrong order", "bad experience",
+        "unhappy", "disappointed", "problem with order", "issue with product",
+        "item not working", "received wrong", "poor quality",
+        "not as described", "plainte", "i have a complaint",
+        "i received the wrong product", "they sent me wrong item",
+        "my order is damaged", "product arrived damaged", "broken on arrival",
+        "package was damaged", "item was broken", "product is defective",
+        "not what i ordered", "different from what i ordered",
+        "product looks fake", "counterfeit product", "not original",
+        "i'm not happy", "very disappointed", "terrible experience",
+        "worst experience", "bad service", "poor service",
+        "i want to complain", "i need to complain", "lodge a complaint",
+        "file a complaint", "report a problem", "report an issue",
+        "something went wrong", "there is a problem", "i have a problem",
+        "my order has an issue", "issue with my delivery",
+        "product not as advertised", "misleading product", "false advertising"
+      ],
+      "responses": [
+        "I'm sorry to hear that! Please contact us with your order number and photos.",
+        "We apologize for the inconvenience. Email us with your order details for quick resolution.",
+        "That's not acceptable! Please reach out to our support team immediately with your order number."
+      ]
+    },
+    {
+      "tag": "stock_check",
+      "patterns": [
+        "is it in stock", "do you have in stock", "available", "stock check",
+        "is available", "out of stock", "how many left", "stock level",
+        "is there stock", "product availability", "check availability",
+        "is it available", "do you still have", "any left",
+        "stock status", "available quantity", "how many units",
+        "is this product available", "do you have this in stock",
+        "check stock for", "stock of samsung", "stock of iphone",
+        "is samsung available", "is iphone available", "is laptop available",
+        "do you have phones in stock", "do you have laptops in stock",
+        "how many phones do you have", "how many laptops left",
+        "is this item available", "item availability", "product in stock",
+        "currently in stock", "currently available", "available now",
+        "can i buy this now", "is this ready to buy", "ready to ship",
+        "available for purchase", "can i order this", "is this orderable",
+        "when will it be back in stock", "restock date", "back in stock",
+        "notify when available", "out of stock when restocked",
+        "limited stock", "low stock", "almost out of stock"
+      ],
+      "responses": [
+        "Let me check the stock for that product! Which item are you asking about?",
+        "I can check availability for you. Which product would you like to know about?",
+        "Stock levels are updated in real-time. Which product shall I check?"
+      ]
+    },
+    {
+      "tag": "recommendation",
+      "patterns": [
+        "recommend", "suggest", "best product", "popular products",
+        "what should i buy", "top rated", "best seller", "most popular",
+        "good phone to buy", "best laptop", "recommend something",
+        "what is good", "advise me", "help me choose", "which is better",
+        "best value", "good quality", "top products", "featured products",
+        "what do you recommend", "suggest a product",
+        "what is the best phone", "what is the best laptop",
+        "what is the best tv", "best smartphone", "best computer",
+        "top selling products", "trending products", "hot products",
+        "what are people buying", "most bought", "customer favorites",
+        "editor's choice", "staff picks", "highly rated",
+        "i need a recommendation", "can you recommend", "please suggest",
+        "help me decide", "i can't decide", "which one should i get",
+        "which is worth buying", "value for money product",
+        "budget recommendation", "recommend under 100k", "recommend under 200k",
+        "recommend under 500k", "affordable recommendation",
+        "premium recommendation", "high end recommendation",
+        "best product for the price", "good deal recommendation"
+      ],
+      "responses": [
+        "I'd be happy to recommend products! What category interests you?",
+        "Our top categories are Smartphones, Laptops, and Home Appliances. What do you need?",
+        "Let me suggest some popular products for you! What's your budget?"
+      ]
+    },
+    {
+      "tag": "place_order",
+      "patterns": [
+        "i want to order", "place an order", "buy now", "order now",
+        "how to order", "add to cart", "purchase", "i want to purchase",
+        "how do i buy", "checkout", "proceed to checkout", "complete order",
+        "make a purchase", "order product", "buy product", "shop now",
+        "i want to buy this", "how to place order", "ordering process",
+        "can i order", "start order",
+        "i want to place an order", "how do i place an order",
+        "steps to order", "ordering steps", "how to complete purchase",
+        "how to buy online", "online ordering", "order online",
+        "add item to cart", "put in cart", "add to my cart",
+        "i want to add to cart", "how to add to cart",
+        "i want to checkout", "how to checkout", "checkout process",
+        "complete my order", "finalize order", "confirm order",
+        "submit order", "i want to submit my order",
+        "ready to buy", "ready to order", "i want to make a purchase",
+        "i want to shop", "start shopping", "begin order",
+        "i want to get this product", "i want this product",
+        "how do i get this", "i want to acquire this"
+      ],
+      "responses": [
+        "To place an order: browse products, add to cart, then checkout!",
+        "You can order by adding items to your cart and proceeding to checkout.",
+        "Start by browsing our products, add what you like to cart, then checkout!"
+      ]
+    },
+    {
+      "tag": "bot_identity",
+      "patterns": [
+        "who are you", "what are you", "are you a bot", "are you human",
+        "are you real", "are you ai", "what is your name", "your name",
+        "tell me about yourself", "what can you do", "how can you help",
+        "what are your capabilities", "are you chatgpt", "are you gemini",
+        "which ai are you", "what technology are you", "how do you work",
+        "are you a robot", "are you a machine", "are you automated",
+        "are you a computer", "are you a program", "are you software",
+        "what kind of bot are you", "what type of ai are you",
+        "who made you", "who created you", "who built you",
+        "what company made you", "what is your purpose",
+        "what are you designed for", "what is your function",
+        "how were you trained", "what model are you",
+        "are you powered by ai", "what ai powers you",
+        "do you use machine learning", "are you machine learning",
+        "are you deep learning", "what algorithms do you use",
+        "how smart are you", "how intelligent are you",
+        "can you think", "do you understand me", "do you learn",
+        "are you getting smarter", "do you remember me"
+      ],
+      "responses": [
+        "I'm the AI shopping assistant for AI-Powered Chatbot For E-commerce Support!",
+        "I'm an AI chatbot powered by Machine Learning and Google Gemini. I help with shopping!",
+        "I'm your 24/7 AI assistant. I can find products, track orders, and answer questions!"
+      ]
+    }
+  ]
+}

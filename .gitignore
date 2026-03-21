@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# ML models (large binary files)
+chatbot-ml/models/*.pkl
+
+# Sensitive config — real credentials, never commit
+config/secrets.php
+_brevo_api_send.php
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# Temp
+*.tmp
+*.bak

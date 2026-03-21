@@ -1,0 +1,1162 @@
+id,name,description,price,stock,category,image
+1,Samsung Galaxy A54 5G,"6.4in AMOLED 120Hz, 128GB, 5000mAh, 50MP camera, Android 13, IP67",450000.00,24,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Back_of_the_Samsung_Galaxy_A54_5G.jpg/330px-Back_of_the_Samsung_Galaxy_A54_5G.jpg
+2,Samsung Galaxy A34 5G,"6.6in AMOLED, 128GB, 5000mAh, 48MP camera, Dimensity 1080, 25W charge",320000.00,30,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/%EC%82%BC%EC%84%B1_%EA%B0%A4%EB%9F%AD%EC%8B%9C_A34.jpg/330px-%EC%82%BC%EC%84%B1_%EA%B0%A4%EB%9F%AD%EC%8B%9C_A34.jpg
+3,Samsung Galaxy A14,"6.6in PLS LCD, 64GB, 5000mAh, 50MP triple camera, entry-level",130000.00,50,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Samsung_Galaxy_A14_5G_2023_model_%28cropped%29.jpg/330px-Samsung_Galaxy_A14_5G_2023_model_%28cropped%29.jpg
+4,Samsung Galaxy A24,"6.5in AMOLED 90Hz, 128GB, 5000mAh, 50MP camera, 25W fast charge",210000.00,35,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/%EC%82%BC%EC%84%B1_%EA%B0%A4%EB%9F%AD%EC%8B%9C_A24.jpg/330px-%EC%82%BC%EC%84%B1_%EA%B0%A4%EB%9F%AD%EC%8B%9C_A24.jpg
+5,Samsung Galaxy S23,"6.1in Dynamic AMOLED 120Hz, 256GB, Snapdragon 8 Gen 2, 50MP camera",980000.00,12,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Galaxy_S23.png/330px-Galaxy_S23.png
+6,Samsung Galaxy S23 Ultra,"6.8in QHD+ AMOLED, 512GB, 200MP camera, S Pen, 5000mAh",1650000.00,6,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Galaxy_S23.png/330px-Galaxy_S23.png
+7,Samsung Galaxy Z Fold5,"7.6in foldable AMOLED, 256GB, Snapdragon 8 Gen 2, dual screen",2200000.00,4,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Samsung_Galaxy_Z_Fold_5_%28Gray%29.png/330px-Samsung_Galaxy_Z_Fold_5_%28Gray%29.png
+8,Samsung Galaxy Z Flip5,"6.7in foldable AMOLED, 256GB, Snapdragon 8 Gen 2, compact flip",1450000.00,5,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Samsung_Galaxy_Z_Flip_5_%28Cream%29.png/330px-Samsung_Galaxy_Z_Flip_5_%28Cream%29.png
+9,iPhone 14 128GB,"6.1in Super Retina XDR, A15 Bionic, 12MP dual camera, iOS 16, 5G",1350000.00,10,Smartphones & Tablets,products/p9.jpg
+10,iPhone 14 Pro 256GB,"6.1in ProMotion OLED, A16 Bionic, 48MP triple camera, Dynamic Island",1750000.00,7,Smartphones & Tablets,products/p10.jpg
+11,iPhone 15 128GB,"6.1in Super Retina XDR, A16 Bionic, 48MP camera, USB-C, iOS 17",1480000.00,9,Smartphones & Tablets,products/p11.jpg
+12,iPhone 15 Pro 256GB,"6.1in ProMotion OLED, A17 Pro, 48MP triple camera, titanium design",1850000.00,7,Smartphones & Tablets,products/p12.jpg
+13,iPhone 15 Pro Max 256GB,"6.7in ProMotion OLED, A17 Pro, 48MP periscope camera, titanium",2100000.00,5,Smartphones & Tablets,products/p13.jpg
+14,Tecno Spark 20 Pro,"6.78in AMOLED 120Hz, 256GB, 5000mAh, 50MP AI camera, 33W charge",180000.00,40,Smartphones & Tablets,products/p14.jpg
+15,Tecno Spark 20C,"6.56in IPS, 128GB, 5000mAh, 50MP camera, 18W fast charge, budget",120000.00,55,Smartphones & Tablets,products/p15.jpg
+16,Tecno Camon 20 Pro,"6.67in AMOLED, 256GB, 64MP RGBW camera, 5000mAh, 33W fast charge",280000.00,22,Smartphones & Tablets,products/p16.jpg
+17,Tecno Phantom X2 Pro,"6.8in AMOLED 120Hz, 256GB, 50MP retractable portrait lens, 5160mAh",420000.00,15,Smartphones & Tablets,products/p17.jpg
+18,Infinix Hot 40 Pro,"6.78in IPS LCD, 256GB, 5000mAh, 108MP camera, 33W fast charge",160000.00,35,Smartphones & Tablets,products/p18.jpg
+19,Infinix Hot 40i,"6.56in IPS, 128GB, 5000mAh, 50MP camera, 18W charge, budget",100000.00,60,Smartphones & Tablets,products/p19.jpg
+20,Infinix Zero 30 5G,"6.78in AMOLED 144Hz, 256GB, 50MP front camera, 5000mAh, 68W charge",250000.00,20,Smartphones & Tablets,products/p20.jpg
+21,Xiaomi Redmi Note 13,"6.67in AMOLED 120Hz, 128GB, 5000mAh, 108MP camera, Snapdragon 685",220000.00,30,Smartphones & Tablets,products/p21.jpg
+22,Xiaomi Redmi Note 13 Pro,"6.67in AMOLED 120Hz, 256GB, 200MP camera, 5100mAh, 67W fast charge",350000.00,18,Smartphones & Tablets,products/p22.jpg
+23,Xiaomi 13T Pro,"6.67in AMOLED 144Hz, 256GB, Dimensity 9200+, 50MP Leica camera",780000.00,10,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Shibuya-Tokyo---2024-08-28_064.jpg/330px-Shibuya-Tokyo---2024-08-28_064.jpg
+24,Oppo A78,"6.43in AMOLED, 128GB, 5000mAh, 50MP camera, 67W SUPERVOOC charge",230000.00,25,Smartphones & Tablets,products/p24.jpg
+25,Oppo Reno10 Pro,"6.74in AMOLED 120Hz, 256GB, 50MP triple camera, 80W fast charge",580000.00,12,Smartphones & Tablets,products/p25.jpg
+26,Vivo Y36,"6.64in IPS, 128GB, 5000mAh, 50MP camera, 44W FlashCharge, slim",195000.00,28,Smartphones & Tablets,products/p26.jpg
+27,Vivo V29,"6.78in AMOLED 120Hz, 256GB, 50MP OIS camera, 4600mAh, 80W charge",520000.00,14,Smartphones & Tablets,products/p27.jpg
+28,Huawei Nova 11i,"6.8in IPS, 128GB, 6000mAh, 48MP camera, EMUI 13, 40W fast charge",210000.00,20,Smartphones & Tablets,products/p28.jpg
+29,Nokia G42 5G,"6.56in IPS, 128GB, 5000mAh, 50MP camera, 20W charge, 3yr OS updates",185000.00,22,Smartphones & Tablets,products/p29.jpg
+30,Motorola Moto G84,"6.55in pOLED 120Hz, 256GB, 50MP OIS camera, 5000mAh, 33W TurboPower",280000.00,18,Smartphones & Tablets,products/p30.jpg
+31,Itel P40,"6.6in IPS, 64GB, 6000mAh ultra battery, 13MP camera, ultra affordable",75000.00,60,Smartphones & Tablets,products/p31.jpg
+32,Samsung Galaxy Tab A8,"10.5in TFT, 64GB, 7040mAh, Android 11, 8MP camera, for students",320000.00,18,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Samsung_Galaxy_Tab_A8.jpg/330px-Samsung_Galaxy_Tab_A8.jpg
+33,Samsung Galaxy Tab S9 FE,"10.9in TFT 90Hz, 128GB, Exynos 1380, 8000mAh, S Pen, IP68",580000.00,10,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Samsung_Galaxy_Tab_S9.png/330px-Samsung_Galaxy_Tab_S9.png
+34,iPad 10th Generation,"10.9in Liquid Retina, 64GB, A14 Bionic, 12MP camera, USB-C",750000.00,10,Smartphones & Tablets,products/p34.jpg
+35,iPad Air M1,"10.9in Liquid Retina, 64GB, M1 chip, 12MP camera, USB-C, Touch ID",1050000.00,7,Smartphones & Tablets,products/p35.jpg
+36,Xiaomi Pad 6,"11in IPS 144Hz, 128GB, Snapdragon 870, 8840mAh, 33W fast charge",420000.00,12,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Xiaomi_Pad_6_display.jpg/330px-Xiaomi_Pad_6_display.jpg
+37,Lenovo Tab M10 Plus,"10.6in 2K IPS, 64GB, Helio G80, 7700mAh, 4G LTE, kids mode",220000.00,20,Smartphones & Tablets,products/p37.jpg
+38,Samsung Galaxy Buds2 Pro,"True wireless ANC earbuds, IPX7, 8hr battery + 29hr case",180000.00,30,Smartphones & Tablets,products/p38.jpg
+39,Apple AirPods Pro 2nd Gen,"True wireless ANC earbuds, H2 chip, 6hr battery, MagSafe case",280000.00,12,Smartphones & Tablets,products/p39.jpg
+40,Jabra Elite 4 Active,"True wireless ANC earbuds, IP57, 7hr battery, multipoint",120000.00,20,Smartphones & Tablets,products/p40.jpg
+41,Samsung Galaxy A05s,"6.7in PLS LCD, 64GB, 5000mAh, 50MP triple camera, Snapdragon 680",115000.00,45,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Samsung_Galaxy_A05s_2024.jpg/330px-Samsung_Galaxy_A05s_2024.jpg
+42,Tecno Pop 7 Pro,"6.6in IPS, 64GB, 5000mAh, 13MP camera, face unlock, entry level",65000.00,70,Smartphones & Tablets,products/p42.jpg
+43,Infinix Smart 8,"6.6in IPS, 64GB, 5000mAh, 13MP camera, Android 13 Go, affordable",70000.00,65,Smartphones & Tablets,products/p43.jpg
+44,Xiaomi Redmi 13C,"6.74in IPS, 128GB, 5000mAh, 50MP camera, Helio G85, 18W charge",140000.00,40,Smartphones & Tablets,products/p44.jpg
+45,Realme C55,"6.72in IPS 90Hz, 128GB, 5000mAh, 64MP camera, 33W fast charge",175000.00,32,Smartphones & Tablets,products/p45.jpg
+46,Google Pixel 7a,"6.1in OLED 90Hz, 128GB, Google Tensor G2, 64MP camera, 5G, IP67",680000.00,8,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Pixel_7a_%282023%29.svg/330px-Pixel_7a_%282023%29.svg.png
+47,OnePlus Nord CE3 Lite,"6.72in IPS 120Hz, 128GB, 5000mAh, 108MP camera, 67W SUPERVOOC",310000.00,20,Smartphones & Tablets,products/p47.jpg
+48,Realme GT5,"6.74in AMOLED 144Hz, 256GB, Snapdragon 8 Gen 2, 50MP camera, 240W charge",850000.00,8,Smartphones & Tablets,products/p48.jpg
+49,Itel A70,"6.6in IPS, 256GB, 5000mAh, 13MP camera, 10W charge, budget Rwanda",55000.00,80,Smartphones & Tablets,products/p49.jpg
+50,Samsung Galaxy M34 5G,"6.5in Super AMOLED 120Hz, 128GB, 6000mAh, 50MP triple camera",260000.00,25,Smartphones & Tablets,products/p50.jpg
+51,Tecno Spark Go 2024,"6.56in IPS, 64GB, 5000mAh, 13MP camera, face unlock, very affordable",50000.00,90,Smartphones & Tablets,products/p51.jpg
+52,Xiaomi Poco X5 Pro,"6.67in AMOLED 120Hz, 256GB, Snapdragon 778G, 108MP camera, 67W",380000.00,18,Smartphones & Tablets,products/p52.jpg
+53,Oppo A17,"6.56in IPS, 64GB, 5000mAh, 50MP camera, 33W fast charge, slim design",145000.00,38,Smartphones & Tablets,products/p53.jpg
+54,Vivo Y16,"6.51in IPS, 64GB, 5000mAh, 13MP camera, 15W charge, budget phone",110000.00,42,Smartphones & Tablets,products/p54.jpg
+55,Nokia C32,"6.52in IPS, 64GB, 5000mAh, 50MP camera, 18W charge, 3yr OS guarantee",95000.00,48,Smartphones & Tablets,products/p55.jpg
+56,Motorola Moto E13,"6.5in IPS, 64GB, 5000mAh, 13MP camera, Android 13 Go, affordable",80000.00,55,Smartphones & Tablets,products/p56.jpg
+57,HP Laptop 15s,"Intel Core i5-12th Gen, 8GB RAM, 512GB SSD, 15.6in FHD, Windows 11",750000.00,15,Laptops & Computers,products/p57.jpg
+58,Dell Inspiron 15,"Intel Core i7-12th Gen, 16GB RAM, 512GB SSD, 15.6in FHD, backlit keyboard",950000.00,10,Laptops & Computers,products/p58.jpg
+59,Lenovo IdeaPad 3,"AMD Ryzen 5, 8GB RAM, 256GB SSD, 15.6in FHD, Windows 11, for students",620000.00,18,Laptops & Computers,products/p59.jpg
+60,MacBook Air M2,"Apple M2 chip, 8GB RAM, 256GB SSD, 13.6in Liquid Retina, 18hr battery",1650000.00,6,Laptops & Computers,products/p60.jpg
+61,Asus VivoBook 15,"Intel Core i5, 8GB RAM, 512GB SSD, 15.6in FHD OLED display",680000.00,12,Laptops & Computers,products/p61.jpg
+62,HP EliteBook 840 G9,"Intel Core i7, 16GB RAM, 512GB SSD, 14in FHD, business laptop",1200000.00,8,Laptops & Computers,products/p62.jpg
+63,Acer Aspire 5,"Intel Core i5, 8GB RAM, 512GB SSD, 15.6in FHD IPS, slim design",640000.00,14,Laptops & Computers,products/p63.jpg
+64,Lenovo ThinkPad E15,"Intel Core i7, 16GB RAM, 512GB SSD, 15.6in FHD, MIL-SPEC durability",1100000.00,7,Laptops & Computers,products/p64.jpg
+65,HP Desktop PC i5,"Intel Core i5, 8GB RAM, 1TB HDD + 256GB SSD, Windows 11, keyboard+mouse",580000.00,10,Laptops & Computers,products/p65.jpg
+66,Dell 24in Monitor FHD,"24in Full HD IPS, 75Hz, HDMI+VGA, slim bezel, eye-care technology",180000.00,20,Laptops & Computers,products/p66.jpg
+67,Logitech MX Keys Keyboard,"Wireless backlit keyboard, multi-device, USB-C rechargeable, quiet keys",65000.00,30,Laptops & Computers,products/p67.jpg
+68,Logitech MX Master 3 Mouse,"Wireless ergonomic mouse, 4000 DPI, MagSpeed scroll, multi-device",55000.00,35,Laptops & Computers,products/p68.jpg
+69,MacBook Pro M3 14in,"Apple M3 chip, 8GB RAM, 512GB SSD, 14.2in Liquid Retina XDR, 22hr battery",2200000.00,4,Laptops & Computers,products/p69.jpg
+70,Dell XPS 15,"Intel Core i7-13th Gen, 16GB RAM, 512GB SSD, 15.6in OLED 3.5K, premium",1850000.00,5,Laptops & Computers,https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/DELL_XPS_13_and_15_%2837080596413%29.jpg/330px-DELL_XPS_13_and_15_%2837080596413%29.jpg
+71,Asus ROG Strix G15,"AMD Ryzen 9, 16GB RAM, 512GB SSD, RTX 3060, 15.6in 144Hz, gaming",1400000.00,6,Laptops & Computers,products/p71.jpg
+72,HP Pavilion Gaming 15,"Intel Core i5, 8GB RAM, 512GB SSD, GTX 1650, 15.6in 144Hz, gaming",980000.00,9,Laptops & Computers,products/p72.jpg
+73,Lenovo Legion 5,"AMD Ryzen 7, 16GB RAM, 512GB SSD, RTX 3060, 15.6in 165Hz, gaming",1350000.00,7,Laptops & Computers,products/p73.jpg
+74,Acer Nitro 5,"Intel Core i5, 8GB RAM, 512GB SSD, RTX 3050, 15.6in 144Hz, gaming",880000.00,10,Laptops & Computers,products/p74.jpg
+75,Microsoft Surface Pro 9,"Intel Core i5, 8GB RAM, 256GB SSD, 13in PixelSense, 2-in-1 tablet",1500000.00,5,Laptops & Computers,products/p75.jpg
+76,HP 27in 4K Monitor,"27in 4K UHD IPS, 60Hz, USB-C, HDMI, DisplayPort, eye-care",320000.00,12,Laptops & Computers,products/p76.jpg
+77,Samsung 27in Curved Monitor,"27in FHD VA curved, 75Hz, AMD FreeSync, HDMI, slim bezel",220000.00,15,Laptops & Computers,products/p77.jpg
+78,Logitech C920 Webcam,"1080p HD webcam, autofocus, stereo mic, USB, for video calls",55000.00,25,Laptops & Computers,products/p78.jpg
+79,HP LaserJet Pro M15w,"Wireless laser printer, 19ppm, USB+WiFi, compact, Windows/Mac",180000.00,10,Laptops & Computers,products/p79.jpg
+80,Canon PIXMA G3420,"Wireless inkjet printer, print/scan/copy, refillable ink tank, WiFi",145000.00,12,Laptops & Computers,products/p80.jpg
+81,WD 1TB External HDD,"USB 3.0 portable hard drive, 1TB, slim design, plug-and-play",45000.00,40,Laptops & Computers,products/p81.jpg
+82,Samsung 1TB SSD T7,"Portable SSD, 1TB, USB 3.2, 1050MB/s read, compact, shock-resistant",95000.00,19,Laptops & Computers,products/p82.jpg
+83,Kingston 16GB USB Flash,"USB 3.2 flash drive, 16GB, 200MB/s read, compact, durable",8000.00,80,Laptops & Computers,products/p83.jpg
+84,Corsair 16GB DDR4 RAM,"16GB DDR4 3200MHz, desktop RAM, CL16, compatible with Intel/AMD",45000.00,25,Laptops & Computers,products/p84.jpg
+85,Intel Core i5-12400 CPU,"12th Gen, 6 cores, 12 threads, 4.4GHz boost, LGA1700, 65W TDP",180000.00,10,Laptops & Computers,products/p85.jpg
+86,Nvidia GTX 1650 GPU,"4GB GDDR6, 1665MHz boost, HDMI+DP, low power, gaming graphics card",280000.00,8,Laptops & Computers,products/p86.jpg
+87,Asus 24in FHD Monitor,"24in IPS FHD, 75Hz, HDMI+VGA, ultra-slim, flicker-free, eye care",120000.00,18,Laptops & Computers,products/p87.jpg
+88,Lenovo IdeaPad 1,"Intel Celeron, 4GB RAM, 128GB SSD, 14in HD, Windows 11 S, budget",320000.00,20,Laptops & Computers,products/p88.jpg
+89,Acer Chromebook 314,"Intel Celeron, 4GB RAM, 64GB eMMC, 14in FHD, ChromeOS, 12hr battery",280000.00,15,Laptops & Computers,products/p89.jpg
+90,HP Stream 14,"Intel Celeron, 4GB RAM, 64GB eMMC, 14in HD, Windows 11 S, ultra budget",250000.00,18,Laptops & Computers,products/p90.jpg
+91,Dell Vostro 15,"Intel Core i5, 8GB RAM, 256GB SSD, 15.6in FHD, business laptop",720000.00,10,Laptops & Computers,products/p91.jpg
+92,Asus ZenBook 14,"Intel Core i5, 8GB RAM, 512GB SSD, 14in FHD OLED, slim 1.39kg",950000.00,8,Laptops & Computers,products/p92.jpg
+93,Razer DeathAdder V3,"Wired gaming mouse, 30000 DPI, 90hr battery, Focus Pro sensor",85000.00,15,Laptops & Computers,products/p93.jpg
+94,HyperX Alloy Origins Keyboard,"Mechanical gaming keyboard, RGB, HyperX Red switches, USB-C",95000.00,12,Laptops & Computers,products/p94.jpg
+95,Anker USB-C Hub 7-in-1,"USB-C hub, 4K HDMI, 3x USB-A, SD card, 100W PD, compact",35000.00,30,Laptops & Computers,products/p95.jpg
+96,TP-Link WiFi 6 Router,"AX1800 dual-band WiFi 6, 4 antennas, MU-MIMO, 1.5GHz CPU",95000.00,15,Laptops & Computers,products/p96.jpg
+97,Samsung 43in Smart TV 4K,"43in Crystal UHD 4K, HDR, Tizen OS, Netflix/YouTube, 3 HDMI",550000.00,12,TV & Audio,products/p97.jpg
+98,LG 55in OLED Smart TV,"55in OLED 4K, 120Hz, webOS, Dolby Vision, AI ThinQ, perfect blacks",1450000.00,5,TV & Audio,products/p98.jpg
+99,Hisense 32in Smart TV,"32in HD Smart TV, VIDAA OS, Netflix/YouTube, 2 HDMI, budget",220000.00,20,TV & Audio,products/p99.jpg
+100,Sony 50in Bravia 4K,"50in 4K HDR, X1 processor, Android TV, Google Assistant, Dolby Atmos",780000.00,8,TV & Audio,products/p100.jpg
+101,JBL Charge 5 Speaker,"Portable Bluetooth speaker, 20hr battery, IP67 waterproof, PartyBoost",120000.00,25,TV & Audio,products/p101.jpg
+102,Sony WH-1000XM5 Headphones,"Wireless noise-cancelling, 30hr battery, Hi-Res Audio, foldable",280000.00,15,TV & Audio,products/p102.jpg
+103,Samsung Soundbar HW-B450,"2.1ch soundbar, 300W, Dolby Audio, Bluetooth, wireless subwoofer",180000.00,10,TV & Audio,products/p103.jpg
+104,JBL Flip 6 Speaker,"Portable Bluetooth speaker, 12hr battery, IP67, bold sound, USB-C",85000.00,30,TV & Audio,products/p104.jpg
+105,Bose QuietComfort 45,"Wireless noise-cancelling headphones, 24hr battery, premium comfort",320000.00,8,TV & Audio,products/p105.jpg
+106,Xiaomi Mi TV Stick 4K,"Streaming stick, 4K HDR, Android TV, Google Assistant, Chromecast",45000.00,40,TV & Audio,products/p106.jpg
+107,LG 43in Smart TV FHD,"43in Full HD, webOS, ThinQ AI, Netflix/YouTube, 3 HDMI, 2 USB",380000.00,15,TV & Audio,products/p107.jpg
+108,TCL 55in QLED 4K TV,"55in QLED 4K, 60Hz, Android TV, Dolby Vision, HDR10+, 3 HDMI",650000.00,8,TV & Audio,products/p108.jpg
+109,Hisense 55in 4K Smart TV,"55in 4K UHD, VIDAA OS, Dolby Vision, HDR10, 3 HDMI, 2 USB",520000.00,10,TV & Audio,products/p109.jpg
+110,Sony HT-S400 Soundbar,"2.1ch soundbar, 330W, Bluetooth, HDMI ARC, X-Balanced speaker",220000.00,12,TV & Audio,products/p110.jpg
+111,JBL Xtreme 3 Speaker,"Portable Bluetooth speaker, 15hr battery, IP67, PartyBoost, USB-C",180000.00,15,TV & Audio,products/p111.jpg
+112,Anker Soundcore Q45 Headphones,"Wireless ANC headphones, 50hr battery, Hi-Res Audio, foldable",65000.00,20,TV & Audio,products/p112.jpg
+113,Samsung 65in Crystal UHD,"65in 4K Crystal UHD, HDR, Tizen OS, Motion Xcelerator, 3 HDMI",850000.00,6,TV & Audio,products/p113.jpg
+114,LG OLED C3 65in,"65in OLED evo 4K, 120Hz, G-Sync, Dolby Vision IQ, webOS 23",2200000.00,3,TV & Audio,products/p114.jpg
+115,Philips 50in 4K Ambilight TV,"50in 4K UHD, Ambilight 3-sided, Android TV, P5 processor",680000.00,7,TV & Audio,products/p115.jpg
+116,Bose SoundLink Flex,"Portable Bluetooth speaker, 12hr battery, IP67, PositionIQ",150000.00,18,TV & Audio,products/p116.jpg
+117,Sony SRS-XB33 Speaker,"Portable Bluetooth speaker, 24hr battery, IP67, Extra Bass, USB-C",95000.00,22,TV & Audio,products/p117.jpg
+118,Marshall Emberton II,"Portable Bluetooth speaker, 30hr battery, IP67, True Stereophonic",120000.00,15,TV & Audio,products/p118.jpg
+119,Sennheiser HD 450BT,"Wireless headphones, ANC, 30hr battery, USB-C, foldable, Hi-Res",95000.00,18,TV & Audio,products/p119.jpg
+120,JBL Tune 760NC,"Wireless ANC headphones, 35hr battery, USB-C, foldable, multipoint",75000.00,25,TV & Audio,products/p120.jpg
+121,Xiaomi Redmi Buds 4 Pro,"True wireless ANC earbuds, 43dB noise cancel, 9hr battery, IP54",55000.00,30,TV & Audio,products/p121.jpg
+122,Samsung Galaxy Buds FE,"True wireless ANC earbuds, 6hr battery + 21hr case, IPX2",95000.00,25,TV & Audio,products/p122.jpg
+123,Hisense 40in FHD Smart TV,"40in Full HD, VIDAA OS, Netflix/YouTube, 2 HDMI, budget Rwanda",280000.00,18,TV & Audio,products/p123.jpg
+124,TCL 32in HD Smart TV,"32in HD, Android TV, Google Assistant, 2 HDMI, budget friendly",185000.00,22,TV & Audio,products/p124.jpg
+125,Xiaomi TV A2 43in,"43in FHD, Android TV 11, Google Assistant, Chromecast, 3 HDMI",320000.00,14,TV & Audio,products/p125.jpg
+126,Polk Audio Signa S2 Soundbar,"2.1ch soundbar, 80W, Dolby Digital, Bluetooth, HDMI ARC",145000.00,10,TV & Audio,products/p126.jpg
+127,Samsung 253L Refrigerator,"Double door, frost-free, digital inverter, energy saving, silver",650000.00,8,Home Appliances,products/p127.jpg
+128,LG 7kg Washing Machine,"Front load, 1400 RPM, steam wash, AI DD technology, energy A+++",580000.00,6,Home Appliances,products/p128.jpg
+129,Hisense 150L Refrigerator,"Single door, direct cool, low energy, ideal for small homes",280000.00,15,Home Appliances,products/p129.jpg
+130,Ramtons Microwave 20L,"20L solo microwave, 700W, 5 power levels, defrost function, white",65000.00,20,Home Appliances,products/p130.jpg
+131,Bruhm Gas Cooker 4-Burner,"4-burner gas cooker with oven, stainless steel, auto ignition",180000.00,12,Home Appliances,products/p131.jpg
+132,Philips Air Fryer 4.1L,"4.1L, 1400W, rapid air technology, up to 90% less fat, digital",120000.00,18,Home Appliances,products/p132.jpg
+133,Ramtons Electric Kettle 1.7L,"1.7L stainless steel, 2200W, auto shut-off, boil-dry protection",18000.00,50,Home Appliances,products/p133.jpg
+134,Panasonic Rice Cooker 1.8L,"1.8L, 10 cups, keep-warm function, non-stick inner pot, steam tray",28000.00,35,Home Appliances,products/p134.jpg
+135,Dyson V12 Vacuum Cleaner,"Cordless vacuum, 150AW suction, HEPA filtration, 60min battery",480000.00,5,Home Appliances,products/p135.jpg
+136,Midea 1.5HP Split AC,"1.5HP inverter AC, 12000 BTU, WiFi control, energy saving, R32",420000.00,7,Home Appliances,products/p136.jpg
+137,Blueflame Electric Heater,"2000W fan heater, 3 heat settings, overheat protection, portable",35000.00,25,Home Appliances,products/p137.jpg
+138,Kenwood Stand Mixer 5L,"5L bowl, 1000W, 6 speeds, dough hook + whisk + beater, stainless",145000.00,10,Home Appliances,products/p138.jpg
+139,Samsung 400L Refrigerator,"French door, no-frost, Twin Cooling Plus, 400L, energy saving",1200000.00,5,Home Appliances,products/p139.jpg
+140,LG 9kg Washing Machine,"Top load, 700 RPM, TurboDrum, Smart Inverter, energy efficient",480000.00,8,Home Appliances,products/p140.jpg
+141,Hisense 200L Refrigerator,"Double door, frost-free, 200L, energy saving, silver finish",420000.00,10,Home Appliances,products/p141.jpg
+142,Bruhm 2-Burner Gas Cooker,"2-burner table top gas cooker, stainless steel, auto ignition",65000.00,20,Home Appliances,products/p142.jpg
+143,Philips Blender 2L,"2L blender, 600W, 2 speeds + pulse, stainless steel blades, BPA-free",35000.00,25,Home Appliances,products/p143.jpg
+144,Ramtons Sandwich Maker,"Non-stick sandwich maker, 750W, indicator light, cool-touch handle",12000.00,40,Home Appliances,products/p144.jpg
+145,Midea 2HP Split AC,"2HP inverter AC, 18000 BTU, WiFi, self-cleaning, energy saving",580000.00,5,Home Appliances,products/p145.jpg
+146,Panasonic Microwave 25L,"25L solo microwave, 900W, 6 power levels, defrost, child lock",85000.00,15,Home Appliances,products/p146.jpg
+147,Kenwood Food Processor,"800W, 2.1L bowl, 6 attachments, slice/shred/blend/chop, stainless",95000.00,12,Home Appliances,products/p147.jpg
+148,Dyson Purifier Hot+Cool,"Air purifier + heater + fan, HEPA H13, 360° filtration, WiFi",650000.00,4,Home Appliances,products/p148.jpg
+149,LG Dishwasher 14 Place,"14 place settings, 6 programs, inverter direct drive, A++ energy",850000.00,4,Home Appliances,products/p149.jpg
+150,Samsung Microwave 28L,"28L convection microwave, 900W, grill, ceramic enamel interior",120000.00,10,Home Appliances,products/p150.jpg
+151,Bruhm 6-Burner Gas Cooker,"6-burner gas cooker with oven, stainless steel, auto ignition",280000.00,8,Home Appliances,products/p151.jpg
+152,Philips Juicer 1.5L,"1.5L juicer, 400W, 2 speeds, XL feed tube, easy clean, BPA-free",28000.00,22,Home Appliances,products/p152.jpg
+153,Ramtons Toaster 4-Slice,"4-slice toaster, 1500W, 7 browning levels, cancel/defrost/reheat",22000.00,30,Home Appliances,products/p153.jpg
+154,Midea Chest Freezer 100L,"100L chest freezer, manual defrost, energy saving, white finish",280000.00,10,Home Appliances,products/p154.jpg
+155,Hisense Washing Machine 7kg,"Top load, 700 RPM, 7kg, 8 programs, child lock, energy efficient",320000.00,10,Home Appliances,products/p155.jpg
+156,Panasonic Iron 2400W,"2400W steam iron, non-stick soleplate, anti-drip, self-clean",18000.00,35,Home Appliances,products/p156.jpg
+157,Kenwood Electric Grill,"2000W contact grill, non-stick plates, adjustable temperature",45000.00,15,Home Appliances,products/p157.jpg
+158,Philips Pressure Cooker 6L,"6L electric pressure cooker, 12 programs, keep-warm, stainless",65000.00,12,Home Appliances,products/p158.jpg
+159,Ramtons Water Dispenser,"Hot & cold water dispenser, 3 taps, child safety lock, stainless",85000.00,10,Home Appliances,products/p159.jpg
+160,Midea Portable AC 1HP,"1HP portable AC, 9000 BTU, no installation needed, remote control",320000.00,6,Home Appliances,products/p160.jpg
+161,Samsung Robot Vacuum,"Robot vacuum, 2500Pa suction, LiDAR mapping, WiFi, auto-empty",580000.00,5,Home Appliances,products/p161.jpg
+162,Men Slim Fit Chino Pants,"Stretch cotton chino, slim fit, khaki/navy/black, sizes 28-38",18000.00,60,Fashion Men,products/p162.jpg
+163,Men Formal Dress Shirt,"100% cotton, long sleeve, slim fit, white/blue/grey, sizes S-XXL",12000.00,80,Fashion Men,products/p163.jpg
+164,Men Polo Shirt,"Premium pique cotton polo, embroidered logo, sizes S-XXL, multi-color",8500.00,100,Fashion Men,products/p164.jpg
+165,Men Leather Oxford Shoes,"Genuine leather, lace-up, rubber sole, formal/casual, sizes 39-45",65000.00,30,Fashion Men,products/p165.jpg
+166,Men Running Sneakers Nike,"Lightweight mesh upper, cushioned sole, breathable, sizes 39-45",35000.00,45,Fashion Men,products/p166.jpg
+167,Men Leather Belt,"Genuine leather belt, automatic buckle, 3.5cm width, black/brown",9500.00,70,Fashion Men,products/p167.jpg
+168,Men Casual Hoodie,"Fleece hoodie, kangaroo pocket, drawstring, sizes S-XXL, grey/black",15000.00,55,Fashion Men,products/p168.jpg
+169,Men Denim Jeans Slim,"Stretch denim, slim fit, 5-pocket, dark blue/black, sizes 28-38",16000.00,65,Fashion Men,products/p169.jpg
+170,Men Suit 2-Piece,"Polyester-wool blend, slim fit, 2-button, navy/charcoal, sizes 36-52",85000.00,20,Fashion Men,products/p170.jpg
+171,Men Wrist Watch Casio,"Casio MTP-V001, analog, stainless steel, water resistant 50m",22000.00,40,Fashion Men,products/p171.jpg
+172,Men Sunglasses Polarized,"UV400 polarized lenses, metal frame, unisex, comes with case",8000.00,50,Fashion Men,products/p172.jpg
+173,Men Backpack 30L,"Water-resistant polyester, laptop compartment 15.6in, USB port, black",25000.00,35,Fashion Men,products/p173.jpg
+174,Men Adidas Track Suit,"Polyester track suit, zip jacket + pants, sizes S-XXL, 3 stripes",28000.00,40,Fashion Men,products/p174.jpg
+175,Men Leather Wallet,"Genuine leather bifold wallet, 8 card slots, RFID blocking, slim",12000.00,60,Fashion Men,products/p175.jpg
+176,Men Formal Trousers,"Polyester-wool blend, flat front, slim fit, black/grey, sizes 28-38",14000.00,50,Fashion Men,products/p176.jpg
+177,Men Casual T-Shirt Pack 3,"100% cotton crew neck t-shirts, 3-pack, white/black/grey, S-XXL",12000.00,80,Fashion Men,products/p177.jpg
+178,Men Leather Loafers,"Genuine leather slip-on loafers, rubber sole, sizes 39-45, brown",45000.00,25,Fashion Men,products/p178.jpg
+179,Men Sports Shorts,"Polyester sports shorts, elastic waist, 2 pockets, sizes S-XXL",6500.00,70,Fashion Men,products/p179.jpg
+180,Men Winter Jacket,"Padded winter jacket, water-resistant, hood, sizes S-XXL, black/navy",35000.00,30,Fashion Men,products/p180.jpg
+181,Men Tie Silk,"100% polyester silk tie, 8cm width, multiple patterns, gift box",8000.00,45,Fashion Men,products/p181.jpg
+182,Men Dress Shoes Formal,"Patent leather Oxford, lace-up, rubber sole, sizes 39-45, black",55000.00,20,Fashion Men,products/p182.jpg
+183,Men Cargo Pants,"Cotton cargo pants, 6 pockets, relaxed fit, khaki/black, sizes 28-38",16000.00,45,Fashion Men,products/p183.jpg
+184,Men Swim Shorts,"Quick-dry polyester swim shorts, elastic waist, sizes S-XXL, multi",8500.00,40,Fashion Men,products/p184.jpg
+185,Men Wool Sweater,"Merino wool blend sweater, crew neck, sizes S-XXL, grey/navy/black",22000.00,30,Fashion Men,products/p185.jpg
+186,Men Cap Baseball,"Cotton baseball cap, adjustable strap, embroidered logo, multi-color",5000.00,80,Fashion Men,products/p186.jpg
+187,Men Socks Pack 6,"Cotton ankle socks, 6-pack, sizes 40-46, white/black/mixed colors",4500.00,100,Fashion Men,products/p187.jpg
+188,Men Underwear Pack 3,"Cotton boxer briefs, 3-pack, sizes S-XXL, comfortable waistband",7500.00,90,Fashion Men,products/p188.jpg
+189,Men Formal Blazer,"Polyester-wool blazer, single button, slim fit, navy/black, S-XXL",45000.00,25,Fashion Men,products/p189.jpg
+190,Men Sandals Leather,"Genuine leather sandals, adjustable strap, rubber sole, sizes 39-45",18000.00,35,Fashion Men,products/p190.jpg
+191,Men Gym Bag 40L,"Polyester gym bag, shoe compartment, wet pocket, shoulder strap",18000.00,30,Fashion Men,products/p191.jpg
+192,Women Floral Maxi Dress,"Chiffon floral print, V-neck, sleeveless, flowy, sizes XS-XL",14000.00,50,Fashion Women,products/p192.jpg
+193,Women Office Blazer,"Structured blazer, single button, slim fit, black/navy/grey, XS-XL",28000.00,30,Fashion Women,products/p193.jpg
+194,Women High Waist Jeans,"Stretch denim, high waist, skinny fit, blue/black, sizes 26-34",16000.00,55,Fashion Women,products/p194.jpg
+195,Women Leather Handbag,"PU leather tote bag, spacious, zip closure, shoulder strap, black",22000.00,40,Fashion Women,products/p195.jpg
+196,Women Heeled Sandals,"Block heel 7cm, ankle strap, faux leather, sizes 36-41, nude/black",18000.00,35,Fashion Women,products/p196.jpg
+197,Women Sports Leggings,"High waist compression, moisture-wicking, 4-way stretch, XS-XL",9500.00,70,Fashion Women,products/p197.jpg
+198,Women Silk Blouse,"100% polyester satin blouse, V-neck, long sleeve, elegant, XS-XL",11000.00,45,Fashion Women,products/p198.jpg
+199,Women Sneakers White,"Canvas sneakers, rubber sole, lace-up, classic white, sizes 36-41",18000.00,40,Fashion Women,products/p199.jpg
+200,Women Crossbody Bag,"Small crossbody bag, adjustable strap, multiple pockets, trendy",12000.00,50,Fashion Women,products/p200.jpg
+201,Women Wrist Watch Elegant,"Rose gold case, leather strap, quartz movement, water resistant",28000.00,25,Fashion Women,products/p201.jpg
+202,Women Perfume 100ml,"Floral-fruity fragrance, long-lasting 8hrs, elegant bottle, gift-ready",35000.00,30,Fashion Women,products/p202.jpg
+203,Women Ankara Dress,"African print Ankara fabric, fitted bodice, flared skirt, custom sizes",20000.00,40,Fashion Women,products/p203.jpg
+204,Women Cardigan Knit,"Soft knit cardigan, open front, long sleeve, sizes XS-XL, multi-color",14000.00,45,Fashion Women,products/p204.jpg
+205,Women Flat Shoes Ballet,"Faux leather ballet flats, cushioned insole, sizes 36-41, black/nude",12000.00,50,Fashion Women,products/p205.jpg
+206,Women Bodycon Dress,"Stretch bodycon midi dress, sleeveless, sizes XS-XL, black/red/navy",16000.00,40,Fashion Women,products/p206.jpg
+207,Women Tote Bag Canvas,"Canvas tote bag, zip closure, inner pocket, shoulder strap, natural",8500.00,60,Fashion Women,products/p207.jpg
+208,Women Running Shoes,"Lightweight mesh, cushioned sole, breathable, sizes 36-41, pink/white",28000.00,35,Fashion Women,products/p208.jpg
+209,Women Wrap Skirt,"Chiffon wrap skirt, midi length, floral print, sizes XS-XL, multi",10000.00,45,Fashion Women,products/p209.jpg
+210,Women Sunglasses Cat Eye,"UV400 cat eye sunglasses, metal frame, gradient lens, with case",7500.00,55,Fashion Women,products/p210.jpg
+211,Women Hoodie Oversized,"Fleece oversized hoodie, kangaroo pocket, sizes XS-XL, pastel colors",16000.00,50,Fashion Women,products/p211.jpg
+212,Women Formal Trousers,"High waist straight leg trousers, polyester, sizes XS-XL, black/grey",14000.00,40,Fashion Women,products/p212.jpg
+213,Women Bikini Set,"2-piece bikini, adjustable straps, sizes XS-XL, multi-color prints",12000.00,35,Fashion Women,products/p213.jpg
+214,Women Leather Jacket,"Faux leather biker jacket, zip closure, sizes XS-XL, black/brown",35000.00,20,Fashion Women,products/p214.jpg
+215,Women Hair Accessories Set,"Scrunchies + clips + headbands set, 20 pieces, multi-color",5000.00,80,Fashion Women,products/p215.jpg
+216,Women Scarf Silk,"100% polyester silk scarf, 90x90cm, multi-pattern, gift-ready",8000.00,50,Fashion Women,products/p216.jpg
+217,Women Jumpsuit,"Sleeveless wide-leg jumpsuit, V-neck, sizes XS-XL, black/white/navy",18000.00,35,Fashion Women,products/p217.jpg
+218,Women Sandals Flat,"Faux leather flat sandals, ankle strap, sizes 36-41, tan/black/white",10000.00,50,Fashion Women,products/p218.jpg
+219,Women Clutch Bag Evening,"Satin evening clutch, chain strap, rhinestone detail, multi-color",9500.00,40,Fashion Women,products/p219.jpg
+220,Women Yoga Pants,"High waist yoga pants, 4-way stretch, moisture-wicking, XS-XL",11000.00,55,Fashion Women,products/p220.jpg
+221,Women Winter Coat,"Wool blend long coat, belt, sizes XS-XL, camel/black/grey",45000.00,20,Fashion Women,products/p221.jpg
+222,Inyange Milk 1L,"Fresh whole milk, pasteurized, 1 liter pack, locally produced Rwanda",1200.00,200,Groceries & Food,products/p222.jpg
+223,Inyange Yogurt 500ml,"Strawberry/vanilla/plain yogurt, 500ml, no preservatives, chilled",1500.00,150,Groceries & Food,products/p223.jpg
+224,Akabanga Chili Oil 50ml,"Rwanda's famous hot chili oil, 50ml bottle, authentic Rwandan flavor",2500.00,300,Groceries & Food,products/p224.jpg
+225,Isange Rice 5kg,"Premium long grain white rice, 5kg bag, locally grown in Rwanda",6500.00,100,Groceries & Food,products/p225.jpg
+226,Cooking Oil Kimbo 2L,"Refined vegetable cooking oil, 2 liters, cholesterol-free",4500.00,120,Groceries & Food,products/p226.jpg
+227,Nido Milk Powder 400g,"Full cream milk powder, 400g tin, fortified with vitamins A & D",5500.00,80,Groceries & Food,products/p227.jpg
+228,Lipton Yellow Label Tea 100,"Black tea bags, 100 pack, classic blend, rich flavor",3500.00,150,Groceries & Food,products/p228.jpg
+229,Nescafe Classic 200g,"Instant coffee, 200g jar, rich aroma, smooth taste",6000.00,90,Groceries & Food,products/p229.jpg
+230,Indomie Noodles 70g x10,"Instant noodles, chicken flavor, 10-pack bundle, quick meal",3000.00,200,Groceries & Food,products/p230.jpg
+231,Colgate Toothpaste 150ml,"Cavity protection toothpaste, fluoride, fresh mint, 150ml",2200.00,180,Groceries & Food,products/p231.jpg
+232,Ariel Detergent 1kg,"Washing powder, 1kg, removes tough stains, fresh scent",3800.00,130,Groceries & Food,products/p232.jpg
+233,Dettol Soap 3-Pack,"Antibacterial bar soap, 3x100g, original scent, kills 99.9% germs",2800.00,200,Groceries & Food,products/p233.jpg
+234,Heinz Tomato Ketchup 570g,"Classic tomato ketchup, 570g squeeze bottle, no artificial colors",4200.00,100,Groceries & Food,products/p234.jpg
+235,Pringles Original 165g,"Crispy potato chips, original flavor, 165g can, perfect snack",3500.00,120,Groceries & Food,products/p235.jpg
+236,Coca-Cola 1.5L,"Carbonated soft drink, 1.5L bottle, chilled and refreshing",1800.00,250,Groceries & Food,products/p236.jpg
+237,Inyange Butter 250g,"Pure cow butter, 250g, unsalted, locally produced in Rwanda",3500.00,100,Groceries & Food,products/p237.jpg
+238,Isange Maize Flour 2kg,"Fine maize flour, 2kg, for ugali/porridge, locally milled Rwanda",2500.00,150,Groceries & Food,products/p238.jpg
+239,Kimbo Cooking Fat 500g,"Vegetable cooking fat, 500g, for frying and baking, white",2800.00,120,Groceries & Food,products/p239.jpg
+240,Nestle Milo 400g,"Chocolate malt drink powder, 400g tin, energy drink for kids",5500.00,90,Groceries & Food,products/p240.jpg
+241,Lipton Green Tea 25 bags,"Green tea bags, 25 pack, antioxidant-rich, light refreshing taste",2500.00,120,Groceries & Food,products/p241.jpg
+242,Nescafe 3-in-1 x10,"Instant coffee sachets, 3-in-1, 10 pack, coffee+milk+sugar",3000.00,150,Groceries & Food,products/p242.jpg
+243,Sprite 1.5L,"Lemon-lime carbonated soft drink, 1.5L bottle, refreshing",1800.00,200,Groceries & Food,products/p243.jpg
+244,Fanta Orange 1.5L,"Orange carbonated soft drink, 1.5L bottle, fruity and sweet",1800.00,200,Groceries & Food,products/p244.jpg
+245,Omo Detergent 1kg,"Washing powder, 1kg, active clean, removes tough stains, fresh",3500.00,130,Groceries & Food,products/p245.jpg
+246,Sunlight Dish Soap 750ml,"Dish washing liquid, 750ml, lemon scent, cuts grease fast",2500.00,150,Groceries & Food,products/p246.jpg
+247,Dettol Liquid Soap 250ml,"Antibacterial liquid hand soap, 250ml pump, original scent",3000.00,120,Groceries & Food,products/p247.jpg
+248,Kellogg's Corn Flakes 500g,"Breakfast cereal, 500g, fortified with vitamins, crispy flakes",5500.00,80,Groceries & Food,products/p248.jpg
+249,Quaker Oats 1kg,"Rolled oats, 1kg, high fiber, heart healthy, quick cook",4500.00,90,Groceries & Food,products/p249.jpg
+250,Cadbury Bournvita 500g,"Chocolate malt drink, 500g, calcium + vitamins, energy boost",5000.00,85,Groceries & Food,products/p250.jpg
+251,Royco Beef Cubes x24,"Beef seasoning cubes, 24 pack, rich flavor, for soups and stews",2000.00,200,Groceries & Food,products/p251.jpg
+252,Maggi Tomato Paste 400g,"Concentrated tomato paste, 400g tin, rich color and flavor",2500.00,150,Groceries & Food,products/p252.jpg
+253,Soya Chunks 500g,"Textured soya protein, 500g, high protein, meat substitute",3500.00,100,Groceries & Food,products/p253.jpg
+254,Groundnut Paste 500g,"Pure groundnut paste, 500g, no additives, locally made Rwanda",3000.00,120,Groceries & Food,products/p254.jpg
+255,Honey Pure 500g,"Pure natural honey, 500g jar, locally harvested Rwanda, no additives",8500.00,60,Groceries & Food,products/p255.jpg
+256,Isange Wheat Flour 2kg,"All-purpose wheat flour, 2kg, for bread/cakes/chapati, fine grind",3000.00,130,Groceries & Food,products/p256.jpg
+257,Nivea Body Lotion 400ml,"Moisturizing body lotion, shea butter, 400ml, 48hr moisture",5500.00,80,Health & Beauty,products/p257.jpg
+258,Neutrogena Face Wash 200ml,"Oil-free acne wash, salicylic acid, 200ml, gentle daily cleanser",8500.00,60,Health & Beauty,products/p258.jpg
+259,Garnier Vitamin C Serum 30ml,"Brightening serum, 30ml, vitamin C + niacinamide, reduces dark spots",12000.00,50,Health & Beauty,products/p259.jpg
+260,Dove Shampoo 400ml,"Moisturizing shampoo, 400ml, intensive repair, for dry/damaged hair",5000.00,90,Health & Beauty,products/p260.jpg
+261,Oral-B Electric Toothbrush,"Rechargeable, 2 modes, 2-min timer, removes 100% more plaque",35000.00,25,Health & Beauty,products/p261.jpg
+262,Centrum Multivitamin 30tabs,"Complete multivitamin, 30 tablets, vitamins A-Z, immune support",8000.00,70,Health & Beauty,products/p262.jpg
+263,Vaseline Petroleum Jelly 250g,"Pure petroleum jelly, 250g, heals dry skin, lips, elbows",3500.00,120,Health & Beauty,products/p263.jpg
+264,Gillette Fusion Razor,"5-blade precision razor, lubricating strip, FlexBall, 2 cartridges",9500.00,55,Health & Beauty,products/p264.jpg
+265,Maybelline Lipstick,"Superstay matte ink lipstick, 16hr wear, 20 shades, transfer-proof",7500.00,65,Health & Beauty,products/p265.jpg
+266,Dettol Sanitizer 500ml,"Alcohol-based hand sanitizer, 500ml pump, kills 99.9% bacteria",4500.00,100,Health & Beauty,products/p266.jpg
+267,Nivea Men Face Wash 100ml,"Oil control face wash, 100ml, charcoal, deep cleansing, for men",4500.00,70,Health & Beauty,products/p267.jpg
+268,L'Oreal Shampoo 400ml,"Elvive extraordinary oil shampoo, 400ml, for dry/damaged hair",6500.00,60,Health & Beauty,products/p268.jpg
+269,Garnier Micellar Water 400ml,"Micellar cleansing water, 400ml, removes makeup, no rinse needed",7500.00,55,Health & Beauty,products/p269.jpg
+270,Dove Body Wash 500ml,"Moisturizing body wash, 500ml, shea butter, gentle on skin",5500.00,75,Health & Beauty,products/p270.jpg
+271,Colgate Mouthwash 500ml,"Antibacterial mouthwash, 500ml, kills 99.9% germs, fresh breath",4500.00,80,Health & Beauty,products/p271.jpg
+272,Pantene Conditioner 400ml,"Repair and protect conditioner, 400ml, for damaged hair, keratin",5500.00,65,Health & Beauty,products/p272.jpg
+273,Neutrogena Sunscreen SPF50,"Sunscreen lotion, SPF50, 88ml, broad spectrum UVA/UVB protection",8500.00,50,Health & Beauty,products/p273.jpg
+274,Maybelline Foundation,"Fit Me matte + poreless foundation, 30ml, 40 shades, SPF22",9500.00,55,Health & Beauty,products/p274.jpg
+275,Revlon Mascara,"Volume + length mascara, waterproof, 8ml, black, buildable formula",7000.00,60,Health & Beauty,products/p275.jpg
+276,Gillette Venus Razor Women,"3-blade women's razor, moisture ribbon, 2 cartridges, ergonomic",8500.00,50,Health & Beauty,products/p276.jpg
+277,Dettol Antiseptic Liquid 500ml,"Antiseptic liquid, 500ml, for wounds/skin/surface disinfection",5500.00,90,Health & Beauty,products/p277.jpg
+278,Nivea Lip Balm SPF15,"Moisturizing lip balm, SPF15, 4.8g, essential care, 24hr moisture",2500.00,100,Health & Beauty,products/p278.jpg
+279,Garnier BB Cream 50ml,"All-in-one BB cream, SPF25, 50ml, moisturize+cover+protect",8000.00,55,Health & Beauty,products/p279.jpg
+280,Dove Deodorant 150ml,"Antiperspirant deodorant spray, 150ml, 48hr protection, gentle",4500.00,80,Health & Beauty,products/p280.jpg
+281,Oral-B Toothbrush 3-Pack,"Soft bristle toothbrush, 3-pack, indicator bristles, ergonomic",5500.00,70,Health & Beauty,products/p281.jpg
+282,Centrum Women Multivitamin,"Women's multivitamin, 60 tablets, iron + folic acid + vitamins",12000.00,45,Health & Beauty,products/p282.jpg
+283,Bioderma Sensibio H2O 250ml,"Micellar water, 250ml, for sensitive skin, removes makeup gently",15000.00,35,Health & Beauty,products/p283.jpg
+284,The Ordinary Niacinamide 30ml,"10% niacinamide + 1% zinc serum, 30ml, reduces pores + blemishes",12000.00,40,Health & Beauty,products/p284.jpg
+285,Cetaphil Moisturizing Cream 250g,"Gentle moisturizing cream, 250g, for sensitive/dry skin, fragrance-free",14000.00,40,Health & Beauty,products/p285.jpg
+286,Himalaya Face Wash 150ml,"Purifying neem face wash, 150ml, removes oil and impurities, gentle",4500.00,75,Health & Beauty,products/p286.jpg
+287,Nike Air Max Running Shoes,"Air Max cushioning, breathable mesh, sizes 39-46, black/white/red",85000.00,30,Sports & Fitness,products/p287.jpg
+288,Adidas Training T-Shirt,"Climalite moisture-wicking, slim fit, sizes S-XXL, multi-color",18000.00,60,Sports & Fitness,products/p288.jpg
+289,Yoga Mat 6mm,"Non-slip TPE yoga mat, 183x61cm, 6mm thick, carrying strap",15000.00,45,Sports & Fitness,products/p289.jpg
+290,Adjustable Dumbbell Set 20kg,"Adjustable dumbbell pair, 2x10kg, cast iron, rubber grip",65000.00,20,Sports & Fitness,products/p290.jpg
+291,Jump Rope Speed,"Speed jump rope, ball bearings, adjustable length, foam handles",5500.00,80,Sports & Fitness,products/p291.jpg
+292,Resistance Bands Set 5pcs,"5 resistance levels, latex bands, door anchor + handles included",12000.00,55,Sports & Fitness,products/p292.jpg
+293,Football Adidas Size 5,"FIFA quality pro football, size 5, thermally bonded, all-weather",22000.00,35,Sports & Fitness,products/p293.jpg
+294,Cycling Helmet Adult,"57-61cm, 21 vents, adjustable fit, CE certified, multiple colors",18000.00,25,Sports & Fitness,products/p294.jpg
+295,Whey Protein 1kg,"Whey protein isolate, 1kg, chocolate/vanilla, 25g protein/serving",45000.00,30,Sports & Fitness,products/p295.jpg
+296,Water Bottle 1L Insulated,"Stainless steel, 1L, keeps cold 24hr/hot 12hr, leak-proof",8500.00,70,Sports & Fitness,products/p296.jpg
+297,Nike Dri-FIT Shorts,"Polyester training shorts, elastic waist, sizes S-XXL, multi-color",14000.00,50,Sports & Fitness,products/p297.jpg
+298,Adidas Ultraboost 22,"Running shoes, Boost midsole, Primeknit upper, sizes 39-46",120000.00,15,Sports & Fitness,products/p298.jpg
+299,Pull-Up Bar Doorway,"Doorway pull-up bar, no screws, 70-100cm adjustable, 150kg max",18000.00,30,Sports & Fitness,products/p299.jpg
+300,Gym Gloves Weightlifting,"Padded gym gloves, wrist support, sizes S-XL, anti-slip grip",8500.00,45,Sports & Fitness,products/p300.jpg
+301,Treadmill Manual 3-Level,"Manual treadmill, 3 incline levels, LCD display, foldable, home gym",280000.00,8,Sports & Fitness,products/p301.jpg
+302,Exercise Bike Stationary,"Stationary bike, 8 resistance levels, LCD display, adjustable seat",220000.00,6,Sports & Fitness,products/p302.jpg
+303,Basketball Spalding Size 7,"Official size 7 basketball, rubber, indoor/outdoor, orange",18000.00,30,Sports & Fitness,products/p303.jpg
+304,Tennis Racket Wilson,"Wilson Clash 100, graphite frame, 300g, grip size 4 3/8, with bag",65000.00,15,Sports & Fitness,products/p304.jpg
+305,Swimming Goggles Anti-Fog,"Anti-fog swimming goggles, UV protection, adjustable strap, adult",8500.00,40,Sports & Fitness,products/p305.jpg
+306,Foam Roller 45cm,"High-density foam roller, 45cm, for muscle recovery and massage",12000.00,35,Sports & Fitness,products/p306.jpg
+307,Kettlebell 16kg,"Cast iron kettlebell, 16kg, powder-coated, flat base, home gym",35000.00,20,Sports & Fitness,products/p307.jpg
+308,Skipping Rope Weighted,"Weighted skipping rope, 500g, adjustable length, foam handles",8500.00,45,Sports & Fitness,products/p308.jpg
+309,Badminton Set 4-Player,"4 rackets + 3 shuttlecocks + net, carry bag, for outdoor/indoor",22000.00,25,Sports & Fitness,products/p309.jpg
+310,Volleyball Mikasa Size 5,"Official size 5 volleyball, soft touch, indoor/outdoor, blue/yellow",18000.00,28,Sports & Fitness,products/p310.jpg
+311,Gym Bag Sports 40L,"Polyester gym bag, shoe compartment, wet pocket, shoulder strap",18000.00,35,Sports & Fitness,products/p311.jpg
+312,Ankle Weights 2kg Pair,"2kg ankle weights pair, adjustable velcro, for walking/exercise",8500.00,40,Sports & Fitness,products/p312.jpg
+313,Push-Up Handles Pair,"Ergonomic push-up handles, non-slip, 360° rotation, steel frame",8000.00,45,Sports & Fitness,products/p313.jpg
+314,Ab Roller Wheel,"Ab roller wheel, non-slip handles, knee pad included, core workout",8500.00,40,Sports & Fitness,products/p314.jpg
+315,Cycling Gloves Half-Finger,"Half-finger cycling gloves, padded palm, sizes S-XL, breathable",6500.00,35,Sports & Fitness,products/p315.jpg
+316,Sports Compression Socks,"Compression socks, sizes S-XL, for running/cycling, anti-blister",4500.00,60,Sports & Fitness,products/p316.jpg
+317,Pampers Diapers Size 3 x52,"Soft & dry diapers, size 3 (6-10kg), 52 count, 12hr protection",12000.00,80,Baby & Kids,products/p317.jpg
+318,Johnson Baby Lotion 500ml,"Gentle baby lotion, 500ml, clinically proven mild, 24hr moisture",6500.00,90,Baby & Kids,products/p318.jpg
+319,Baby Feeding Bottle Set,"BPA-free bottles, 3-pack (150ml+250ml+300ml), anti-colic nipple",8500.00,60,Baby & Kids,products/p319.jpg
+320,Kids School Backpack,"Lightweight school bag, 20L, padded straps, multiple pockets, 6-12yr",9500.00,55,Baby & Kids,products/p320.jpg
+321,Lego Classic Bricks 484pcs,"Classic building bricks, 484 pieces, 33 colors, ages 4+",28000.00,25,Baby & Kids,products/p321.jpg
+322,Baby Stroller Lightweight,"Foldable stroller, 0-36 months, 5-point harness, sun canopy",85000.00,10,Baby & Kids,products/p322.jpg
+323,Kids Bicycle 16in,"16in wheel bicycle, training wheels, ages 4-7, multiple colors",45000.00,15,Baby & Kids,products/p323.jpg
+324,Educational Puzzle 100pcs,"Wooden jigsaw puzzle, 100 pieces, animals theme, ages 3+",6500.00,50,Baby & Kids,products/p324.jpg
+325,Baby Monitor WiFi,"WiFi baby monitor, 1080p camera, night vision, 2-way audio",65000.00,12,Baby & Kids,products/p325.jpg
+326,Kids Clothing Set 3-piece,"Cotton t-shirt + shorts + cap set, ages 1-8, bright colors",7500.00,70,Baby & Kids,products/p326.jpg
+327,Pampers Diapers Size 4 x44,"Soft & dry diapers, size 4 (9-14kg), 44 count, 12hr protection",12000.00,75,Baby & Kids,products/p327.jpg
+328,Johnson Baby Shampoo 500ml,"Gentle baby shampoo, 500ml, no tears formula, mild and gentle",5500.00,85,Baby & Kids,products/p328.jpg
+329,Baby Carrier Ergonomic,"Ergonomic baby carrier, 0-36 months, lumbar support, breathable",45000.00,15,Baby & Kids,products/p329.jpg
+330,Kids Tablet 7in,"7in kids tablet, Android, parental controls, shockproof case, 32GB",85000.00,12,Baby & Kids,products/p330.jpg
+331,Baby Crib Wooden,"Wooden baby crib, adjustable mattress height, safety rails, white",180000.00,6,Baby & Kids,products/p331.jpg
+332,Kids Scooter 3-Wheel,"3-wheel scooter, adjustable height, ages 3-8, LED wheels, foldable",28000.00,20,Baby & Kids,products/p332.jpg
+333,Baby Food Maker,"Steam + blend baby food maker, 400ml, BPA-free, easy clean",45000.00,12,Baby & Kids,products/p333.jpg
+334,Kids Drawing Set 60pcs,"60-piece drawing set, crayons + colored pencils + markers, ages 3+",8500.00,45,Baby & Kids,products/p334.jpg
+335,Baby Bath Tub,"Ergonomic baby bath tub, non-slip, 0-24 months, with temperature gauge",12000.00,30,Baby & Kids,products/p335.jpg
+336,Kids Sneakers Velcro,"Canvas sneakers, velcro closure, sizes 20-35, colorful, easy on/off",8500.00,50,Baby & Kids,products/p336.jpg
+337,Baby Blanket Soft,"Super soft fleece blanket, 100x75cm, machine washable, multi-color",5500.00,60,Baby & Kids,products/p337.jpg
+338,Kids Lunch Box Set,"Stainless steel lunch box + water bottle set, leak-proof, ages 3+",8500.00,45,Baby & Kids,products/p338.jpg
+339,Baby Teether Set 5pcs,"BPA-free silicone teethers, 5-pack, different shapes, easy to hold",4500.00,55,Baby & Kids,products/p339.jpg
+340,Kids Helmet Bicycle,"Kids bicycle helmet, sizes 48-54cm, ages 3-8, CE certified, colorful",8500.00,30,Baby & Kids,products/p340.jpg
+341,Baby Wipes 80pcs x3,"Gentle baby wipes, 80 count x3 packs, fragrance-free, alcohol-free",4500.00,100,Baby & Kids,products/p341.jpg
+342,3-Seater Sofa Fabric,"Modern fabric sofa, 3-seater, foam cushions, wooden legs, grey/beige",280000.00,8,Furniture & Decor,products/p342.jpg
+343,Office Chair Ergonomic,"Ergonomic office chair, lumbar support, adjustable height, mesh back",95000.00,15,Furniture & Decor,products/p343.jpg
+344,Wooden Dining Table 6-Seater,"Solid wood dining table, 6-seater, 160x90cm, natural finish",320000.00,5,Furniture & Decor,products/p344.jpg
+345,Queen Size Bed Frame,"Wooden queen bed frame, 160x200cm, headboard, slats included",280000.00,6,Furniture & Decor,products/p345.jpg
+346,Wardrobe 3-Door,"3-door wardrobe, mirror, hanging rail + shelves, white/brown",380000.00,5,Furniture & Decor,products/p346.jpg
+347,Bookshelf 5-Tier,"5-tier wooden bookshelf, 180x80x30cm, natural/white, easy assemble",65000.00,15,Furniture & Decor,products/p347.jpg
+348,Coffee Table Wooden,"Solid wood coffee table, 120x60x45cm, natural finish, living room",55000.00,12,Furniture & Decor,products/p348.jpg
+349,TV Stand 55in,"TV stand for up to 55in TV, 2 shelves, cable management, black/white",45000.00,15,Furniture & Decor,products/p349.jpg
+350,Curtains Blackout 2-Panel,"Blackout curtains, 2 panels, 140x250cm, thermal insulated, multi-color",22000.00,30,Furniture & Decor,products/p350.jpg
+351,Wall Clock Modern,"Silent wall clock, 30cm diameter, wooden frame, minimalist design",8500.00,40,Furniture & Decor,products/p351.jpg
+352,Floor Lamp LED,"LED floor lamp, 3 color temperatures, dimmable, 150cm, modern design",35000.00,20,Furniture & Decor,products/p352.jpg
+353,Throw Pillow Set 4pcs,"Decorative throw pillows, 4-pack, 45x45cm, various patterns, soft",12000.00,35,Furniture & Decor,products/p353.jpg
+354,Area Rug 200x300cm,"Non-slip area rug, 200x300cm, geometric pattern, easy clean",65000.00,10,Furniture & Decor,products/p354.jpg
+355,Desk Study Table,"Study desk, 120x60cm, 2 drawers, cable hole, white/brown",55000.00,12,Furniture & Decor,products/p355.jpg
+356,Bedside Table 2-Drawer,"Bedside table, 2 drawers, 45x40x55cm, white/natural wood finish",28000.00,20,Furniture & Decor,products/p356.jpg
+357,Shower Curtain Waterproof,"Waterproof shower curtain, 180x200cm, 12 hooks included, multi-design",8500.00,40,Furniture & Decor,products/p357.jpg
+358,Kitchen Cabinet 2-Door,"2-door kitchen cabinet, 80x40x85cm, stainless steel handles, white",85000.00,8,Furniture & Decor,products/p358.jpg
+359,Plastic Storage Drawer 5-Tier,"5-tier plastic storage drawers, 40x30x100cm, transparent, stackable",22000.00,25,Furniture & Decor,products/p359.jpg
+360,Bathroom Mirror 60x80cm,"Frameless bathroom mirror, 60x80cm, wall-mounted, beveled edge",18000.00,20,Furniture & Decor,products/p360.jpg
+361,Outdoor Garden Chair,"Plastic garden chair, stackable, UV-resistant, 120kg capacity, white",8500.00,30,Furniture & Decor,products/p361.jpg
+362,Mattress 6in Queen,"6-inch foam mattress, queen size 160x200cm, medium firm, washable cover",180000.00,8,Furniture & Decor,products/p362.jpg
+363,Laundry Basket Wicker,"Wicker laundry basket, 60L, lid, handles, natural/white, bathroom",12000.00,25,Furniture & Decor,products/p363.jpg
+364,Picture Frame Set 5pcs,"Photo frames set, 5 pieces (4x6 to 8x10in), wall/desk, black/white",8500.00,35,Furniture & Decor,products/p364.jpg
+365,Candle Set Scented 6pcs,"Scented soy candles, 6-pack, 150g each, lavender/vanilla/rose",12000.00,30,Furniture & Decor,products/p365.jpg
+366,Doormat Non-Slip,"Non-slip doormat, 60x40cm, rubber backing, easy clean, multi-design",5500.00,50,Furniture & Decor,products/p366.jpg
+367,Car Phone Holder Dashboard,"Universal dashboard phone holder, 360° rotation, for 4-7in phones",8500.00,40,Car Accessories,products/p367.jpg
+368,Car Dash Camera 1080p,"Full HD 1080p dash cam, night vision, loop recording, G-sensor",45000.00,20,Car Accessories,products/p368.jpg
+369,Car Seat Cover Set,"Universal seat covers, 9-piece set, waterproof, black/grey/beige",28000.00,25,Car Accessories,products/p369.jpg
+370,Car Air Freshener,"Long-lasting car air freshener, 60-day, multiple scents, vent clip",3500.00,80,Car Accessories,products/p370.jpg
+371,Car Jump Starter 12000mAh,"Portable jump starter, 12000mAh, 1000A peak, USB charging, LED",55000.00,15,Car Accessories,products/p371.jpg
+372,Car Vacuum Cleaner 12V,"12V portable car vacuum, 120W, wet/dry, 5m cord, HEPA filter",18000.00,25,Car Accessories,products/p372.jpg
+373,Tire Pressure Gauge Digital,"Digital tire pressure gauge, 0-100 PSI, LCD display, backlit",8500.00,35,Car Accessories,products/p373.jpg
+374,Car USB Charger Dual,"Dual USB car charger, 36W total, fast charge 3.0, compact design",5500.00,50,Car Accessories,products/p374.jpg
+375,Car Floor Mats Rubber,"Universal rubber floor mats, 4-piece set, waterproof, easy clean",12000.00,30,Car Accessories,products/p375.jpg
+376,Car Steering Wheel Cover,"Leather steering wheel cover, 37-38cm, anti-slip, black/brown/red",8500.00,40,Car Accessories,products/p376.jpg
+377,Car Reverse Camera,"Backup camera, 170° wide angle, night vision, waterproof, universal",22000.00,20,Car Accessories,products/p377.jpg
+378,Car Bluetooth FM Transmitter,"Bluetooth 5.0 FM transmitter, USB charging, hands-free, LCD display",12000.00,30,Car Accessories,products/p378.jpg
+379,Car Wax Polish 500ml,"Car wax polish, 500ml, UV protection, deep shine, easy application",8500.00,35,Car Accessories,products/p379.jpg
+380,Car Sunshade Windshield,"Foldable windshield sunshade, 130x60cm, UV protection, reflective",5500.00,45,Car Accessories,products/p380.jpg
+381,Car First Aid Kit,"25-piece car first aid kit, reflective triangle, fire extinguisher",18000.00,20,Car Accessories,products/p381.jpg
+382,Car Seat Cushion Memory Foam,"Memory foam seat cushion, non-slip, lumbar support, universal fit",18000.00,25,Car Accessories,products/p382.jpg
+383,Car Organizer Trunk,"Trunk organizer, 3 compartments, foldable, non-slip bottom, black",12000.00,30,Car Accessories,products/p383.jpg
+384,Car Tyre Inflator 12V,"12V portable tyre inflator, digital display, auto shut-off, 150PSI",22000.00,20,Car Accessories,products/p384.jpg
+385,Car Wash Shampoo 1L,"Car wash shampoo, 1L, pH neutral, high foam, streak-free shine",5500.00,40,Car Accessories,products/p385.jpg
+386,Car GPS Navigator 7in,"7in GPS navigator, offline maps Africa, voice guidance, speed camera",65000.00,12,Car Accessories,products/p386.jpg
+387,Bic Ballpoint Pens 50-Pack,"Blue/black/red ballpoint pens, 50-pack, smooth writing, 1.0mm",5500.00,100,Books & Stationery,products/p387.jpg
+388,A4 Printing Paper 500 Sheets,"80gsm A4 printing paper, 500 sheets, bright white, for all printers",5000.00,80,Books & Stationery,https://covers.openlibrary.org/b/id/12707846-L.jpg
+389,Spiral Notebook A4 200 Pages,"A4 spiral notebook, 200 pages, ruled, hard cover, multiple colors",3500.00,90,Books & Stationery,products/p389.jpg
+390,Scientific Calculator Casio,"Casio FX-991EX, 552 functions, natural display, solar+battery",18000.00,40,Books & Stationery,products/p390.jpg
+391,Geometry Set 9-Piece,"9-piece geometry set, compass + ruler + protractor + set squares",3500.00,80,Books & Stationery,https://covers.openlibrary.org/b/id/12760924-L.jpg
+392,Highlighter Set 6 Colors,"Chisel tip highlighters, 6 colors, water-based, non-toxic, bright",4500.00,70,Books & Stationery,https://covers.openlibrary.org/b/id/7205924-L.jpg
+393,Stapler Heavy Duty,"Heavy duty stapler, 25 sheets capacity, with 1000 staples, metal",8500.00,35,Books & Stationery,products/p393.jpg
+394,Sticky Notes 3x3 12-Pack,"Sticky notes, 3x3 inch, 12 pads x 100 sheets, multi-color",5500.00,60,Books & Stationery,https://covers.openlibrary.org/b/id/739614-L.jpg
+395,File Folder A4 10-Pack,"A4 file folders, 10-pack, cardboard, assorted colors, for documents",3500.00,70,Books & Stationery,products/p395.jpg
+396,Whiteboard Marker Set 8,"Dry-erase whiteboard markers, 8 colors, chisel tip, low odor",4500.00,55,Books & Stationery,products/p396.jpg
+397,Pencil Case Large,"Large pencil case, 3 compartments, zipper, for students, multi-color",5500.00,60,Books & Stationery,https://covers.openlibrary.org/b/id/12736044-L.jpg
+398,Ruler 30cm Metal,"Stainless steel ruler, 30cm, metric + imperial, non-slip backing",2500.00,80,Books & Stationery,products/p398.jpg
+399,Correction Fluid 20ml,"White correction fluid, 20ml, fast-dry, smooth application, 3-pack",3000.00,70,Books & Stationery,products/p399.jpg
+400,Index Cards 200pcs,"Blank index cards, 200 pieces, 4x6 inch, white, for notes/flashcards",3500.00,60,Books & Stationery,https://covers.openlibrary.org/b/id/805448-L.jpg
+401,Clipboard A4 Hardboard,"A4 hardboard clipboard, low-profile clip, for office/school/field",4500.00,45,Books & Stationery,products/p401.jpg
+402,Scissors Stainless 21cm,"Stainless steel scissors, 21cm, sharp, ergonomic handle, multi-use",3500.00,55,Books & Stationery,products/p402.jpg
+403,Glue Stick 40g 6-Pack,"Glue sticks, 40g each, 6-pack, washable, non-toxic, for school",4500.00,65,Books & Stationery,products/p403.jpg
+404,Lever Arch File A4,"A4 lever arch file, 75mm spine, 500 sheet capacity, assorted colors",4500.00,50,Books & Stationery,products/p404.jpg
+405,Pencil HB 12-Pack,"HB pencils, 12-pack, pre-sharpened, hexagonal barrel, for school",3000.00,80,Books & Stationery,products/p405.jpg
+406,Eraser Set 10-Pack,"White vinyl erasers, 10-pack, smudge-free, for pencil and ink",2500.00,90,Books & Stationery,https://covers.openlibrary.org/b/id/193887-L.jpg
+407,Casio G-Shock GA-2100,"Digital-analog watch, shock resistant, 200m water resistant, black",85000.00,20,Jewelry & Watches,products/p407.jpg
+408,Fossil Gen 6 Smartwatch,"Smartwatch, 44mm, AMOLED, Wear OS, heart rate, GPS, leather strap",280000.00,10,Jewelry & Watches,products/p408.jpg
+409,Seiko 5 Automatic Watch,"Automatic watch, 38mm, stainless steel, 100m water resistant, classic",180000.00,12,Jewelry & Watches,products/p409.jpg
+410,Casio Edifice EFR-539,"Chronograph watch, stainless steel, 100m water resistant, elegant",95000.00,15,Jewelry & Watches,products/p410.jpg
+411,Women Rose Gold Watch,"Rose gold case, mesh strap, quartz, 36mm, water resistant, elegant",45000.00,25,Jewelry & Watches,products/p411.jpg
+412,Men Stainless Steel Bracelet,"Stainless steel chain bracelet, 21cm, silver/gold, magnetic clasp",8500.00,50,Jewelry & Watches,products/p412.jpg
+413,Women Pearl Necklace,"Freshwater pearl necklace, 45cm, sterling silver clasp, gift box",22000.00,20,Jewelry & Watches,products/p413.jpg
+414,Men Leather Bracelet Set,"Leather bracelet set, 3-piece, adjustable, brown/black, casual",6500.00,45,Jewelry & Watches,products/p414.jpg
+415,Women Gold Hoop Earrings,"18K gold-plated hoop earrings, 30mm diameter, hypoallergenic",8500.00,40,Jewelry & Watches,products/p415.jpg
+416,Men Signet Ring Stainless,"Stainless steel signet ring, sizes 18-22mm, silver/gold, polished",6500.00,35,Jewelry & Watches,products/p416.jpg
+417,Women Crystal Pendant Necklace,"Crystal pendant necklace, 45cm chain, silver/gold, gift box",12000.00,30,Jewelry & Watches,products/p417.jpg
+418,Couple Matching Watches Set,"Matching watches set, his & hers, quartz, leather strap, gift box",55000.00,15,Jewelry & Watches,products/p418.jpg
+419,Women Charm Bracelet,"Sterling silver charm bracelet, 5 charms, adjustable, gift box",18000.00,25,Jewelry & Watches,products/p419.jpg
+420,Men Titanium Ring,"Titanium ring, comfort fit, sizes 18-24mm, brushed finish, durable",8500.00,30,Jewelry & Watches,products/p420.jpg
+421,Women Anklet Gold,"18K gold-plated anklet, 25cm adjustable, delicate chain, elegant",5500.00,40,Jewelry & Watches,products/p421.jpg
+422,Men Watch Box 6-Slot,"6-slot watch box, glass lid, velvet interior, lock, display case",18000.00,20,Jewelry & Watches,products/p422.jpg
+423,Women Jewelry Set 5-Piece,"Necklace + earrings + bracelet + ring + anklet set, silver/gold",22000.00,25,Jewelry & Watches,products/p423.jpg
+424,Garmin Forerunner 55,"GPS running watch, heart rate, 20hr battery, sleep tracking, 5ATM",280000.00,8,Jewelry & Watches,products/p424.jpg
+425,Apple Watch SE 2nd Gen,"40mm, OLED, heart rate, crash detection, swim-proof, GPS",480000.00,7,Jewelry & Watches,products/p425.jpg
+426,Samsung Galaxy Watch 6,"40mm, AMOLED, BIA sensor, sleep coaching, 5ATM, Wear OS",380000.00,8,Jewelry & Watches,products/p426.jpg
+427,PlayStation 5 Console,"PS5 disc edition, 825GB SSD, 4K gaming, DualSense controller, HDMI 2.1",950000.00,5,Gaming & Electronics,products/p427.jpg
+428,Xbox Series X,"1TB SSD, 4K 120fps, Quick Resume, Game Pass ready, HDMI 2.1",880000.00,5,Gaming & Electronics,https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Xbox_Series_X_S_color.svg/330px-Xbox_Series_X_S_color.svg.png
+429,Nintendo Switch OLED,"7in OLED screen, 64GB, Joy-Con controllers, dock, handheld/TV mode",480000.00,8,Gaming & Electronics,https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Nintendo_Switch_logo.svg/330px-Nintendo_Switch_logo.svg.png
+430,PS5 DualSense Controller,"Wireless controller, haptic feedback, adaptive triggers, USB-C",85000.00,15,Gaming & Electronics,products/p430.jpg
+431,Xbox Wireless Controller,"Wireless controller, textured grip, USB-C, 40hr battery, multi-color",65000.00,18,Gaming & Electronics,https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Microsoft-Xbox-One-controller.jpg/330px-Microsoft-Xbox-One-controller.jpg
+432,Gaming Headset HyperX Cloud II,"7.1 surround sound, 53mm drivers, noise-cancelling mic, USB/3.5mm",85000.00,15,Gaming & Electronics,products/p432.jpg
+433,Gaming Monitor 27in 144Hz,"27in FHD IPS, 144Hz, 1ms, AMD FreeSync, HDMI+DP, for gaming",280000.00,10,Gaming & Electronics,products/p433.jpg
+434,Gaming Chair RGB,"Ergonomic gaming chair, lumbar support, adjustable armrests, RGB LED",180000.00,8,Gaming & Electronics,products/p434.jpg
+435,Mechanical Keyboard Gaming,"RGB mechanical keyboard, blue switches, TKL layout, USB-C, anti-ghost",85000.00,12,Gaming & Electronics,products/p435.jpg
+436,Gaming Mouse 16000 DPI,"Wired gaming mouse, 16000 DPI, 7 buttons, RGB, ergonomic, 1000Hz",35000.00,20,Gaming & Electronics,products/p436.jpg
+437,Nintendo Switch Games Bundle,"Mario Kart 8 + Zelda BOTW + Animal Crossing, digital codes",95000.00,10,Gaming & Electronics,products/p437.jpg
+438,PS5 Game FIFA 24,"FIFA 24 for PS5, 4K 60fps, HyperMotion V, Ultimate Team, disc",45000.00,20,Gaming & Electronics,products/p438.jpg
+439,Xbox Game Pass 3 Months,"3-month Xbox Game Pass Ultimate, 100+ games, cloud gaming, code",28000.00,30,Gaming & Electronics,products/p439.jpg
+440,Razer Kraken Headset,"Wired gaming headset, 50mm drivers, cooling gel ear cushions, 3.5mm",65000.00,15,Gaming & Electronics,products/p440.jpg
+441,Gaming Desk 140cm,"140x60cm gaming desk, cable management, cup holder, headset hook",95000.00,8,Gaming & Electronics,products/p441.jpg
+442,Capture Card 4K,"4K HDMI capture card, USB 3.0, for streaming/recording, plug-and-play",55000.00,12,Gaming & Electronics,products/p442.jpg
+443,VR Headset Meta Quest 2,"128GB standalone VR headset, 6DOF, hand tracking, 2hr battery",480000.00,5,Gaming & Electronics,products/p443.jpg
+444,Gaming Router WiFi 6,"AX5400 gaming router, 2.5G port, QoS, MU-MIMO, low latency",180000.00,8,Gaming & Electronics,products/p444.jpg
+445,SSD 500GB NVMe,"500GB NVMe M.2 SSD, 3500MB/s read, PCIe 3.0, for gaming PC upgrade",85000.00,15,Gaming & Electronics,products/p445.jpg
+446,RAM 32GB DDR4 Gaming,"32GB (2x16GB) DDR4 3600MHz, RGB, CL18, for gaming PC, Intel/AMD",95000.00,10,Gaming & Electronics,products/p446.jpg
+447,Streaming Microphone USB,"USB condenser microphone, cardioid, for streaming/podcast, RGB stand",65000.00,12,Gaming & Electronics,products/p447.jpg
+448,Gaming Mousepad XL,"XL gaming mousepad, 900x400mm, stitched edges, non-slip rubber base",12000.00,25,Gaming & Electronics,products/p448.jpg
+449,Controller Charging Dock,"Dual controller charging dock for PS5/Xbox, LED indicator, USB-C",18000.00,20,Gaming & Electronics,products/p449.jpg
+450,Portable Gaming Console,"Handheld gaming console, 3.5in screen, 10000 games built-in, HDMI out",45000.00,15,Gaming & Electronics,products/p450.jpg
+451,Gaming Glasses Anti-Blue,"Anti-blue light gaming glasses, UV400, clear lens, reduces eye strain",8500.00,30,Gaming & Electronics,products/p451.jpg
+452,Samsung Galaxy A14,"Affordable smartphone with a 6.6-inch display, long-lasting 5000mAh battery, and a 50MP camera for clear photos. Ideal for everyday use.",180000.00,15,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Samsung_Galaxy_A14_5G_2023_model_%28cropped%29.jpg/330px-Samsung_Galaxy_A14_5G_2023_model_%28cropped%29.jpg
+453,iPhone 11,"Powerful Apple smartphone with A13 Bionic chip, dual-camera system, and smooth iOS performance. Great for photos, videos, and gaming.",420000.00,10,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/IPhone_11_White.svg/330px-IPhone_11_White.svg.png
+454,Tecno Spark 10,"Budget-friendly device with stylish design, strong battery life, and good performance for social media and daily tasks.",140000.00,20,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/2/27/Back_of_Spark_10_Pro.png
+455,Infinix Hot 30,Large display smartphone with strong battery and smooth performance for entertainment.,150000.00,18,Smartphones & Tablets,placeholder.jpg
+456,iPhone 13,"High-end smartphone with A15 chip, dual-camera system, and excellent battery performance.",650000.00,8,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/IPhone_13_vector.svg/330px-IPhone_13_vector.svg.png
+457,Samsung Galaxy S21,"Flagship phone with premium display, powerful processor, and high-quality camera.",720000.00,7,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/GalaxyS21.png/330px-GalaxyS21.png
+458,Redmi Note 12,"Mid-range phone with AMOLED display, fast charging, and efficient performance.",250000.00,12,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Redmi_Note_12_front.jpg/330px-Redmi_Note_12_front.jpg
+459,Huawei Y9,"Stylish smartphone with large screen, good battery life, and decent camera.",210000.00,10,Smartphones & Tablets,placeholder.jpg
+460,Nokia G21,Durable smartphone with long battery life and clean Android interface.,190000.00,14,Smartphones & Tablets,placeholder.jpg
+461,Oppo A57,Smooth performance smartphone with elegant design and fast charging.,230000.00,16,Smartphones & Tablets,placeholder.jpg
+462,iPad 9th Gen,Versatile Apple tablet with Retina display and strong performance for work and entertainment.,550000.00,6,Smartphones & Tablets,placeholder.jpg
+463,Samsung Tab A8,Affordable tablet with large display and long battery life.,300000.00,9,Smartphones & Tablets,placeholder.jpg
+464,Lenovo Tab M10,Reliable tablet with HD display suitable for family and educational use.,280000.00,11,Smartphones & Tablets,placeholder.jpg
+465,iPhone XR,"Balanced iPhone with Face ID, solid performance, and quality camera.",350000.00,13,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/IPhone_XR_Blue.svg/330px-IPhone_XR_Blue.svg.png
+466,Tecno Camon 20,Camera-focused smartphone with modern design and good performance.,200000.00,17,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/d/d2/Camon_20_Premier_5G.png
+467,Infinix Note 30,Powerful mid-range phone with fast charging and large display.,220000.00,19,Smartphones & Tablets,placeholder.jpg
+468,Samsung Galaxy A24,Reliable smartphone with vibrant display and strong battery life.,270000.00,15,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/%EC%82%BC%EC%84%B1_%EA%B0%A4%EB%9F%AD%EC%8B%9C_A24.jpg/330px-%EC%82%BC%EC%84%B1_%EA%B0%A4%EB%9F%AD%EC%8B%9C_A24.jpg
+469,Redmi 10C,Affordable smartphone with long battery and decent performance.,170000.00,18,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Front_of_Redmi_10C.jpg/330px-Front_of_Redmi_10C.jpg
+470,Oppo Reno 8,Premium smartphone with excellent camera and sleek design.,480000.00,7,Smartphones & Tablets,placeholder.jpg
+471,iPhone 12,5G-enabled iPhone with OLED display and powerful A14 chip.,600000.00,9,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/IPhone_12_Blue.svg/330px-IPhone_12_Blue.svg.png
+472,Samsung Galaxy S22,Compact flagship phone with powerful processor and pro camera.,850000.00,6,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/SamsungGalaxyS22Series.png/330px-SamsungGalaxyS22Series.png
+473,Huawei P30,Smartphone known for excellent photography and zoom features.,400000.00,8,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Huawei_P30_Pro.jpg/330px-Huawei_P30_Pro.jpg
+474,Tecno Spark 9,Entry-level smartphone with large display and basic performance.,130000.00,20,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/7/74/Back_of_Spark_9_Pro.png
+475,Infinix Smart 7,Budget phone with simple interface and strong battery life.,120000.00,22,Smartphones & Tablets,placeholder.jpg
+476,Nokia C21,Basic smartphone with durable design and reliable performance.,110000.00,18,Smartphones & Tablets,placeholder.jpg
+477,Oppo A16,Stylish smartphone with smooth performance and long battery life.,200000.00,16,Smartphones & Tablets,placeholder.jpg
+478,Redmi Note 11,Mid-range phone with AMOLED screen and solid battery life.,230000.00,14,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Redmi_Note_11_Pro_%28Star_Blue%29.png/330px-Redmi_Note_11_Pro_%28Star_Blue%29.png
+479,Samsung A32,Well-balanced smartphone with good camera and performance.,260000.00,13,Smartphones & Tablets,placeholder.jpg
+480,iPad Pro,"High-end tablet with powerful chip, large display, and pro features.",1200000.00,5,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Wikipedia_on_iPad_Pro.jpg/330px-Wikipedia_on_iPad_Pro.jpg
+481,Samsung Tab S6,Premium tablet with stylus support and strong performance.,700000.00,7,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/7/73/Samsung_Galaxy_Tab_S6.png
+482,Lenovo Tab P11,Mid-range tablet with large display and good multitasking ability.,350000.00,10,Smartphones & Tablets,placeholder.jpg
+483,iPhone SE,Compact iPhone with powerful chip and classic design.,300000.00,9,Smartphones & Tablets,placeholder.jpg
+484,Tecno Phantom X,Premium smartphone with advanced camera and elegant design.,500000.00,6,Smartphones & Tablets,placeholder.jpg
+485,Infinix Zero 20,High-performance phone with excellent camera and smooth experience.,450000.00,8,Smartphones & Tablets,placeholder.jpg
+486,Oppo Find X3,Flagship smartphone with premium build and top performance.,900000.00,5,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/OPPO_find_x3_front.jpg/330px-OPPO_find_x3_front.jpg
+487,Redmi K50,High-performance phone ideal for gaming and multitasking.,600000.00,7,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Redmi_K50.jpg/330px-Redmi_K50.jpg
+488,Samsung Z Flip,Foldable smartphone with innovative design and flagship features.,1300000.00,4,Smartphones & Tablets,placeholder.jpg
+489,iPhone 14,Advanced iPhone with improved camera and performance.,950000.00,5,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/IPhone_14_vector.svg/330px-IPhone_14_vector.svg.png
+490,Huawei Mate 40,Premium smartphone with powerful chipset and elegant design.,800000.00,6,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/HUAWEI_Mate_40_Pro_front.png/330px-HUAWEI_Mate_40_Pro_front.png
+491,Nokia X20,Durable smartphone with clean Android and reliable usage.,320000.00,9,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Nokia_mobile_phones.jpg/330px-Nokia_mobile_phones.jpg
+492,Tecno Pop 7,Entry-level smartphone with long battery life and simple features.,100000.00,25,Smartphones & Tablets,placeholder.jpg
+493,Infinix Hot 12,Affordable phone with large display and decent performance.,150000.00,21,Smartphones & Tablets,placeholder.jpg
+494,Oppo A77,Stylish smartphone with smooth operation and strong battery.,270000.00,15,Smartphones & Tablets,placeholder.jpg
+495,Redmi A1,Budget-friendly smartphone with simple interface.,120000.00,20,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Redmi_A1_front.jpg/330px-Redmi_A1_front.jpg
+496,Samsung A04,Affordable Samsung phone with reliable battery and usability.,140000.00,18,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Samsung_Galaxy_A04e_back_side%2C_with_the_copper_color.jpg/330px-Samsung_Galaxy_A04e_back_side%2C_with_the_copper_color.jpg
+497,iPad Mini,Compact tablet with powerful performance and portability.,650000.00,6,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/IPad_Mini.png/330px-IPad_Mini.png
+498,Samsung Tab S8,Premium tablet with high performance and productivity tools.,1100000.00,5,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Galaxy_Tab_S8.png/330px-Galaxy_Tab_S8.png
+499,Lenovo Tab K10,Reliable tablet with HD display and smooth performance.,290000.00,8,Smartphones & Tablets,placeholder.jpg
+500,Huawei MatePad,Sleek tablet with strong performance and modern features.,500000.00,7,Smartphones & Tablets,placeholder.jpg
+501,iPhone 15,Latest Apple smartphone with advanced features and improved camera.,1200000.00,4,Smartphones & Tablets,https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/IPhone_15_Vector.svg/330px-IPhone_15_Vector.svg.png
+502,"Dell Inspiron 14 7420, i5, 8GB","14-inch laptop with Intel i5 12th Gen, 8GB RAM, 512GB SSD, compact and portable for students and office use.",1150000.00,15,Laptops & Computers,placeholder.jpg
+503,"HP Omen 16, i7, 16GB RAM","Gaming laptop with 16-inch QHD display, Intel i7 12700H, NVIDIA RTX 4060, built for smooth gaming and streaming.",1900000.00,10,Laptops & Computers,placeholder.jpg
+504,"Lenovo Yoga 9i, i7, 16GB","Premium convertible laptop with 14-inch 4K touch display, Intel i7 1260P, 16GB RAM, ideal for productivity and creativity.",1950000.00,10,Laptops & Computers,placeholder.jpg
+505,"Asus ROG Strix G15, Ryzen 9, 16GB","High-performance gaming laptop with 15.6-inch FHD 165Hz display, AMD Ryzen 9 7940HS, NVIDIA RTX 4060, for gamers and creators.",2000000.00,10,Laptops & Computers,placeholder.jpg
+506,"Acer Aspire 5, i5, 8GB","Budget-friendly laptop with 15.6-inch FHD display, Intel i5 12th Gen, 8GB RAM, 512GB SSD, suitable for students and office tasks.",650000.00,20,Laptops & Computers,placeholder.jpg
+507,"MSI Stealth 15M, i7, 16GB","Slim gaming laptop with 15.6-inch FHD display, Intel i7 12700H, NVIDIA RTX 4060, built for performance on the go.",1850000.00,10,Laptops & Computers,placeholder.jpg
+508,"MacBook Pro 16-inch M2 Max, 1TB","Powerful Apple laptop with 16-inch Liquid Retina XDR, M2 Max chip, 1TB SSD, designed for professional video editing and software development.",5200000.00,5,Laptops & Computers,placeholder.jpg
+509,"Lenovo Legion 7i 16, i9, 32GB RAM","Flagship gaming laptop with 16-inch QHD display, Intel i9 12900HK, 32GB RAM, NVIDIA RTX 4080, ideal for gamers and creators.",3500000.00,5,Laptops & Computers,placeholder.jpg
+510,"HP Elite Dragonfly, i7, 16GB","Business ultrabook with 13.5-inch touch display, Intel i7 12th Gen, 16GB RAM, lightweight and stylish for corporate use.",2700000.00,8,Laptops & Computers,placeholder.jpg
+511,"Asus ZenBook 14 OLED, Ryzen 7, 16GB","Sleek ultrabook with 14-inch OLED display, AMD Ryzen 7 6800H, 16GB RAM, 512GB SSD, great for students and professionals.",1450000.00,12,Laptops & Computers,placeholder.jpg
+512,"Dell Alienware x17 R2, i9, 32GB","Premium gaming laptop with 17.3-inch FHD display, Intel i9 12900HK, NVIDIA RTX 4090, high-end gaming performance.",4500000.00,5,Laptops & Computers,placeholder.jpg
+513,"Acer Predator Triton 500, i7, 16GB","Gaming laptop with 15.6-inch 165Hz display, Intel i7 12700H, NVIDIA RTX 4060, compact and portable for gamers.",2100000.00,10,Laptops & Computers,placeholder.jpg
+514,"Lenovo ThinkBook 15, i5, 8GB","Professional laptop with 15.6-inch FHD display, Intel i5 12th Gen, 8GB RAM, 256GB SSD, perfect for office work and students.",950000.00,15,Laptops & Computers,placeholder.jpg
+515,"HP Pavilion 14, i5, 8GB","Lightweight 14-inch laptop with Intel i5 12th Gen, 8GB RAM, 512GB SSD, suitable for daily tasks and study.",900000.00,20,Laptops & Computers,placeholder.jpg
+516,"Asus TUF Gaming F15, i7, 16GB","Durable gaming laptop with 15.6-inch FHD display, Intel i7 12700H, NVIDIA RTX 4060, built for high-performance gaming.",1750000.00,12,Laptops & Computers,placeholder.jpg
+517,"Mac Mini M2 Ultra, 2TB SSD","Compact desktop with Apple M2 Ultra chip, 2TB SSD, perfect for professional video editing, development, and office use.",3200000.00,5,Laptops & Computers,placeholder.jpg
+518,"Dell Latitude 5430, i5, 16GB RAM","Business laptop with 14-inch FHD display, Intel i5 12th Gen, 16GB RAM, 512GB SSD, ideal for professionals and corporate work.",1350000.00,12,Laptops & Computers,placeholder.jpg
+519,"Lenovo IdeaPad Flex 5, Ryzen 5, 16GB","2-in-1 convertible laptop with 14-inch touch display, AMD Ryzen 5 6600U, 16GB RAM, 512GB SSD, great for students and creatives.",1200000.00,15,Laptops & Computers,placeholder.jpg
+520,"Acer Swift 3, Ryzen 7, 16GB","Lightweight ultrabook with 14-inch display, AMD Ryzen 7, 16GB RAM, 512GB SSD, ideal for portability and productivity.",1050000.00,15,Laptops & Computers,placeholder.jpg
+521,"Asus ROG Flow X13, Ryzen 9, 32GB","Convertible gaming laptop with 13.4-inch touchscreen, AMD Ryzen 9 7940HS, NVIDIA RTX 4070, perfect for gamers and creators.",3200000.00,5,Laptops & Computers,placeholder.jpg
+522,"HP Spectre x360 13, i7, 16GB","Premium 13-inch convertible laptop with Intel i7 12th Gen, 16GB RAM, 512GB SSD, ideal for productivity and portability.",1700000.00,10,Laptops & Computers,placeholder.jpg
+523,"Dell G3 15, i5, 8GB RAM","Gaming laptop with 15.6-inch FHD display, Intel i5 12500H, 8GB RAM, NVIDIA RTX 3050, great for casual gaming.",1050000.00,12,Laptops & Computers,placeholder.jpg
+524,"Lenovo Legion 5 15, Ryzen 7, 16GB","Gaming laptop with 15.6-inch FHD display, AMD Ryzen 7 6800H, NVIDIA RTX 4060, perfect for gamers and content creators.",1800000.00,10,Laptops & Computers,placeholder.jpg
+525,"Asus ExpertBook B9, i7, 16GB","Ultra-lightweight business laptop with 14-inch FHD display, Intel i7 12th Gen, 16GB RAM, 1TB SSD, ideal for corporate travel.",2500000.00,8,Laptops & Computers,placeholder.jpg
+526,"MacBook Pro 13-inch M2, 256GB","Compact Apple laptop with M2 chip, 13-inch Retina display, 256GB SSD, perfect for students and professionals.",2100000.00,10,Laptops & Computers,placeholder.jpg
+527,"HP EliteBook 840 G9, i7, 16GB","Business ultrabook with 14-inch FHD display, Intel i7 12th Gen, 16GB RAM, 512GB SSD, ideal for professional office use.",2400000.00,8,Laptops & Computers,placeholder.jpg
+528,"Asus ZenBook Flip 14, i7, 16GB","2-in-1 convertible ultrabook with 14-inch OLED touchscreen, Intel i7 12th Gen, 16GB RAM, 512GB SSD, perfect for students and creatives.",1750000.00,10,Laptops & Computers,placeholder.jpg
+529,"Acer Nitro 5, Ryzen 7, 16GB","Gaming laptop with 15.6-inch FHD 144Hz display, AMD Ryzen 7 6800H, NVIDIA RTX 4060, suitable for gamers seeking performance at a reasonable price.",1600000.00,12,Laptops & Computers,placeholder.jpg
+530,"MSI Creator Z16, i9, 32GB","High-end creator laptop with 16-inch QHD+ touchscreen, Intel i9 12900HK, 32GB RAM, NVIDIA RTX 4080, perfect for graphic designers and video editors.",3800000.00,5,Laptops & Computers,placeholder.jpg
+531,"Lenovo ThinkPad P16, i9, 64GB","Powerful workstation laptop with 16-inch 4K display, Intel i9 12900HX, 64GB RAM, 2TB SSD, ideal for engineers, designers, and content creators.",4200000.00,5,Laptops & Computers,placeholder.jpg
+532,Samsung HW-Q60T Soundbar,"5.1ch soundbar with DTS Virtual:X, wireless subwoofer, clear dialogue, and deep bass for home cinema.",650000.00,10,TV & Audio,placeholder.jpg
+533,LG SN7Y 3.1.2ch Soundbar,"Dolby Atmos soundbar with wireless subwoofer, AI Sound Pro, and Bluetooth streaming support.",880000.00,7,TV & Audio,placeholder.jpg
+534,Sony SRS-XB33 Portable Speaker,"Waterproof Bluetooth speaker with Extra Bass, 24-hour battery, and durable outdoor design.",280000.00,15,TV & Audio,placeholder.jpg
+535,JBL Charge 5 Bluetooth Speaker,"Portable speaker with deep bass, IP67 waterproof, USB-C charging, and 20-hour battery life.",210000.00,20,TV & Audio,placeholder.jpg
+536,Bose SoundTouch 300 Soundbar,"Sleek soundbar with wireless music streaming, Dolby Digital, and Wi-Fi connectivity.",1200000.00,6,TV & Audio,placeholder.jpg
+537,Philips 70-inch 4K UHD Smart TV,"70-inch LED TV with 4K UHD, HDR10+, Ambilight, and built-in smart apps for streaming entertainment.",2200000.00,5,TV & Audio,placeholder.jpg
+538,Hisense 65-inch 4K U8G TV,"65-inch Hisense TV with Quantum Dot display, Dolby Vision, 120Hz refresh rate, and smart platform.",1900000.00,5,TV & Audio,placeholder.jpg
+539,Samsung 55-inch The Serif QLED,"Premium design TV with 55-inch QLED display, HDR10+, Smart Hub, and unique furniture-style aesthetics.",2400000.00,4,TV & Audio,placeholder.jpg
+540,LG 55-inch OLED A2 Series,"OLED TV with 4K resolution, webOS, Dolby Vision IQ, and AI Picture Pro for perfect visuals.",2200000.00,5,TV & Audio,placeholder.jpg
+541,Sony X85K 55-inch 4K LED TV,"55-inch 4K HDR LED TV with X1 Processor, Triluminos Pro, and Google TV for streaming apps.",1350000.00,6,TV & Audio,placeholder.jpg
+542,JBL PartyBox 100,"Portable party speaker with 160W sound, RGB lights, Bluetooth connectivity, and long-lasting battery.",650000.00,8,TV & Audio,placeholder.jpg
+543,Samsung HW-Q800B 3.1.2ch Soundbar,"Dolby Atmos & DTS:X soundbar with wireless subwoofer, immersive cinema-quality audio for home.",1300000.00,6,TV & Audio,placeholder.jpg
+544,Bose Solo 5 TV Soundbar,"Compact soundbar with dialogue enhancement, Bluetooth streaming, and easy setup for small rooms.",420000.00,10,TV & Audio,placeholder.jpg
+545,Sony HT-RT3 5.1ch Home Theater,"5.1 channel sound system with wireless subwoofer, rear speakers, and Dolby Digital for immersive sound.",780000.00,6,TV & Audio,placeholder.jpg
+546,LG 65-inch NanoCell 90 Series,"65-inch TV with NanoCell technology, 4K resolution, HDR support, and AI ThinQ for smart features.",2500000.00,4,TV & Audio,placeholder.jpg
+547,TCL 65-inch P735 QLED 4K Smart TV,"QLED TV with 65-inch 4K display, HDR10+, Dolby Vision, Android TV OS, and built-in Chromecast.",1800000.00,5,TV & Audio,placeholder.jpg
+548,Sony SRS-XG300 Outdoor Bluetooth,"Portable waterproof speaker with Extra Bass, 24-hour battery, and rugged design for outdoor use.",480000.00,10,TV & Audio,placeholder.jpg
+549,LG XBOOM Go PL7 Bluetooth Speaker,"Portable speaker with rich sound, IPX5 splash-proof, and long battery life for outdoor activities.",180000.00,15,TV & Audio,placeholder.jpg
+550,Samsung QN95B Neo QLED 65-inch,"Premium 65-inch Neo QLED TV with Quantum Matrix Technology, HDR10+, Dolby Atmos, and Smart Hub integration.",3500000.00,4,TV & Audio,placeholder.jpg
+551,Bose Portable Smart Speaker,"Compact smart speaker with Wi-Fi & Bluetooth streaming, Alexa built-in, and 360° room-filling sound.",720000.00,8,TV & Audio,placeholder.jpg
+552,LG 10kg Front Load Washing Machine,"High-efficiency front load washer with 10kg capacity, TurboWash technology, smart inverter motor, and multiple wash programs for all fabric types.",950000.00,10,Home Appliances,placeholder.jpg
+553,Samsung 12kg Top Load Washing Machine,"12kg top-load washer with Diamond Drum, EcoBubble technology, and smart control via Samsung SmartThings app.",850000.00,12,Home Appliances,placeholder.jpg
+554,Haier 7kg Front Load Washing Machine,"Compact 7kg front load washer with quick wash cycles, energy-efficient motor, and child lock for safety.",420000.00,15,Home Appliances,placeholder.jpg
+555,Bosch Serie 6 9kg Front Load Washing Machine,"9kg front-load washer with EcoSilence Drive, ActiveWater Plus, and multiple wash programs for optimal fabric care.",1100000.00,8,Home Appliances,placeholder.jpg
+556,Whirlpool 10kg Top Load Washing Machine,"Top-load washer with 10kg capacity, 6th Sense technology, smart auto-dosing, and energy-efficient operation.",780000.00,10,Home Appliances,placeholder.jpg
+557,LG 260L Frost Free Double Door Refrigerator,"Double-door fridge with 260L capacity, Frost Free technology, inverter linear compressor, and spacious vegetable compartments.",780000.00,12,Home Appliances,placeholder.jpg
+558,Samsung 253L Frost Free Double Door Refrigerator,"Stylish Samsung fridge with 253L capacity, digital inverter technology, and all-around cooling for even temperature distribution.",750000.00,12,Home Appliances,placeholder.jpg
+559,Haier 200L Single Door Refrigerator,"Compact single-door fridge with 200L capacity, high-efficiency cooling, and suitable for small apartments or offices.",420000.00,15,Home Appliances,placeholder.jpg
+560,Whirlpool 265L Double Door Refrigerator,"Double-door fridge with frost-free technology, 265L capacity, adjustable shelves, and energy-saving features.",820000.00,10,Home Appliances,placeholder.jpg
+561,LG 335L Side-by-Side Refrigerator,"Large side-by-side fridge with 335L capacity, smart inverter, ice and water dispenser, ideal for families.",1200000.00,6,Home Appliances,placeholder.jpg
+562,Samsung 2-in-1 Microwave Oven 23L,"23L microwave with convection and grilling options, digital display, and quick-cook presets.",220000.00,15,Home Appliances,placeholder.jpg
+563,Panasonic 20L Microwave Oven,"20L compact microwave with auto menu, defrost function, and user-friendly touch controls.",180000.00,12,Home Appliances,placeholder.jpg
+564,LG 32L Convection Microwave Oven,"Microwave oven with 32L capacity, convection and grill modes, smart inverter technology, and easy-clean interior.",260000.00,10,Home Appliances,placeholder.jpg
+565,Samsung 28L Solo Microwave Oven,"28L microwave with quick defrost, auto cook, and stylish digital design.",200000.00,12,Home Appliances,placeholder.jpg
+566,Bosch 35L Convection Microwave,"Convection microwave with 35L capacity, multiple cooking modes, and sleek stainless steel finish.",380000.00,8,Home Appliances,placeholder.jpg
+567,Philips Air Fryer 4.1L,"Compact air fryer with rapid air technology, 4.1L capacity, multiple presets for frying, baking, grilling, and roasting.",250000.00,15,Home Appliances,placeholder.jpg
+568,Ninja Air Fryer Max XL 5.2L,"Large-capacity air fryer with crisp technology, digital control panel, and smart cooking programs.",380000.00,10,Home Appliances,placeholder.jpg
+569,Tefal ActiFry Genius XL 1.7kg,"Healthy cooking air fryer with 1.7kg capacity, multiple presets, and automatic stirring paddle.",300000.00,12,Home Appliances,placeholder.jpg
+570,De'Longhi Multifry Extra Chef,"Multi-functional air fryer with 1.7L oil capacity, capable of frying, baking, roasting, and grilling with easy cleanup.",400000.00,8,Home Appliances,placeholder.jpg
+571,LG 1.5HP Split AC,"Energy-efficient 1.5HP split air conditioner with inverter compressor, fast cooling, and low noise operation.",650000.00,10,Home Appliances,placeholder.jpg
+572,Samsung 1.5HP Split AC,"1.5HP inverter split AC with fast cooling, smart Wi-Fi control, and energy-efficient operation.",620000.00,12,Home Appliances,placeholder.jpg
+573,Hisense 1HP Window AC,"Compact 1HP window AC unit with fast cooling, energy efficiency, and easy installation.",350000.00,15,Home Appliances,placeholder.jpg
+574,LG 2HP Split AC,"Powerful 2HP split AC with inverter technology, low noise operation, and smart cooling.",900000.00,6,Home Appliances,placeholder.jpg
+575,Whirlpool 1.5HP Split AC,"Reliable split AC with 1.5HP capacity, energy-saving inverter, and multi-stage air purification.",630000.00,10,Home Appliances,placeholder.jpg
+576,Philips Vacuum Cleaner 1600W,"Lightweight vacuum cleaner with 1600W motor, HEPA filtration, and multiple attachments for floors and carpets.",180000.00,12,Home Appliances,placeholder.jpg
+577,Bosch 1800W Vacuum Cleaner,"High-power vacuum cleaner with HEPA filter, multiple nozzles, and cord rewind function for easy storage.",200000.00,10,Home Appliances,placeholder.jpg
+578,LG CordZero Cordless Vacuum,"Cordless vacuum with powerful suction, detachable battery, and lightweight design for easy handling.",400000.00,8,Home Appliances,placeholder.jpg
+579,Samsung Jet 90 Complete,"Cordless stick vacuum with strong suction, multiple brush heads, and long battery life for versatile cleaning.",450000.00,6,Home Appliances,placeholder.jpg
+580,Haier 300L Electric Water Heater,"High-capacity electric water heater with temperature control, energy-efficient heating, and safety thermostat.",350000.00,10,Home Appliances,placeholder.jpg
+581,Ariston 50L Storage Water Heater,"Compact 50L water heater with efficient heating, safety valve, and durable build for daily hot water needs.",280000.00,12,Home Appliances,placeholder.jpg
+582,Philips 2L Electric Kettle,"Electric kettle with 2L capacity, auto shut-off, boil-dry protection, and fast heating for everyday use.",60000.00,20,Home Appliances,placeholder.jpg
+583,Braun MultiQuick Hand Blender,"Hand blender with 600W motor, multiple speed settings, detachable stainless steel shaft, and easy-clean accessories.",120000.00,15,Home Appliances,placeholder.jpg
+584,Kenwood 1.5L Electric Kettle,"Compact 1.5L kettle with rapid boil, cordless design, and water-level indicator.",65000.00,18,Home Appliances,placeholder.jpg
+585,Tefal 1.7L Electric Kettle,"Stylish 1.7L kettle with auto shut-off, boil-dry protection, and ergonomic handle for safe pouring.",55000.00,20,Home Appliances,placeholder.jpg
+586,Philips Viva Collection Blender,"Powerful blender with 1.5L jar, 700W motor, multiple speed settings, and ice-crushing function.",100000.00,12,Home Appliances,placeholder.jpg
+587,Kenwood 1.5L Food Processor,"Food processor with multiple attachments for chopping, slicing, grating, and kneading dough.",220000.00,8,Home Appliances,placeholder.jpg
+588,Bosch 800W Blender,"High-performance blender with 1.5L jar, stainless steel blades, and multiple speed settings for smoothies and soups.",180000.00,10,Home Appliances,placeholder.jpg
+589,Tefal OptiGrill+ XL,"Electric grill with automatic cooking programs, XL surface, non-stick coating, perfect for indoor grilling.",320000.00,8,Home Appliances,placeholder.jpg
+590,Philips Air Fryer XXL 7.3L,"Large-capacity air fryer with rapid air technology, multiple presets, and touch screen control for healthy cooking.",450000.00,6,Home Appliances,placeholder.jpg
+591,Moulinex Easy Fry Deluxe,"Multifunctional air fryer with 4.2L capacity, grill and bake options, and digital timer.",380000.00,10,Home Appliances,placeholder.jpg
+592,LG 20L Electric Oven,"Compact oven with 20L capacity, convection function, temperature control, and timer for baking, roasting, and grilling.",220000.00,10,Home Appliances,placeholder.jpg
+593,Samsung 32L Microwave Oven,"32L microwave with grill and convection modes, digital control, and multiple auto cook programs.",200000.00,12,Home Appliances,placeholder.jpg
+594,Kenwood 30L Electric Oven,"30L electric oven with adjustable thermostat, convection heating, and baking tray included.",240000.00,8,Home Appliances,placeholder.jpg
+595,Philips 25L Electric Oven,"25L compact oven with multi-function cooking, timer, and easy-clean interior.",180000.00,12,Home Appliances,placeholder.jpg
+596,Haier 6kg Compact Washing Machine,"Compact top-load washing machine with 6kg capacity, quick wash programs, and energy-efficient motor.",320000.00,15,Home Appliances,placeholder.jpg
+597,LG 8kg Front Load Washing Machine,"8kg front-load washer with TurboWash, smart inverter motor, and multiple wash cycles for different fabrics.",650000.00,12,Home Appliances,placeholder.jpg
+598,Whirlpool 7kg Front Load Washing Machine,"Front-load washer with 7kg capacity, 6th Sense technology, and energy-saving programs.",580000.00,12,Home Appliances,placeholder.jpg
+599,Bosch Serie 4 8kg Front Load Washer,"8kg front-load washing machine with EcoSilence drive, ActiveWater Plus, and multiple automatic wash programs.",700000.00,10,Home Appliances,placeholder.jpg
+600,Samsung 12kg Top Load Washer,"Large-capacity top-load washing machine with Diamond Drum, EcoBubble, and smart app control.",850000.00,10,Home Appliances,placeholder.jpg
+601,LG 18kg Semi-Automatic Washer,"Semi-automatic washer with 18kg capacity, easy operation, and energy-efficient motor for large families.",420000.00,10,Home Appliances,placeholder.jpg
+602,Panasonic 1.8L Electric Kettle,"1.8L electric kettle with boil-dry protection, fast heating, and easy pour spout.",70000.00,20,Home Appliances,placeholder.jpg
+603,Braun 1.5L Electric Kettle,"Compact kettle with auto shut-off, stainless steel interior, and stylish design.",65000.00,18,Home Appliances,placeholder.jpg
+604,Tefal Compact Blender 1.2L,"1.2L blender with 400W motor, two-speed operation, and detachable jar for easy cleaning.",90000.00,12,Home Appliances,placeholder.jpg
+605,Philips Juicer HR1832,"Centrifugal juicer with 1L jug, 500W motor, easy-clean technology, and safety locking system.",180000.00,10,Home Appliances,placeholder.jpg
+606,Kenwood Citrus Juicer JE290,"Citrus juicer with 25W motor, anti-drip spout, two reamers for different sizes, and transparent pulp collector.",120000.00,12,Home Appliances,placeholder.jpg
+607,Moulinex Electric Rice Cooker 1.8L,"1.8L rice cooker with keep-warm function, non-stick inner pot, and easy one-touch operation.",90000.00,15,Home Appliances,placeholder.jpg
+608,Tefal Rice Cooker 1.5L,"Compact rice cooker with 1.5L capacity, keep-warm function, and non-stick removable pot.",85000.00,18,Home Appliances,placeholder.jpg
+609,LG 2-in-1 Dryer & Washer 10kg,"Front-load washer and dryer combo with 10kg capacity, smart inverter, multiple wash and dry programs.",1200000.00,6,Home Appliances,placeholder.jpg
+610,Samsung 2-in-1 Washer Dryer 9kg,"Washer-dryer combo with 9kg wash and 6kg dry capacity, digital inverter motor, and smart app control.",1150000.00,6,Home Appliances,placeholder.jpg
+611,Haier 2-in-1 Compact Washer Dryer 6kg,"Compact 2-in-1 washer dryer with 6kg capacity, energy-efficient motor, and easy program selection for small homes.",650000.00,10,Home Appliances,placeholder.jpg
+612,Levi's 511 Slim Fit Jeans,"Classic Levi's 511 slim-fit jeans with stretch denim, comfortable fit, and timeless style for everyday wear.",120000.00,20,Fashion Men,placeholder.jpg
+613,Ralph Lauren Polo Shirt,"Cotton polo shirt with embroidered logo, breathable fabric, and regular fit for casual or semi-formal occasions.",150000.00,15,Fashion Men,placeholder.jpg
+614,Tommy Hilfiger Casual T-Shirt,"Premium cotton T-shirt with brand logo, soft texture, and versatile style for daily wear.",85000.00,25,Fashion Men,placeholder.jpg
+615,Nike Sports T-Shirt,"Lightweight, moisture-wicking T-shirt designed for sports and casual wear, providing comfort and flexibility.",90000.00,30,Fashion Men,placeholder.jpg
+616,Adidas Training Shorts,"Durable polyester shorts with elastic waistband, breathable mesh lining, ideal for workouts and running.",80000.00,20,Fashion Men,placeholder.jpg
+617,Puma Joggers,"Soft cotton-blend joggers with elastic cuffs, adjustable waistband, and side pockets for comfort and style.",110000.00,18,Fashion Men,placeholder.jpg
+618,Levi's Trucker Jacket,"Classic denim trucker jacket with button-front closure, chest pockets, and durable cotton fabric.",220000.00,10,Fashion Men,placeholder.jpg
+619,Zara Slim Fit Blazer,"Tailored slim-fit blazer with single-breasted design, ideal for office wear or formal events.",300000.00,8,Fashion Men,placeholder.jpg
+620,H&M Casual Hoodie,"Soft cotton hoodie with drawstring hood, kangaroo pocket, and casual style suitable for everyday wear.",90000.00,25,Fashion Men,placeholder.jpg
+621,Uniqlo Ultra Light Down Jacket,"Lightweight insulated jacket with compact packable design, windproof, and ideal for chilly weather.",180000.00,12,Fashion Men,placeholder.jpg
+622,Lacoste Classic Polo,"Premium cotton polo shirt with iconic crocodile logo, breathable fabric, and tailored fit.",170000.00,10,Fashion Men,placeholder.jpg
+623,Nike Air Max Sneakers,"Stylish and comfortable sneakers with Air Max cushioning, breathable mesh upper, and durable sole for everyday use.",250000.00,15,Fashion Men,placeholder.jpg
+624,Adidas Superstar Sneakers,"Classic Adidas sneakers with leather upper, rubber shell toe, and iconic 3-stripe branding.",230000.00,20,Fashion Men,placeholder.jpg
+625,Puma RS-X Casual Sneakers,"Modern retro sneakers with cushioned midsole, durable rubber outsole, and stylish design for streetwear.",220000.00,15,Fashion Men,placeholder.jpg
+626,Timberland Classic Boots,"Durable leather boots with waterproof finish, padded collar, and rugged sole for outdoor and casual wear.",380000.00,8,Fashion Men,placeholder.jpg
+627,Clarks Desert Boots,"Suede chukka boots with crepe sole, comfortable fit, and versatile casual style.",350000.00,10,Fashion Men,placeholder.jpg
+628,Levi's 505 Regular Fit Jeans,"Regular-fit denim jeans with durable cotton fabric, classic five-pocket design, perfect for everyday use.",115000.00,20,Fashion Men,placeholder.jpg
+629,H&M Chino Pants,"Slim-fit cotton chino pants with belt loops and side pockets, suitable for office or casual occasions.",95000.00,18,Fashion Men,placeholder.jpg
+630,Zara Slim Fit Dress Shirt,"Cotton dress shirt with slim fit, button-down collar, and versatile design for office or formal wear.",140000.00,12,Fashion Men,placeholder.jpg
+631,Uniqlo Oxford Long Sleeve Shirt,"Classic Oxford shirt with button-down collar, soft cotton fabric, ideal for casual or semi-formal occasions.",120000.00,15,Fashion Men,placeholder.jpg
+632,Ralph Lauren Sweatshirt,"Cotton-blend sweatshirt with ribbed cuffs, embroidered logo, and cozy fit for casual wear.",160000.00,10,Fashion Men,placeholder.jpg
+633,Adidas Hooded Sweatshirt,"Comfortable hooded sweatshirt with kangaroo pocket, drawstring hood, and breathable fabric for sports or casual use.",120000.00,18,Fashion Men,placeholder.jpg
+634,Puma Training Jacket,"Lightweight sports jacket with full-zip front, elastic cuffs, and moisture-wicking fabric for workouts.",150000.00,12,Fashion Men,placeholder.jpg
+635,North Face Fleece Jacket,"Warm fleece jacket with zippered pockets, elastic hem, and ideal for outdoor adventures.",250000.00,8,Fashion Men,placeholder.jpg
+636,Timberland Waterproof Jacket,"Heavy-duty waterproof jacket with hood, multiple pockets, and durable construction for rainy weather.",400000.00,6,Fashion Men,placeholder.jpg
+637,H&M Knit Sweater,"Soft cotton-blend sweater with ribbed cuffs and hem, perfect for layering in cooler weather.",90000.00,15,Fashion Men,placeholder.jpg
+638,Zara Casual Shorts,"Lightweight cotton shorts with pockets, comfortable fit, ideal for summer and casual outings.",80000.00,20,Fashion Men,placeholder.jpg
+639,Levi's Cargo Pants,"Durable cotton cargo pants with multiple pockets, relaxed fit, and ideal for outdoor and casual wear.",130000.00,12,Fashion Men,placeholder.jpg
+640,Nike Pro Sports Leggings,"Lightweight, stretchy sports leggings with moisture-wicking technology, designed for high-intensity workouts.",110000.00,18,Fashion Men,placeholder.jpg
+641,Adidas Track Pants,"Polyester track pants with elastic waistband, tapered leg design, and breathable mesh panels for sports.",100000.00,20,Fashion Men,placeholder.jpg
+642,Hugo Boss Slim Fit Trousers,"Premium tailored trousers with slim fit, wool-blend fabric, and versatile style for office or formal events.",320000.00,6,Fashion Men,placeholder.jpg
+643,Tommy Hilfiger Hoodie,"Cotton hoodie with embroidered logo, adjustable hood, and kangaroo pocket for casual comfort.",150000.00,15,Fashion Men,placeholder.jpg
+644,Puma Running Shoes,"Lightweight running shoes with cushioned sole, breathable mesh upper, and durable outsole for training.",180000.00,18,Fashion Men,placeholder.jpg
+645,Nike Sports Shorts,"Polyester athletic shorts with elastic waistband, quick-dry fabric, and side pockets for convenience.",85000.00,20,Fashion Men,placeholder.jpg
+646,Adidas Essentials Hoodie,"Soft cotton hoodie with front pocket, drawstring hood, and classic Adidas branding.",120000.00,15,Fashion Men,placeholder.jpg
+647,Levi's Denim Jacket,"Classic denim jacket with button closure, chest pockets, and durable cotton fabric for everyday use.",220000.00,10,Fashion Men,placeholder.jpg
+648,H&M Casual Polo,"Lightweight cotton polo shirt with ribbed collar, short sleeves, and comfortable fit for daily wear.",80000.00,25,Fashion Men,placeholder.jpg
+649,Uniqlo Sweatpants,"Soft cotton sweatpants with elastic waistband and ankle cuffs, perfect for casual lounging or workouts.",90000.00,20,Fashion Men,placeholder.jpg
+650,Ralph Lauren Casual Shorts,"Cotton casual shorts with multiple pockets, belt loops, and classic preppy style for summer.",150000.00,12,Fashion Men,placeholder.jpg
+651,Nike Sports Cap,"Adjustable sports cap with breathable mesh, iconic logo, and comfortable fit for outdoor activities.",40000.00,30,Fashion Men,placeholder.jpg
+652,Adidas Sports Cap,"Lightweight cap with adjustable strap, moisture-wicking sweatband, and iconic 3-stripe branding.",35000.00,25,Fashion Men,placeholder.jpg
+653,Levi's Slim Fit Chinos,Stretch cotton slim-fit chinos with versatile style for casual or semi-formal occasions.,120000.00,15,Fashion Men,placeholder.jpg
+654,H&M Casual Blazer,"Lightweight cotton-blend blazer with slim fit, single-breasted design, perfect for office or casual events.",220000.00,10,Fashion Men,placeholder.jpg
+655,Zara Slim Fit Trousers,"Tailored slim-fit trousers with stretch fabric, perfect for formal or business casual looks.",180000.00,12,Fashion Men,placeholder.jpg
+656,North Face Lightweight Jacket,"Windbreaker jacket with lightweight design, water-resistant fabric, and adjustable hood for outdoor activities.",200000.00,8,Fashion Men,placeholder.jpg
+657,Puma Training Hoodie,"Cotton-blend training hoodie with drawstring hood, ribbed cuffs, and kangaroo pocket for comfort.",130000.00,12,Fashion Men,placeholder.jpg
+658,Nike Sports Jacket,"Lightweight athletic jacket with zipper closure, breathable panels, and ideal for training or casual wear.",160000.00,10,Fashion Men,placeholder.jpg
+659,Timberland Casual Sneakers,"Durable leather sneakers with padded collar, comfortable insole, and versatile style for everyday use.",280000.00,8,Fashion Men,placeholder.jpg
+660,Clarks Casual Loafers,"Premium suede loafers with cushioned footbed, slip-on design, and classic casual style.",350000.00,6,Fashion Men,placeholder.jpg
+661,Levi's Graphic T-Shirt,"Cotton T-shirt with printed graphic, soft texture, and casual fit for daily wear.",75000.00,25,Fashion Men,placeholder.jpg
+662,Zara Floral Summer Dress,"Lightweight floral dress with V-neck, short sleeves, and knee-length hem, perfect for summer outings.",120000.00,20,Fashion Women,placeholder.jpg
+663,H&M Wrap Dress,"Elegant wrap dress with adjustable waist tie, midi-length, and soft polyester blend for comfort.",110000.00,18,Fashion Women,placeholder.jpg
+664,Mango A-Line Skirt,"High-waist A-line skirt with zip closure, lightweight fabric, and flattering fit for casual or office wear.",85000.00,25,Fashion Women,placeholder.jpg
+665,Uniqlo Linen Blouse,"Breathable linen blouse with button-down front, long sleeves, and relaxed fit for daily wear.",90000.00,20,Fashion Women,placeholder.jpg
+666,Forever 21 Off-Shoulder Top,"Stylish off-shoulder top with elastic neckline, short puff sleeves, and versatile casual design.",75000.00,25,Fashion Women,placeholder.jpg
+667,H&M Knit Sweater,"Soft knitted sweater with ribbed cuffs, round neck, and cozy fit for cooler weather.",95000.00,18,Fashion Women,placeholder.jpg
+668,Zara Slim Fit Pants,"Tailored slim-fit pants with stretch fabric, mid-rise waist, and versatile style for office or formal occasions.",130000.00,15,Fashion Women,placeholder.jpg
+669,Mango High-Waist Trousers,"Elegant high-waist trousers with tapered legs, zip closure, and comfortable polyester blend.",140000.00,12,Fashion Women,placeholder.jpg
+670,H&M Maxi Dress,"Flowing maxi dress with floral print, adjustable straps, and floor-length design for casual or evening wear.",120000.00,20,Fashion Women,placeholder.jpg
+671,Zara Blouse with Puff Sleeves,"Stylish blouse with puff sleeves, button-down front, and soft cotton blend for versatile wear.",95000.00,18,Fashion Women,placeholder.jpg
+672,Uniqlo V-Neck T-Shirt,"Soft cotton V-neck T-shirt with regular fit, breathable fabric, and casual everyday style.",60000.00,25,Fashion Women,placeholder.jpg
+673,Forever 21 Crop Top,"Trendy crop top with short sleeves, stretchy cotton fabric, and casual summer style.",50000.00,30,Fashion Women,placeholder.jpg
+674,Mango Pleated Skirt,"Midi pleated skirt with elastic waistband, lightweight fabric, and elegant silhouette for casual or office wear.",100000.00,15,Fashion Women,placeholder.jpg
+675,Zara Belted Trench Coat,"Classic belted trench coat with water-resistant fabric, double-breasted closure, and timeless style.",350000.00,8,Fashion Women,placeholder.jpg
+676,H&M Puffer Jacket,"Lightweight puffer jacket with padded insulation, zip closure, and hood for warmth in colder weather.",220000.00,10,Fashion Women,placeholder.jpg
+677,Uniqlo Ultra Light Down Jacket,"Packable down jacket with windproof and water-resistant fabric, perfect for travel or chilly weather.",250000.00,12,Fashion Women,placeholder.jpg
+678,Mango Ruffled Blouse,"Soft polyester blouse with ruffled front detail, short sleeves, and elegant casual design.",85000.00,20,Fashion Women,placeholder.jpg
+679,Zara Satin Slip Dress,"Sleek satin slip dress with spaghetti straps, V-neckline, and midi-length for evening or party wear.",180000.00,12,Fashion Women,placeholder.jpg
+680,H&M Denim Jacket,"Classic denim jacket with button-down front, chest pockets, and durable cotton fabric for casual styling.",150000.00,15,Fashion Women,placeholder.jpg
+681,Forever 21 Mini Skirt,"Trendy mini skirt with high waist, zipper closure, and versatile casual design.",70000.00,25,Fashion Women,placeholder.jpg
+682,Uniqlo Cotton Shirt Dress,"Comfortable shirt dress with button-down front, short sleeves, and knee-length hem for everyday wear.",120000.00,18,Fashion Women,placeholder.jpg
+683,Mango Tailored Blazer,"Stylish tailored blazer with single-breasted design, slim fit, and comfortable polyester blend.",220000.00,10,Fashion Women,placeholder.jpg
+684,Zara Ruffled Maxi Skirt,"Flowing maxi skirt with ruffle details, elastic waistband, and lightweight fabric for summer elegance.",140000.00,12,Fashion Women,placeholder.jpg
+685,H&M Knit Cardigan,"Soft knitted cardigan with open front, long sleeves, and cozy fit for layering over outfits.",95000.00,20,Fashion Women,placeholder.jpg
+686,Mango Satin Blouse,"Smooth satin blouse with V-neck, long sleeves, and elegant office or casual style.",100000.00,18,Fashion Women,placeholder.jpg
+687,Zara Midi Dress,"Stylish midi dress with floral print, short sleeves, and flattering fit for casual or semi-formal events.",150000.00,15,Fashion Women,placeholder.jpg
+688,H&M Leggings,"Comfortable stretch cotton leggings with elastic waistband, perfect for casual wear or workouts.",50000.00,30,Fashion Women,placeholder.jpg
+689,Forever 21 Graphic T-Shirt,"Cotton T-shirt with trendy graphic print, regular fit, and casual everyday style.",45000.00,35,Fashion Women,placeholder.jpg
+690,Mango Wrap Skirt,"Lightweight wrap skirt with tie closure, midi-length, and comfortable fabric for summer or casual outings.",110000.00,15,Fashion Women,placeholder.jpg
+691,Zara Cropped Sweater,"Soft knit cropped sweater with long sleeves, ribbed cuffs, and casual street-style look.",90000.00,18,Fashion Women,placeholder.jpg
+692,Uniqlo Linen Shorts,"Lightweight linen shorts with elastic waistband, perfect for summer casual wear.",70000.00,25,Fashion Women,placeholder.jpg
+693,H&M Hoodie,"Comfortable cotton hoodie with drawstring hood, kangaroo pocket, and casual everyday style.",85000.00,20,Fashion Women,placeholder.jpg
+694,Mango Wide-Leg Pants,"Elegant wide-leg trousers with high waist, zip closure, and polyester blend for office or casual styling.",150000.00,12,Fashion Women,placeholder.jpg
+695,Zara Satin Camisole,"Sleek satin camisole with spaghetti straps, V-neck, and versatile layering piece for day or evening wear.",75000.00,20,Fashion Women,placeholder.jpg
+696,Forever 21 Denim Shorts,"Classic denim shorts with high waist, button closure, and casual summer style.",60000.00,30,Fashion Women,placeholder.jpg
+697,H&M Printed Maxi Dress,"Flowing maxi dress with printed floral pattern, adjustable straps, and floor-length design for casual or formal wear.",120000.00,18,Fashion Women,placeholder.jpg
+698,Mango Cropped Jacket,"Stylish cropped jacket with button-down front, long sleeves, and lightweight polyester blend.",180000.00,12,Fashion Women,placeholder.jpg
+699,Zara Belted Dress,"Elegant belted dress with V-neck, midi-length, and flattering fit for semi-formal or office wear.",160000.00,12,Fashion Women,placeholder.jpg
+700,H&M Pleated Midi Skirt,"Lightweight pleated midi skirt with elastic waistband, perfect for casual or office outfits.",90000.00,20,Fashion Women,placeholder.jpg
+701,Uniqlo Turtleneck Sweater,"Soft turtleneck sweater with ribbed cuffs, warm knit fabric, ideal for layering in cooler weather.",100000.00,15,Fashion Women,placeholder.jpg
+702,Mango Floral Blouse,"Lightweight floral blouse with long sleeves, button-down front, and versatile casual style.",85000.00,20,Fashion Women,placeholder.jpg
+703,Zara High-Waist Pants,"Tailored high-waist trousers with straight legs, zip closure, and elegant polyester blend.",140000.00,15,Fashion Women,placeholder.jpg
+704,H&M Hoodie Dress,"Casual hoodie dress with drawstring hood, long sleeves, and kangaroo pocket for comfort and style.",95000.00,18,Fashion Women,placeholder.jpg
+705,Forever 21 Wrap Top,"Trendy wrap-style top with V-neck, adjustable tie, and lightweight fabric for casual styling.",60000.00,25,Fashion Women,placeholder.jpg
+706,Mango Knit Dress,"Soft knitted midi dress with long sleeves, fitted waist, and cozy yet stylish design.",130000.00,12,Fashion Women,placeholder.jpg
+707,Zara Linen Pants,"Lightweight linen pants with elastic waistband, wide-leg design, perfect for summer comfort.",120000.00,18,Fashion Women,placeholder.jpg
+708,H&M Denim Skirt,"Classic denim skirt with front button closure, above-knee length, and versatile casual style.",70000.00,25,Fashion Women,placeholder.jpg
+709,Uniqlo V-Neck Knit Top,"Soft cotton-blend V-neck top with regular fit, suitable for casual or office layering.",60000.00,30,Fashion Women,placeholder.jpg
+710,Mango Belted Trench Coat,"Stylish belted trench coat with double-breasted closure, water-resistant fabric, and timeless elegance.",350000.00,8,Fashion Women,placeholder.jpg
+711,Zara Puff-Sleeve Blouse,"Elegant blouse with puff sleeves, button-down front, and soft polyester blend suitable for casual or office wear.",90000.00,20,Fashion Women,placeholder.jpg
+712,Indomie Instant Noodles 70g,"Popular instant noodles, quick-cooking, with a savory seasoning packet for a fast meal.",1200.00,100,Groceries & Food,placeholder.jpg
+713,Mama Instant Noodles 75g,"Quick-cook noodles with flavorful seasoning, perfect for breakfast, lunch, or snacks.",1100.00,100,Groceries & Food,placeholder.jpg
+714,Rwandan Premium Rice 5kg,"Long-grain rice, polished and cleaned, ideal for everyday cooking and large meals.",25000.00,50,Groceries & Food,placeholder.jpg
+715,Uncle Ben's Parboiled Rice 5kg,High-quality parboiled rice with firm grains and consistent cooking quality.,28000.00,40,Groceries & Food,placeholder.jpg
+716,Sunflower Cooking Oil 1L,"Refined sunflower oil, perfect for frying, baking, and general cooking purposes.",7500.00,80,Groceries & Food,placeholder.jpg
+717,Royal Cooking Oil 1L,"Pure vegetable oil for all types of cooking, with a neutral flavor.",7000.00,80,Groceries & Food,placeholder.jpg
+718,Peak Evaporated Milk 400g,"Rich evaporated milk for cooking, baking, or adding creaminess to beverages.",6500.00,60,Groceries & Food,placeholder.jpg
+719,Cowbell Full Cream Milk 400g,"Full-cream milk powder with natural flavor, ideal for tea, coffee, and cereals.",6000.00,60,Groceries & Food,placeholder.jpg
+720,Igikoko Beans 1kg,"High-quality dried beans, cleaned and ready for cooking traditional dishes.",5500.00,70,Groceries & Food,placeholder.jpg
+721,Rwandan Green Lentils 1kg,"Premium green lentils, nutritious, protein-rich, and perfect for stews or soups.",6000.00,70,Groceries & Food,placeholder.jpg
+722,Kabare Maize Flour 2kg,"Finely milled maize flour for Ugali, porridge, and other staple dishes.",4500.00,50,Groceries & Food,placeholder.jpg
+723,Rwandan Wheat Flour 2kg,"Premium wheat flour suitable for bread, pastries, and baking needs.",5000.00,50,Groceries & Food,placeholder.jpg
+724,SunQuick Orange Squash 1L,"Concentrated orange drink, easy to dilute, with a refreshing citrus flavor.",8000.00,40,Groceries & Food,placeholder.jpg
+725,Tang Orange Drink 1kg,Instant orange-flavored drink powder for quick preparation of beverages.,7500.00,40,Groceries & Food,placeholder.jpg
+726,Fresh Tomatoes 1kg,"Ripe, fresh tomatoes, perfect for sauces, salads, and cooking.",3500.00,100,Groceries & Food,placeholder.jpg
+727,Rwandan Onions 1kg,"Fresh onions, clean and firm, ideal for daily cooking needs.",2500.00,100,Groceries & Food,placeholder.jpg
+728,Garlic 200g,"Fresh garlic bulbs, aromatic, and perfect for seasoning dishes.",1500.00,80,Groceries & Food,placeholder.jpg
+729,Ginger 200g,"Fresh ginger root, flavorful and ideal for cooking, teas, and health remedies.",2000.00,80,Groceries & Food,placeholder.jpg
+730,Rwandan Potatoes 1kg,"Fresh and firm potatoes, suitable for boiling, frying, and baking.",3000.00,100,Groceries & Food,placeholder.jpg
+731,Rwandan Carrots 1kg,"Fresh carrots, crisp and sweet, ideal for salads, cooking, and juices.",3200.00,100,Groceries & Food,placeholder.jpg
+732,Rwandan Cabbage 1kg,"Fresh cabbage heads, firm leaves, perfect for cooking or salads.",2800.00,100,Groceries & Food,placeholder.jpg
+733,Rwandan Spinach 500g,"Fresh leafy spinach, rich in nutrients, perfect for soups, stews, or salads.",2000.00,100,Groceries & Food,placeholder.jpg
+734,Rwandan Avocados 1kg,"Fresh and creamy avocados, ideal for salads, sandwiches, or smoothies.",6500.00,50,Groceries & Food,placeholder.jpg
+735,Fresh Bananas 1kg,"Ripe and sweet bananas, perfect for snacks or smoothies.",2500.00,100,Groceries & Food,placeholder.jpg
+736,Pineapple 1kg,"Fresh, juicy pineapples, great for juices, desserts, or snacks.",3500.00,50,Groceries & Food,placeholder.jpg
+737,Apples 1kg,"Fresh, crisp apples, suitable for eating raw or cooking.",4500.00,60,Groceries & Food,placeholder.jpg
+738,Oranges 1kg,"Juicy and fresh oranges, perfect for juice or direct consumption.",4000.00,60,Groceries & Food,placeholder.jpg
+739,Mangoes 1kg,"Sweet, ripe mangoes, ideal for desserts, smoothies, or snacking.",5500.00,50,Groceries & Food,placeholder.jpg
+740,Rwandan Sweet Potatoes 1kg,"Fresh, sweet root vegetables, perfect for boiling, baking, or frying.",3500.00,80,Groceries & Food,placeholder.jpg
+741,Cassava 1kg,"Fresh cassava roots, ready for boiling, frying, or making flour.",2500.00,80,Groceries & Food,placeholder.jpg
+742,Eggs 30pcs,"Fresh chicken eggs, rich in protein, ideal for cooking or baking.",6500.00,50,Groceries & Food,placeholder.jpg
+743,Rwandan Fresh Milk 1L,"Pasteurized fresh milk with natural taste, perfect for drinking or cooking.",3500.00,60,Groceries & Food,placeholder.jpg
+744,Yogurt 500ml,"Smooth and creamy yogurt, rich in probiotics, suitable for breakfast or snacks.",2500.00,60,Groceries & Food,placeholder.jpg
+745,Cheese Block 500g,"High-quality cheese block, perfect for cooking, sandwiches, and salads.",7000.00,40,Groceries & Food,placeholder.jpg
+746,Butter 250g,"Creamy butter suitable for cooking, baking, or spreading on bread.",5500.00,50,Groceries & Food,placeholder.jpg
+747,Rwandan Honey 500g,"Pure natural honey, ideal for sweetening drinks, cooking, or health benefits.",8000.00,30,Groceries & Food,placeholder.jpg
+748,Peanut Butter 400g,"Creamy peanut butter, perfect for sandwiches, baking, or snacks.",6500.00,40,Groceries & Food,placeholder.jpg
+749,Rwandan Fresh Fish 1kg,"Fresh local fish, cleaned and ready for cooking, rich in protein and omega-3.",12000.00,40,Groceries & Food,placeholder.jpg
+750,Chicken Whole 1kg,"Fresh whole chicken, ideal for roasting, grilling, or stewing.",8000.00,50,Groceries & Food,placeholder.jpg
+751,Beef Mince 1kg,"Fresh ground beef, perfect for burgers, meatballs, and stews.",15000.00,40,Groceries & Food,placeholder.jpg
+752,Rwandan Goat Meat 1kg,"Fresh goat meat, suitable for traditional cooking and grilling.",14000.00,30,Groceries & Food,placeholder.jpg
+753,Rwandan Pork 1kg,"Fresh pork meat, ideal for roasting, frying, or stewing.",13000.00,30,Groceries & Food,placeholder.jpg
+754,Tilapia Fish 1kg,"Fresh tilapia, cleaned and ready for grilling or frying.",12500.00,40,Groceries & Food,placeholder.jpg
+755,Nile Perch 1kg,"Fresh Nile perch, firm texture, perfect for baking or pan-frying.",15000.00,30,Groceries & Food,placeholder.jpg
+756,Rwandan Beef Steaks 1kg,"Premium beef steaks, tender and flavorful, ideal for grilling or frying.",18000.00,20,Groceries & Food,placeholder.jpg
+757,Chicken Drumsticks 1kg,"Fresh chicken drumsticks, perfect for roasting, frying, or BBQ.",8500.00,50,Groceries & Food,placeholder.jpg
+758,Chicken Wings 1kg,"Fresh chicken wings, suitable for frying, grilling, or baking.",8000.00,50,Groceries & Food,placeholder.jpg
+759,Rwandan Fresh Spinach 1kg,"Fresh spinach leaves, perfect for soups, stews, or salads.",3500.00,80,Groceries & Food,placeholder.jpg
+760,Rwandan Kale 1kg,"Fresh kale, rich in vitamins, suitable for cooking or salads.",3500.00,80,Groceries & Food,placeholder.jpg
+761,Fresh Green Beans 1kg,"Crisp green beans, ideal for steaming, frying, or adding to stews.",4000.00,60,Groceries & Food,placeholder.jpg
+762,Fresh Cucumber 1kg,"Crisp and fresh cucumbers, perfect for salads or snacking.",3000.00,60,Groceries & Food,placeholder.jpg
+763,Fresh Bell Peppers 1kg,"Mixed-color bell peppers, sweet and crunchy, ideal for cooking or salads.",4500.00,60,Groceries & Food,placeholder.jpg
+764,Fresh Zucchini 1kg,"Tender zucchini, perfect for grilling, baking, or stir-frying.",3800.00,50,Groceries & Food,placeholder.jpg
+765,Fresh Eggplant 1kg,"Firm eggplants, ideal for stews, grilling, or baking.",3500.00,50,Groceries & Food,placeholder.jpg
+766,Fresh Garlic 500g,"Aromatic garlic bulbs, essential for seasoning and cooking.",3000.00,50,Groceries & Food,placeholder.jpg
+767,Fresh Ginger 500g,"Fresh ginger root, great for teas, cooking, and health remedies.",4000.00,50,Groceries & Food,placeholder.jpg
+768,Rwandan Brown Sugar 1kg,"Natural brown sugar, perfect for baking, cooking, or sweetening drinks.",5000.00,40,Groceries & Food,placeholder.jpg
+769,White Sugar 1kg,"Fine white sugar, ideal for baking, beverages, or general cooking.",4500.00,50,Groceries & Food,placeholder.jpg
+770,Salt 1kg,"Fine quality salt, essential for seasoning and cooking.",2000.00,100,Groceries & Food,placeholder.jpg
+771,Black Pepper Powder 100g,"Freshly ground black pepper, perfect for seasoning and enhancing flavor in dishes.",3500.00,60,Groceries & Food,placeholder.jpg
+772,Nivea Soft Moisturizing Cream 200ml,"Light, non-greasy moisturizer enriched with Vitamin E and Jojoba Oil for soft, smooth skin.",8500.00,50,Health & Beauty,placeholder.jpg
+773,Vaseline Petroleum Jelly 100ml,"Multi-purpose petroleum jelly for dry skin, lips, and minor cuts.",6500.00,50,Health & Beauty,placeholder.jpg
+774,Dove Beauty Cream Bar 100g,Mild soap with 1/4 moisturizing cream to gently cleanse and nourish skin.,2500.00,100,Health & Beauty,placeholder.jpg
+775,Lux Soft Touch Soap 100g,Smooth and fragrant soap bar that gently cleanses and moisturizes.,2000.00,100,Health & Beauty,placeholder.jpg
+776,L'Oréal Paris Revitalift Face Cream 50ml,Anti-aging cream with Pro-Retinol and Centella Asiatica for firm and youthful skin.,25000.00,40,Health & Beauty,placeholder.jpg
+777,Garnier Skin Naturals Moisturizer 50ml,Lightweight facial moisturizer with natural extracts to hydrate and refresh skin.,18000.00,50,Health & Beauty,placeholder.jpg
+778,Colgate MaxFresh Toothpaste 150g,Toothpaste with cooling crystals and fluoride to fight plaque and freshen breath.,5500.00,80,Health & Beauty,placeholder.jpg
+779,Sensodyne Toothpaste 100g,Specialized toothpaste for sensitive teeth with fluoride protection.,6500.00,70,Health & Beauty,placeholder.jpg
+780,Oral-B Toothbrush Soft,Soft-bristle toothbrush for gentle cleaning and gum care.,3500.00,100,Health & Beauty,placeholder.jpg
+781,CloseUp Toothpaste 150g,Toothpaste with antibacterial protection and long-lasting fresh breath.,5000.00,80,Health & Beauty,placeholder.jpg
+782,Nivea Men Anti-Perspirant Roll-On 50ml,Long-lasting sweat and odor protection for men with a smooth application.,8000.00,60,Health & Beauty,placeholder.jpg
+783,Dove Men+Care Body Wash 250ml,Gentle body wash enriched with moisturizing cream for men's skin.,10000.00,50,Health & Beauty,placeholder.jpg
+784,Palmolive Natural Shower Gel 250ml,Shower gel with natural extracts that cleanses and softens skin.,7500.00,60,Health & Beauty,placeholder.jpg
+785,Dettol Antiseptic Liquid 250ml,"Multi-purpose antiseptic for cleaning wounds, surfaces, and personal hygiene.",12000.00,40,Health & Beauty,placeholder.jpg
+786,Savlon Antiseptic Cream 30g,"Antiseptic cream to prevent infection in minor cuts, burns, and scratches.",6500.00,50,Health & Beauty,placeholder.jpg
+787,Vaseline Lip Therapy 20g,"Moisturizing lip balm for dry and chapped lips, enriched with cocoa butter.",4000.00,70,Health & Beauty,placeholder.jpg
+788,Nivea Lip Balm SPF15 4.8g,Protective lip balm with SPF for daily use and hydration.,4500.00,60,Health & Beauty,placeholder.jpg
+789,L'Oréal Paris Men Expert Face Wash 100ml,Gentle face wash for men to cleanse and remove dirt and excess oil.,15000.00,40,Health & Beauty,placeholder.jpg
+790,Garnier Micellar Water 200ml,"Removes makeup and cleanses skin without harsh rubbing, suitable for all skin types.",12000.00,50,Health & Beauty,placeholder.jpg
+791,Simple Hydrating Facial Wipes 25pcs,"Gentle facial wipes to cleanse, refresh, and remove makeup.",8500.00,60,Health & Beauty,placeholder.jpg
+792,Head & Shoulders Anti-Dandruff Shampoo 200ml,Shampoo with Pyrithione Zinc to combat dandruff and soothe scalp irritation.,12000.00,50,Health & Beauty,placeholder.jpg
+793,Pantene Pro-V Shampoo 200ml,Strengthening shampoo with Pro-V nutrients to nourish hair and prevent breakage.,10500.00,50,Health & Beauty,placeholder.jpg
+794,Dove Hair Therapy Conditioner 200ml,"Nourishing conditioner for soft, smooth, and manageable hair.",10500.00,50,Health & Beauty,placeholder.jpg
+795,L'Oréal Paris Elvive Total Repair 5 Conditioner 200ml,Repairs damaged hair and strengthens strands for a healthy look.,12000.00,40,Health & Beauty,placeholder.jpg
+796,Clinic Plus Strong & Long Shampoo 200ml,"Strengthens hair roots, reduces breakage, and promotes long, healthy hair.",8500.00,60,Health & Beauty,placeholder.jpg
+797,Garnier Fructis Hair Serum 100ml,"Lightweight serum to smooth frizz, add shine, and protect hair from damage.",15000.00,50,Health & Beauty,placeholder.jpg
+798,Nivea Men Face Scrub 100ml,"Exfoliating face scrub for men to remove dirt, oil, and dead skin cells.",12000.00,50,Health & Beauty,placeholder.jpg
+799,Himalaya Herbals Face Wash 100ml,Gentle herbal face wash with neem and turmeric for clean and healthy skin.,8000.00,50,Health & Beauty,placeholder.jpg
+800,Pond's Bright Face Cream 50ml,Brightening face cream with multivitamins to nourish skin and reduce dullness.,7500.00,60,Health & Beauty,placeholder.jpg
+801,Olay Natural White Day Cream 50ml,Moisturizing and brightening cream with SPF for daily use.,25000.00,40,Health & Beauty,placeholder.jpg
+802,Dettol Soap 100g,Antibacterial soap to protect skin from germs and bacteria.,2500.00,100,Health & Beauty,placeholder.jpg
+803,Safeguard Soap 100g,Gentle cleansing antibacterial soap suitable for family use.,2500.00,100,Health & Beauty,placeholder.jpg
+804,Nivea Deodorant Spray 150ml,Long-lasting deodorant spray providing fresh protection against sweat and odor.,9000.00,60,Health & Beauty,placeholder.jpg
+805,Rexona Deodorant Spray 150ml,All-day sweat and odor protection with refreshing fragrance.,8500.00,60,Health & Beauty,placeholder.jpg
+806,Dove Roll-On Deodorant 50ml,Gentle deodorant with moisturizing cream for soft underarms.,7500.00,60,Health & Beauty,placeholder.jpg
+807,Lifebuoy Total 10 Soap 100g,Antibacterial soap with essential vitamins for clean and healthy skin.,2500.00,100,Health & Beauty,placeholder.jpg
+808,Lux Pink Soap 100g,Fragrant soap bar for daily cleansing and soft skin.,2000.00,100,Health & Beauty,placeholder.jpg
+809,Vaseline Intensive Care Lotion 200ml,Deeply moisturizes dry skin and protects it from dryness.,8500.00,50,Health & Beauty,placeholder.jpg
+810,Nivea Extra Whitening Lotion 200ml,Whitening and moisturizing lotion for soft and radiant skin.,9000.00,50,Health & Beauty,placeholder.jpg
+811,Pond's Dry Skin Cream 50ml,Moisturizing cream enriched with vitamin E for dry and rough skin.,6500.00,50,Health & Beauty,placeholder.jpg
+812,Palmolive Naturals Body Wash 250ml,"Body wash with natural extracts to clean, refresh, and nourish skin.",7500.00,60,Health & Beauty,placeholder.jpg
+813,Nivea Shower Cream 250ml,Creamy shower gel that gently cleanses while moisturizing skin.,8500.00,50,Health & Beauty,placeholder.jpg
+814,Dove Deep Moisture Body Wash 250ml,Nourishing body wash with 1/4 moisturizing cream for soft and smooth skin.,9000.00,50,Health & Beauty,placeholder.jpg
+815,Himalaya Herbals Moisturizing Cream 50ml,Light herbal moisturizer enriched with aloe vera for soft and hydrated skin.,6500.00,50,Health & Beauty,placeholder.jpg
+816,Garnier SkinActive Face Serum 30ml,Hydrating and brightening serum with hyaluronic acid and vitamin C.,15000.00,40,Health & Beauty,placeholder.jpg
+817,L'Oréal Paris Revitalift Serum 30ml,Anti-aging serum with Pro-Retinol and hyaluronic acid to reduce wrinkles and firm skin.,25000.00,40,Health & Beauty,placeholder.jpg
+818,Himalaya Anti-Acne Face Wash 100ml,Herbal face wash with neem and turmeric to fight acne and clean skin effectively.,8500.00,50,Health & Beauty,placeholder.jpg
+819,Garnier Oil-Free Moisturizer 50ml,Lightweight oil-free moisturizer for combination and oily skin.,10000.00,50,Health & Beauty,placeholder.jpg
+820,Pond's White Beauty Face Cream 50ml,Brightening cream enriched with multivitamins to even out skin tone.,8500.00,50,Health & Beauty,placeholder.jpg
+821,Olay Regenerist Night Cream 50ml,Anti-aging night cream with amino-peptides to reduce fine lines and rejuvenate skin.,25000.00,40,Health & Beauty,placeholder.jpg
+822,Nivea Sun SPF50 Sunscreen 100ml,Broad-spectrum sunscreen to protect skin from UVA and UVB rays while moisturizing.,15000.00,50,Health & Beauty,placeholder.jpg
+823,Banana Boat SPF30 Sunscreen 100ml,Water-resistant sunscreen with UVA/UVB protection for daily use.,12000.00,50,Health & Beauty,placeholder.jpg
+824,Garnier Light Complete SPF30 Cream 50ml,Brightening daily cream with SPF for radiant and protected skin.,18000.00,40,Health & Beauty,placeholder.jpg
+825,L'Oréal UV Perfect SPF50 Cream 50ml,Anti-UV cream to protect skin from sun damage and maintain moisture.,20000.00,40,Health & Beauty,placeholder.jpg
+826,Himalaya Aloe Vera Gel 100ml,"Natural aloe vera gel to soothe, hydrate, and heal skin irritations.",7500.00,50,Health & Beauty,placeholder.jpg
+827,Nivea Men After Shave Balm 100ml,"Soothes and moisturizes skin after shaving, reducing irritation and redness.",10000.00,50,Health & Beauty,placeholder.jpg
+828,Gillette Fusion Razor Blades 4pcs,"High-precision razor blades for smooth, comfortable shaving.",12000.00,40,Health & Beauty,placeholder.jpg
+829,Gillette Mach3 Razor,Durable razor for men with triple-blade system for a close and comfortable shave.,15000.00,40,Health & Beauty,placeholder.jpg
+830,Nivea Men Face Moisturizer 50ml,"Daily moisturizer for men, hydrates and refreshes skin without greasiness.",12000.00,50,Health & Beauty,placeholder.jpg
+831,Garnier Men Oil-Free Moisturizer 50ml,Lightweight oil-free moisturizer to control shine and hydrate men's skin.,10500.00,50,Health & Beauty,placeholder.jpg
+832,Oral-B Mouthwash 250ml,Fluoride mouthwash for fresh breath and cavity protection.,7500.00,60,Health & Beauty,placeholder.jpg
+833,Colgate Plax Mouthwash 250ml,Antibacterial mouthwash to prevent plaque and maintain oral hygiene.,7000.00,60,Health & Beauty,placeholder.jpg
+834,Sensodyne Mouthwash 250ml,"Specially formulated for sensitive teeth, provides long-lasting protection.",8500.00,50,Health & Beauty,placeholder.jpg
+835,Himalaya Herbals Lip Balm 5g,"Herbal lip balm to nourish, hydrate, and protect lips from dryness.",4500.00,50,Health & Beauty,placeholder.jpg
+836,Nivea Lip Care SPF15 4.8g,Moisturizing lip balm with SPF to protect lips from sun damage.,4500.00,50,Health & Beauty,placeholder.jpg
+837,Vaseline Rosy Lips 20g,Softens and moisturizes lips with a hint of rosy tint.,4000.00,50,Health & Beauty,placeholder.jpg
+838,Dove Sensitive Skin Bar 100g,Mild soap for sensitive skin with moisturizing cream to prevent dryness.,2500.00,100,Health & Beauty,placeholder.jpg
+839,Lifebuoy Handwash 250ml,Antibacterial handwash to kill germs and maintain hand hygiene.,3500.00,80,Health & Beauty,placeholder.jpg
+840,Dettol Handwash 250ml,Protects hands from bacteria while gently cleaning and moisturizing.,4000.00,80,Health & Beauty,placeholder.jpg
+841,Himalaya Herbal Toothpaste 100g,Herbal toothpaste with neem and pomegranate to strengthen teeth and gums.,6000.00,50,Health & Beauty,placeholder.jpg
+842,CloseUp Gel Toothpaste 120g,Gel toothpaste to fight bad breath and prevent cavities.,5000.00,60,Health & Beauty,placeholder.jpg
+843,Sensodyne Repair & Protect Toothpaste 100g,Helps repair sensitive areas of teeth while providing fluoride protection.,7500.00,50,Health & Beauty,placeholder.jpg
+844,Oral-B Kids Toothpaste 50g,Gentle toothpaste with fruity flavor suitable for children.,4500.00,50,Health & Beauty,placeholder.jpg
+845,Johnson's Baby Lotion 200ml,Gentle moisturizing lotion suitable for delicate baby skin.,7500.00,60,Health & Beauty,placeholder.jpg
+846,Johnson's Baby Oil 200ml,"Nourishing baby oil to keep skin soft, smooth, and protected.",6500.00,60,Health & Beauty,placeholder.jpg
+847,Johnson's Baby Soap 100g,Mild soap bar for babies with gentle cleansing formula.,2500.00,100,Health & Beauty,placeholder.jpg
+848,Nivea Baby Soft Cream 100ml,Soft cream to moisturize and protect baby skin from dryness and irritation.,6500.00,60,Health & Beauty,placeholder.jpg
+849,Himalaya Baby Lotion 200ml,"Herbal baby lotion to keep skin soft, smooth, and healthy.",7000.00,60,Health & Beauty,placeholder.jpg
+850,Palmolive Baby Bath 250ml,Gentle baby bath with natural extracts to cleanse and nourish skin.,6500.00,50,Health & Beauty,placeholder.jpg
+851,Dettol Baby Wipes 72pcs,Antibacterial wipes suitable for baby hygiene and gentle cleaning.,5500.00,60,Health & Beauty,placeholder.jpg
+852,Nivea Men Sensitive Shaving Gel 200ml,Shaving gel with soothing ingredients to prevent irritation on sensitive skin.,10000.00,50,Health & Beauty,placeholder.jpg
+853,Gillette Shaving Foam 200ml,Smooth foam for easy shaving and skin protection.,8500.00,50,Health & Beauty,placeholder.jpg
+854,Nivea Men Sensitive Face Wash 100ml,"Gentle face wash to remove dirt, oil, and impurities without drying skin.",12000.00,50,Health & Beauty,placeholder.jpg
+855,Garnier Men Face Wash 100ml,"Cleanses, refreshes, and reduces excess oil for men's skin.",11000.00,50,Health & Beauty,placeholder.jpg
+856,L'Oréal Men Expert Shower Gel 250ml,Refreshing body wash enriched with minerals for men's skin.,12000.00,50,Health & Beauty,placeholder.jpg
+857,Dove Beauty Cream 50ml,Daily moisturizing cream enriched with multivitamins for soft and smooth skin.,6500.00,50,Health & Beauty,placeholder.jpg
+858,Pond's White Beauty Face Wash 100ml,Cleansing face wash for brightening and moisturizing skin.,7500.00,50,Health & Beauty,placeholder.jpg
+859,Himalaya Purifying Neem Face Wash 100ml,Herbal face wash with neem extract to cleanse and prevent acne.,8000.00,50,Health & Beauty,placeholder.jpg
+860,Nivea Men Sensitive Shaving Foam 200ml,Gentle foam for comfortable shaving and skin protection.,9500.00,50,Health & Beauty,placeholder.jpg
+861,Garnier Men Anti-Acne Face Wash 100ml,"Removes excess oil, fights acne, and refreshes skin.",9500.00,50,Health & Beauty,placeholder.jpg
+862,L'Oréal Paris Men Expert Moisturizer 50ml,"Daily moisturizer for men, keeps skin hydrated and reduces shine.",15000.00,40,Health & Beauty,placeholder.jpg
+863,Vaseline Men Body Lotion 200ml,"Moisturizing body lotion for dry and rough skin, quick absorption.",8500.00,50,Health & Beauty,placeholder.jpg
+864,Nivea Men Energy Shower Gel 250ml,Invigorating shower gel with refreshing fragrance and cleansing action.,9000.00,50,Health & Beauty,placeholder.jpg
+865,Palmolive Men Invigorating Body Wash 250ml,Energizing shower gel with natural extracts for smooth skin.,8500.00,50,Health & Beauty,placeholder.jpg
+866,Dettol Body Wash 250ml,Antibacterial body wash that cleanses thoroughly and protects from germs.,10000.00,50,Health & Beauty,placeholder.jpg
+867,Garnier Micellar Cleansing Water 200ml,Removes makeup and impurities gently without harsh rubbing.,12000.00,50,Health & Beauty,placeholder.jpg
+868,Nivea Micellar Water 200ml,"Gentle cleansing water suitable for sensitive skin, removes dirt and makeup.",12500.00,50,Health & Beauty,placeholder.jpg
+869,Pond's White Beauty Serum 30ml,Brightening serum with multivitamins for radiant skin.,15000.00,40,Health & Beauty,placeholder.jpg
+870,L'Oréal Revitalift Night Cream 50ml,Anti-aging night cream with Pro-Retinol to reduce fine lines and wrinkles.,25000.00,40,Health & Beauty,placeholder.jpg
+871,Himalaya Moisturizing Face Gel 50ml,Light gel moisturizer enriched with aloe vera for soft and hydrated skin.,7500.00,50,Health & Beauty,placeholder.jpg
+872,Nike Air Zoom Pegasus Running Shoes,Lightweight running shoes with responsive cushioning and breathable mesh upper for comfort.,250000.00,20,Sports & Fitness,placeholder.jpg
+873,Adidas Ultraboost Running Shoes,High-performance running shoes with Boost midsole for energy return and soft landings.,300000.00,15,Sports & Fitness,placeholder.jpg
+874,Puma Ignite Training Shoes,Versatile training shoes with durable sole and comfortable fit for gym workouts.,220000.00,20,Sports & Fitness,placeholder.jpg
+875,Reebok CrossFit Nano 10,Cross-training shoes with stability and flexibility for varied workouts.,280000.00,15,Sports & Fitness,placeholder.jpg
+876,Under Armour Charged Assert 9,Lightweight running shoes with cushioned midsole and breathable fabric for everyday training.,240000.00,20,Sports & Fitness,placeholder.jpg
+877,Nike Dri-FIT Sports T-Shirt,"Moisture-wicking T-shirt designed for running and sports, keeping you dry and comfortable.",35000.00,50,Sports & Fitness,placeholder.jpg
+878,Adidas Climalite Sports T-Shirt,Lightweight athletic T-shirt with Climalite technology to wick sweat.,30000.00,50,Sports & Fitness,placeholder.jpg
+879,Puma DryCELL Gym Tee,Breathable gym T-shirt that keeps you dry during high-intensity workouts.,32000.00,50,Sports & Fitness,placeholder.jpg
+880,Reebok Quick Dry Tank Top,Sleeveless tank with lightweight fabric to enhance airflow and comfort during training.,28000.00,50,Sports & Fitness,placeholder.jpg
+881,Under Armour Tech Tee,"Soft, quick-drying T-shirt suitable for running, gym, and sports activities.",40000.00,50,Sports & Fitness,placeholder.jpg
+882,Nike Pro Compression Shorts,Compression shorts that provide muscle support and improve blood circulation during workouts.,45000.00,40,Sports & Fitness,placeholder.jpg
+883,Adidas Alphaskin Compression Shorts,Tight-fitting shorts with moisture-wicking fabric to enhance athletic performance.,50000.00,40,Sports & Fitness,placeholder.jpg
+884,Puma Running Shorts,"Lightweight, breathable shorts designed for running and training sessions.",35000.00,50,Sports & Fitness,placeholder.jpg
+885,Reebok Training Shorts,Comfortable gym shorts with elastic waistband and quick-dry fabric.,38000.00,50,Sports & Fitness,placeholder.jpg
+886,Under Armour HeatGear Shorts,High-performance compression shorts with moisture-wicking technology.,48000.00,40,Sports & Fitness,placeholder.jpg
+887,Nike Sports Leggings,"Stretchy, breathable leggings designed for running, gym, and yoga workouts.",80000.00,30,Sports & Fitness,placeholder.jpg
+888,Adidas Tights,Flexible tights with Climalite technology for comfort during high-intensity exercise.,75000.00,30,Sports & Fitness,placeholder.jpg
+889,Puma Studio Leggings,"Comfortable, stretchy leggings ideal for gym, yoga, or casual sportswear.",70000.00,30,Sports & Fitness,placeholder.jpg
+890,Reebok Yoga Pants,Lightweight yoga pants with flexible fabric for stretching and fitness activities.,65000.00,30,Sports & Fitness,placeholder.jpg
+891,Under Armour Compression Tights,Performance compression tights to support muscles and enhance circulation.,85000.00,25,Sports & Fitness,placeholder.jpg
+892,Nike Sports Socks (3 Pairs),Cushioned athletic socks designed to provide comfort and support during sports.,12000.00,100,Sports & Fitness,placeholder.jpg
+893,Adidas Athletic Socks (3 Pairs),"Breathable socks suitable for running, gym, and general sports.",10500.00,100,Sports & Fitness,placeholder.jpg
+894,Puma Training Socks (3 Pairs),Moisture-wicking socks for enhanced comfort and protection.,11000.00,100,Sports & Fitness,placeholder.jpg
+895,Reebok Sports Socks (3 Pairs),"Soft, comfortable socks designed for various physical activities.",10500.00,100,Sports & Fitness,placeholder.jpg
+896,Under Armour Performance Socks (3 Pairs),Cushioned socks with arch support and quick-drying fabric for athletes.,12500.00,100,Sports & Fitness,placeholder.jpg
+897,Nike Training Gloves,Durable gym gloves providing grip and protection during weightlifting or training.,25000.00,30,Sports & Fitness,placeholder.jpg
+898,Adidas Gym Gloves,Lightweight gloves designed for strength training and fitness workouts.,22000.00,30,Sports & Fitness,placeholder.jpg
+899,Puma Fitness Gloves,Comfortable gloves providing wrist support and better grip in the gym.,20000.00,30,Sports & Fitness,placeholder.jpg
+900,Reebok Weightlifting Gloves,Protective gloves designed to enhance grip and prevent hand injuries.,23000.00,30,Sports & Fitness,placeholder.jpg
+901,Under Armour Training Gloves,Breathable gloves with padding for weight training and functional workouts.,25500.00,30,Sports & Fitness,placeholder.jpg
+902,Nike Yoga Mat 6mm,"Non-slip yoga mat with comfortable cushioning for yoga, pilates, or stretching.",40000.00,20,Sports & Fitness,placeholder.jpg
+903,Adidas Yoga Mat 6mm,"Durable, high-density yoga mat with non-slip surface for stability and comfort.",38000.00,20,Sports & Fitness,placeholder.jpg
+904,Puma Fitness Mat 6mm,"Lightweight exercise mat for home workouts, yoga, and stretching.",35000.00,20,Sports & Fitness,placeholder.jpg
+905,Reebok Non-Slip Yoga Mat 6mm,"Comfortable, durable mat for yoga, pilates, and floor exercises.",36000.00,20,Sports & Fitness,placeholder.jpg
+906,Under Armour Exercise Mat 6mm,"Cushioned mat for home and gym workouts, providing stability and comfort.",37000.00,20,Sports & Fitness,placeholder.jpg
+907,Nike Jump Rope,"Adjustable jump rope for cardio workouts, made with durable handles and rope.",12000.00,50,Sports & Fitness,placeholder.jpg
+908,Adidas Speed Jump Rope,Lightweight jump rope designed for speed training and fitness routines.,13000.00,50,Sports & Fitness,placeholder.jpg
+909,Puma Skipping Rope,"Durable rope for cardio, cross-training, and home workouts.",11500.00,50,Sports & Fitness,placeholder.jpg
+910,Reebok Adjustable Jump Rope,Easy-to-adjust jump rope with ergonomic handles for fitness training.,12500.00,50,Sports & Fitness,placeholder.jpg
+911,Under Armour Jump Rope,Speed rope with comfortable handles for high-intensity workouts.,13000.00,50,Sports & Fitness,placeholder.jpg
+912,Nike Dumbbell Set 5kg,Pair of 5kg dumbbells for strength training and home workouts.,40000.00,30,Sports & Fitness,placeholder.jpg
+913,Adidas Dumbbell Set 5kg,Durable dumbbells ideal for weight training and toning muscles.,38000.00,30,Sports & Fitness,placeholder.jpg
+914,Puma Dumbbell Set 5kg,Compact dumbbell set suitable for home strength workouts.,37000.00,30,Sports & Fitness,placeholder.jpg
+915,Reebok Dumbbell Set 5kg,Sturdy dumbbells for functional training and home gym routines.,39000.00,30,Sports & Fitness,placeholder.jpg
+916,Under Armour Dumbbell Set 5kg,Ergonomic dumbbells designed for effective home workouts.,42000.00,30,Sports & Fitness,placeholder.jpg
+917,Nike Resistance Bands Set,Set of resistance bands with varying tension for strength training and flexibility.,20000.00,40,Sports & Fitness,placeholder.jpg
+918,Adidas Resistance Bands Set,Versatile bands suitable for full-body workouts and stretching.,18500.00,40,Sports & Fitness,placeholder.jpg
+919,Puma Resistance Bands Set,"Lightweight, portable bands for strength and rehabilitation exercises.",17500.00,40,Sports & Fitness,placeholder.jpg
+920,Reebok Resistance Bands Set,Set of bands with different resistance levels for functional training.,19000.00,40,Sports & Fitness,placeholder.jpg
+921,Under Armour Resistance Bands Set,"Durable bands for stretching, strength, and mobility exercises.",20500.00,40,Sports & Fitness,placeholder.jpg
+922,Nike Kettlebell 8kg,"Cast iron kettlebell for strength, endurance, and full-body workouts.",45000.00,20,Sports & Fitness,placeholder.jpg
+923,Adidas Kettlebell 8kg,"Compact, durable kettlebell suitable for home or gym use.",43000.00,20,Sports & Fitness,placeholder.jpg
+924,Puma Kettlebell 8kg,Cast iron kettlebell for functional strength training.,42500.00,20,Sports & Fitness,placeholder.jpg
+925,Reebok Kettlebell 8kg,Ergonomic kettlebell designed for strength and fitness exercises.,44000.00,20,Sports & Fitness,placeholder.jpg
+926,Under Armour Kettlebell 8kg,"Durable kettlebell for strength, cardio, and flexibility workouts.",45500.00,20,Sports & Fitness,placeholder.jpg
+927,Nike Pull-Up Bar for Doorway,Adjustable pull-up bar for home upper body strength exercises.,50000.00,15,Sports & Fitness,placeholder.jpg
+928,Adidas Doorway Pull-Up Bar,Sturdy pull-up bar for various exercises including chin-ups and leg raises.,48000.00,15,Sports & Fitness,placeholder.jpg
+929,Puma Pull-Up Bar for Home,"Compact, easy-to-install pull-up bar suitable for doorway workouts.",47000.00,15,Sports & Fitness,placeholder.jpg
+930,Reebok Doorway Pull-Up Bar,Durable steel bar for home strength and resistance training.,49000.00,15,Sports & Fitness,placeholder.jpg
+931,Under Armour Pull-Up Bar,"Adjustable bar for home workouts, suitable for pull-ups, chin-ups, and core exercises.",50500.00,15,Sports & Fitness,placeholder.jpg
+932,Nike Exercise Ball 65cm,"Stability ball for core strengthening, balance, and flexibility exercises.",35000.00,20,Sports & Fitness,placeholder.jpg
+933,Adidas Exercise Ball 65cm,"Anti-burst exercise ball for yoga, pilates, and fitness routines.",33000.00,20,Sports & Fitness,placeholder.jpg
+934,Puma Stability Ball 65cm,"Durable ball for balance, stability, and strength workouts.",32500.00,20,Sports & Fitness,placeholder.jpg
+935,Reebok Exercise Ball 65cm,"High-quality ball for home and gym workouts, enhancing core stability.",34000.00,20,Sports & Fitness,placeholder.jpg
+936,Under Armour Stability Ball 65cm,"Anti-burst ball for pilates, stretching, and strength exercises.",35500.00,20,Sports & Fitness,placeholder.jpg
+937,Nike Foam Roller 30cm,High-density foam roller to relieve muscle tension and improve flexibility.,25000.00,25,Sports & Fitness,placeholder.jpg
+938,Adidas Foam Roller 30cm,Durable foam roller for self-myofascial release and recovery.,24000.00,25,Sports & Fitness,placeholder.jpg
+939,Puma Foam Roller 30cm,Lightweight foam roller ideal for post-workout recovery.,23500.00,25,Sports & Fitness,placeholder.jpg
+940,Reebok Foam Roller 30cm,Firm foam roller for deep tissue massage and muscle relief.,24500.00,25,Sports & Fitness,placeholder.jpg
+941,Under Armour Foam Roller 30cm,High-density roller for strength training recovery and flexibility.,25500.00,25,Sports & Fitness,placeholder.jpg
+942,Pampers Baby Diapers Size 1 (Newborn) 36pcs,"Soft and absorbent diapers designed for newborns, keeping babies dry and comfortable.",10000.00,50,Baby & Kids,placeholder.jpg
+943,Huggies Baby Diapers Size 2 (3-6kg) 34pcs,Gentle diapers with breathable material to prevent rashes and irritation.,11000.00,50,Baby & Kids,placeholder.jpg
+944,Pampers Baby Wipes 80pcs,Soft and moist wipes suitable for sensitive baby skin and diaper changes.,5500.00,50,Baby & Kids,placeholder.jpg
+945,Huggies Baby Wipes 72pcs,Hypoallergenic wipes that clean and soothe baby's delicate skin.,5000.00,50,Baby & Kids,placeholder.jpg
+946,Johnson's Baby Shampoo 200ml,"Gentle, tear-free baby shampoo to clean and protect delicate hair and scalp.",6500.00,50,Baby & Kids,placeholder.jpg
+947,Johnson's Baby Lotion 200ml,Mild lotion for daily moisturizing and softening of baby's skin.,7500.00,50,Baby & Kids,placeholder.jpg
+948,Johnson's Baby Oil 200ml,Nourishing oil to keep baby's skin soft and smooth.,6500.00,50,Baby & Kids,placeholder.jpg
+949,Chicco Baby Feeding Bottle 250ml,BPA-free feeding bottle with slow-flow nipple for newborns and infants.,10000.00,30,Baby & Kids,placeholder.jpg
+950,Philips Avent Feeding Bottle 260ml,Anti-colic bottle designed to reduce gas and discomfort during feeding.,12000.00,30,Baby & Kids,placeholder.jpg
+951,MAM Anti-Colic Baby Bottle 260ml,Soft silicone nipple and anti-colic vent for comfortable feeding.,11500.00,30,Baby & Kids,placeholder.jpg
+952,Tommee Tippee Baby Bottle 260ml,Easy-latch bottle with anti-colic technology and ergonomic design.,12000.00,30,Baby & Kids,placeholder.jpg
+953,Philips Avent Pacifier 0-6 months,Soft pacifier to soothe newborns and support oral development.,5000.00,50,Baby & Kids,placeholder.jpg
+954,MAM Soothing Pacifier 0-6 months,Orthodontic pacifier designed to reduce discomfort and crying.,4500.00,50,Baby & Kids,placeholder.jpg
+955,Tommee Tippee Pacifier 0-6 months,"Soft, BPA-free pacifier for babies' comfort and oral health.",5000.00,50,Baby & Kids,placeholder.jpg
+956,Baby Walker with Musical Toys,Sturdy baby walker with interactive toys and wheels for mobility and play.,45000.00,20,Baby & Kids,placeholder.jpg
+957,Baby Stroller Lightweight Foldable,"Foldable stroller with adjustable seat, ideal for newborns and toddlers.",85000.00,15,Baby & Kids,placeholder.jpg
+958,Baby Car Seat Infant 0-12 months,"Safe, padded car seat with adjustable harness for infant safety.",95000.00,15,Baby & Kids,placeholder.jpg
+959,Chicco Baby High Chair Adjustable,Adjustable high chair for comfortable feeding and easy cleaning.,75000.00,15,Baby & Kids,placeholder.jpg
+960,Fisher-Price Baby Rocker,Rocking chair for infants with soothing vibrations and music.,60000.00,20,Baby & Kids,placeholder.jpg
+961,Baby Swing Electric with Music,Electric swing for babies with multiple speeds and calming music.,90000.00,15,Baby & Kids,placeholder.jpg
+962,Baby Play Mat Foam 120x180cm,"Soft, colorful play mat with patterns for baby's comfort and sensory stimulation.",25000.00,20,Baby & Kids,placeholder.jpg
+963,Soft Plush Baby Toy Set (5pcs),"Set of cuddly, safe toys suitable for newborns and toddlers.",15000.00,30,Baby & Kids,placeholder.jpg
+964,Baby Rattles Set 3pcs,Colorful rattles for sensory development and fun for babies.,7500.00,50,Baby & Kids,placeholder.jpg
+965,Teether Silicone Baby Toy,"Soft teether to soothe gums during teething, safe for infants.",6500.00,50,Baby & Kids,placeholder.jpg
+966,Baby Bath Tub Foldable Plastic 80cm,Compact baby bathtub with foldable design and non-slip base.,35000.00,20,Baby & Kids,placeholder.jpg
+967,Baby Towels Hooded Cotton 2pcs,Soft cotton hooded towels to dry babies comfortably after baths.,10000.00,30,Baby & Kids,placeholder.jpg
+968,Baby Washcloth Cotton 5pcs,Soft washcloths suitable for sensitive baby skin.,5500.00,40,Baby & Kids,placeholder.jpg
+969,Baby Shampoo Comb & Brush Set,Gentle comb and brush set for delicate hair and scalp care.,6500.00,40,Baby & Kids,placeholder.jpg
+970,Baby Diaper Bag Large Capacity,"Multi-compartment bag for diapers, bottles, and baby essentials.",35000.00,15,Baby & Kids,placeholder.jpg
+971,Baby Blanket Fleece Soft 100x150cm,Cozy fleece blanket to keep babies warm and comfortable.,12000.00,30,Baby & Kids,placeholder.jpg
+972,Baby Socks Cotton 5 Pairs,Soft cotton socks to keep baby's feet warm and snug.,4500.00,50,Baby & Kids,placeholder.jpg
+973,Baby Mittens 3 Pairs,Soft mittens to protect babies' hands and prevent scratching.,3500.00,50,Baby & Kids,placeholder.jpg
+974,Baby Shoes First Walkers Soft Sole,Comfortable first walker shoes for infants learning to walk.,15000.00,25,Baby & Kids,placeholder.jpg
+975,Baby Sandals Soft Rubber Sole,Lightweight sandals for toddlers with flexible sole for walking.,12000.00,25,Baby & Kids,placeholder.jpg
+976,Baby Hats Cotton 3pcs,Soft cotton hats to keep newborns warm and protect from sun.,5500.00,40,Baby & Kids,placeholder.jpg
+977,Baby Swaddle Blanket Cotton 2pcs,Soft swaddle blankets for safe and comfortable sleeping.,10000.00,30,Baby & Kids,placeholder.jpg
+978,Baby Crib Sheet Set 2pcs 120x60cm,"Soft, breathable sheets designed for cribs to ensure comfortable sleep.",12500.00,20,Baby & Kids,placeholder.jpg
+979,Baby Crib Mobile Musical Toy,Colorful musical mobile to entertain and soothe babies in cribs.,25000.00,20,Baby & Kids,placeholder.jpg
+980,Baby Night Light LED Soft Glow,"Night light with soft glow for baby's room, safe and energy-efficient.",10000.00,20,Baby & Kids,placeholder.jpg
+981,Baby Thermometer Digital,Fast and accurate digital thermometer for monitoring baby's temperature.,15000.00,20,Baby & Kids,placeholder.jpg
+982,Baby Nail Clippers with File,Safe nail clippers and file set to trim babies' nails without injury.,6500.00,30,Baby & Kids,placeholder.jpg
+983,Baby Safety Corner Protectors 8pcs,Soft corner guards to prevent injuries on sharp furniture edges.,7500.00,30,Baby & Kids,placeholder.jpg
+984,Baby Safety Cabinet Locks 4pcs,Adhesive safety locks to prevent babies from accessing cabinets.,8000.00,30,Baby & Kids,placeholder.jpg
+985,Baby Safety Outlet Covers 10pcs,Protective covers to prevent electrical accidents for babies.,5500.00,40,Baby & Kids,placeholder.jpg
+986,Baby Feeding Spoon Soft Silicone 2pcs,"Soft, flexible spoons for feeding infants without hurting gums.",4500.00,40,Baby & Kids,placeholder.jpg
+987,Baby Feeding Bowl Suction Base 2pcs,Non-slip bowls for safe feeding and minimizing spills.,7500.00,30,Baby & Kids,placeholder.jpg
+988,Baby Sippy Cup Spill-Proof 200ml,Spill-proof sippy cup for toddlers transitioning from bottle to cup.,8500.00,30,Baby & Kids,placeholder.jpg
+989,Baby Water Bottle BPA-Free 250ml,"Safe water bottle for toddlers, lightweight and easy to hold.",6500.00,30,Baby & Kids,placeholder.jpg
+990,Baby Food Storage Container 4pcs,Stackable containers for storing homemade baby food safely.,12000.00,30,Baby & Kids,placeholder.jpg
+991,Baby High Chair Cushion Seat Pad,"Soft, washable cushion pad for high chairs providing comfort and hygiene.",10000.00,20,Baby & Kids,placeholder.jpg
+992,Samsung HW-Q60T Soundbar,"5.1ch soundbar with DTS Virtual:X, wireless subwoofer, clear dialogue, and deep bass for home cinema.",650000.00,10,TV & Audio,placeholder.jpg
+993,LG SN7Y 3.1.2ch Soundbar,"Dolby Atmos soundbar with wireless subwoofer, AI Sound Pro, and Bluetooth streaming support.",880000.00,7,TV & Audio,placeholder.jpg
+994,Sony SRS-XB33 Portable Speaker,"Waterproof Bluetooth speaker with Extra Bass, 24-hour battery, and durable outdoor design.",280000.00,15,TV & Audio,placeholder.jpg
+995,JBL Charge 5 Bluetooth Speaker,"Portable speaker with deep bass, IP67 waterproof, USB-C charging, and 20-hour battery life.",210000.00,20,TV & Audio,placeholder.jpg
+996,Bose SoundTouch 300 Soundbar,"Sleek soundbar with wireless music streaming, Dolby Digital, and Wi-Fi connectivity.",1200000.00,6,TV & Audio,placeholder.jpg
+997,Philips 70-inch 4K UHD Smart TV,"70-inch LED TV with 4K UHD, HDR10+, Ambilight, and built-in smart apps for streaming entertainment.",2200000.00,5,TV & Audio,placeholder.jpg
+998,Hisense 65-inch 4K U8G TV,"65-inch Hisense TV with Quantum Dot display, Dolby Vision, 120Hz refresh rate, and smart platform.",1900000.00,5,TV & Audio,placeholder.jpg
+999,Samsung 55-inch The Serif QLED,"Premium design TV with 55-inch QLED display, HDR10+, Smart Hub, and unique furniture-style aesthetics.",2400000.00,4,TV & Audio,placeholder.jpg
+1000,LG 55-inch OLED A2 Series,"OLED TV with 4K resolution, webOS, Dolby Vision IQ, and AI Picture Pro for perfect visuals.",2200000.00,5,TV & Audio,placeholder.jpg
+1001,Sony X85K 55-inch 4K LED TV,"55-inch 4K HDR LED TV with X1 Processor, Triluminos Pro, and Google TV for streaming apps.",1350000.00,6,TV & Audio,placeholder.jpg
+1002,JBL PartyBox 100,"Portable party speaker with 160W sound, RGB lights, Bluetooth connectivity, and long-lasting battery.",650000.00,8,TV & Audio,placeholder.jpg
+1003,Samsung HW-Q800B 3.1.2ch Soundbar,"Dolby Atmos & DTS:X soundbar with wireless subwoofer, immersive cinema-quality audio for home.",1300000.00,6,TV & Audio,placeholder.jpg
+1004,Bose Solo 5 TV Soundbar,"Compact soundbar with dialogue enhancement, Bluetooth streaming, and easy setup for small rooms.",420000.00,10,TV & Audio,placeholder.jpg
+1005,Sony HT-RT3 5.1ch Home Theater,"5.1 channel sound system with wireless subwoofer, rear speakers, and Dolby Digital for immersive sound.",780000.00,6,TV & Audio,placeholder.jpg
+1006,LG 65-inch NanoCell 90 Series,"65-inch TV with NanoCell technology, 4K resolution, HDR support, and AI ThinQ for smart features.",2500000.00,4,TV & Audio,placeholder.jpg
+1007,TCL 65-inch P735 QLED 4K Smart TV,"QLED TV with 65-inch 4K display, HDR10+, Dolby Vision, Android TV OS, and built-in Chromecast.",1800000.00,5,TV & Audio,placeholder.jpg
+1008,Sony SRS-XG300 Outdoor Bluetooth,"Portable waterproof speaker with Extra Bass, 24-hour battery, and rugged design for outdoor use.",480000.00,10,TV & Audio,placeholder.jpg
+1009,LG XBOOM Go PL7 Bluetooth Speaker,"Portable speaker with rich sound, IPX5 splash-proof, and long battery life for outdoor activities.",180000.00,15,TV & Audio,placeholder.jpg
+1010,Samsung QN95B Neo QLED 65-inch,"Premium 65-inch Neo QLED TV with Quantum Matrix Technology, HDR10+, Dolby Atmos, and Smart Hub integration.",3500000.00,4,TV & Audio,placeholder.jpg
+1011,Bose Portable Smart Speaker,"Compact smart speaker with Wi-Fi & Bluetooth streaming, Alexa built-in, and 360° room-filling sound.",720000.00,8,TV & Audio,placeholder.jpg
+1012,Modern Wooden Dining Table 6-Seater,"Stylish solid wood dining table with seating for six, durable and elegant finish.",250000.00,10,Furniture & Decor,placeholder.jpg
+1013,Oak Wood Coffee Table,"Compact coffee table made from oak with smooth surface, perfect for living rooms.",120000.00,15,Furniture & Decor,placeholder.jpg
+1014,Corner Sofa 3-Seater Fabric,Comfortable L-shaped sofa with soft fabric cushions and sturdy frame.,350000.00,10,Furniture & Decor,placeholder.jpg
+1015,Recliner Armchair Leather,Ergonomic leather recliner with padded armrests for ultimate relaxation.,200000.00,12,Furniture & Decor,placeholder.jpg
+1016,Wooden TV Stand with Storage,Durable TV stand with multiple shelves for media equipment and décor.,150000.00,15,Furniture & Decor,placeholder.jpg
+1017,Bookshelf 5-Tier Wooden,"Spacious bookshelf with five tiers, perfect for books, décor, and storage.",90000.00,15,Furniture & Decor,placeholder.jpg
+1018,Nightstand Bedside Table,Compact wooden nightstand with drawer for bedroom essentials.,45000.00,20,Furniture & Decor,placeholder.jpg
+1019,Wardrobe 3-Door Wooden,Large wardrobe with hanging space and shelves for organized storage.,320000.00,10,Furniture & Decor,placeholder.jpg
+1020,King Size Bed Frame Wooden,"Solid wooden bed frame with modern design, suitable for king-size mattress.",400000.00,8,Furniture & Decor,placeholder.jpg
+1021,Queen Size Bed Frame Fabric,Stylish fabric upholstered bed frame with durable wooden support.,350000.00,10,Furniture & Decor,placeholder.jpg
+1022,Folding Dining Table Set 4-Seater,"Space-saving foldable table with four chairs, ideal for small apartments.",180000.00,10,Furniture & Decor,placeholder.jpg
+1023,Adjustable Office Chair Ergonomic,"Comfortable swivel chair with lumbar support, height adjustable for office use.",95000.00,15,Furniture & Decor,placeholder.jpg
+1024,Wooden Study Desk with Drawer,"Compact study desk with drawer and smooth surface, ideal for students.",85000.00,15,Furniture & Decor,placeholder.jpg
+1025,Fabric Ottoman Storage Box,"Soft ottoman with hidden storage, suitable for living room or bedroom.",65000.00,15,Furniture & Decor,placeholder.jpg
+1026,Wall Mounted Shelf Set 3pcs,"Stylish floating shelves for displaying décor, books, and accessories.",25000.00,20,Furniture & Decor,placeholder.jpg
+1027,Wooden Shoe Rack 3-Tier,Sturdy shoe rack with three tiers to keep footwear organized.,40000.00,20,Furniture & Decor,placeholder.jpg
+1028,Wooden Dressing Table with Mirror,Elegant dressing table with drawers and large mirror for bedroom use.,200000.00,10,Furniture & Decor,placeholder.jpg
+1029,Bedside Lamp Wooden Base,Decorative table lamp with wooden base and fabric shade.,15000.00,30,Furniture & Decor,placeholder.jpg
+1030,LED Floor Lamp Modern Design,Energy-efficient LED floor lamp with adjustable brightness.,35000.00,20,Furniture & Decor,placeholder.jpg
+1031,Wall Clock Vintage Design,Decorative wall clock with vintage wooden frame and quartz movement.,12000.00,30,Furniture & Decor,placeholder.jpg
+1032,Canvas Wall Art Painting 60x40cm,High-quality canvas painting for living room or bedroom décor.,18000.00,20,Furniture & Decor,placeholder.jpg
+1033,Wooden Shoe Cabinet 4-Tier,Compact wooden cabinet with four compartments for shoes and storage.,60000.00,15,Furniture & Decor,placeholder.jpg
+1034,Plastic Storage Bin Set 3pcs,"Durable plastic bins for organizing toys, clothes, and household items.",25000.00,25,Furniture & Decor,placeholder.jpg
+1035,Fabric Bean Bag Chair,Comfortable bean bag chair with soft fabric cover for kids or adults.,80000.00,15,Furniture & Decor,placeholder.jpg
+1036,Kids Study Desk with Chair Set,Adjustable desk and chair set for children with sturdy design.,95000.00,15,Furniture & Decor,placeholder.jpg
+1037,Wooden Crib Baby Bed,Safe and durable wooden crib with adjustable mattress height.,250000.00,8,Furniture & Decor,placeholder.jpg
+1038,Kids Wardrobe Wooden 2-Door,Compact wardrobe for children with hanging and shelf storage.,180000.00,10,Furniture & Decor,placeholder.jpg
+1039,Baby Changing Table Wooden,Wooden changing table with shelves and safety rails for baby care.,150000.00,10,Furniture & Decor,placeholder.jpg
+1040,Kids Toy Storage Organizer 4-Tier,"Multi-level organizer for toys, books, and games for kids room.",50000.00,20,Furniture & Decor,placeholder.jpg
+1041,Kids Rocking Chair Wooden,Comfortable wooden rocking chair for children with smooth finish.,45000.00,15,Furniture & Decor,placeholder.jpg
+1042,Nursery Glider Chair Fabric,Soft fabric glider chair for nursing and baby care comfort.,180000.00,10,Furniture & Decor,placeholder.jpg
+1043,Baby Playpen Foldable Safety,"Foldable playpen for babies, safe and portable for indoor use.",120000.00,10,Furniture & Decor,placeholder.jpg
+1044,Kids Table and Chair Set 2pcs,Colorful wooden table with matching chairs for toddlers.,55000.00,15,Furniture & Decor,placeholder.jpg
+1045,Wall Sticker Decals Kids Room,Removable decorative wall stickers to brighten up children's rooms.,8500.00,50,Furniture & Decor,placeholder.jpg
+1046,Kids Floor Rug Soft Play Mat,Cushioned rug for safe and comfortable playtime.,25000.00,20,Furniture & Decor,placeholder.jpg
+1047,Wooden Coat Rack Stand,Free-standing coat rack for hallways or kids rooms.,35000.00,15,Furniture & Decor,placeholder.jpg
+1048,Fabric Storage Basket Large,"Soft fabric basket for toys, clothes, or laundry storage.",25000.00,20,Furniture & Decor,placeholder.jpg
+1049,Wooden Bedside Cabinet Drawer,Compact bedside cabinet with single drawer for bedroom essentials.,50000.00,15,Furniture & Decor,placeholder.jpg
+1050,Mirror Wall Hanging 60x80cm,Elegant rectangular wall mirror for bedroom or living area.,35000.00,20,Furniture & Decor,placeholder.jpg
+1051,Wooden Coffee Table Round,"Round coffee table made from solid wood, stylish and durable.",85000.00,15,Furniture & Decor,placeholder.jpg
+1052,Fabric Sofa 2-Seater,Comfortable 2-seater fabric sofa with soft cushions and sturdy frame.,180000.00,10,Furniture & Decor,placeholder.jpg
+1053,Wooden Side Table Small,"Compact side table for living room or bedroom, perfect for lamps and décor.",25000.00,20,Furniture & Decor,placeholder.jpg
+1054,Bookshelf Corner Wooden 4-Tier,Space-saving corner shelf with four tiers for books and display items.,70000.00,15,Furniture & Decor,placeholder.jpg
+1055,Wall Mounted Coat Hooks Set 5pcs,"Decorative hooks for coats, bags, or accessories in entryways or bedrooms.",10000.00,30,Furniture & Decor,placeholder.jpg
+1056,Wooden TV Stand 2 Shelves,Durable stand with two shelves for TV and entertainment devices.,120000.00,15,Furniture & Decor,placeholder.jpg
+1057,Fabric Armchair Soft Cushions,"Comfortable armchair with soft cushions, suitable for living or reading corners.",150000.00,12,Furniture & Decor,placeholder.jpg
+1058,Wooden Dining Chair Set of 2,Pair of sturdy wooden dining chairs with modern design and smooth finish.,50000.00,15,Furniture & Decor,placeholder.jpg
+1059,Wall Mounted Shelf 2pcs,"Floating shelves for décor, books, and small household items.",18000.00,20,Furniture & Decor,placeholder.jpg
+1060,Wooden Bed Frame Single Size,Single wooden bed frame with durable construction and modern finish.,200000.00,12,Furniture & Decor,placeholder.jpg
+1061,Upholstered Headboard Queen Size,"Fabric upholstered headboard with soft padding, ideal for queen beds.",120000.00,10,Furniture & Decor,placeholder.jpg
+1062,Wooden Dining Table 4-Seater,"Compact dining table with four chairs, perfect for small dining spaces.",200000.00,10,Furniture & Decor,placeholder.jpg
+1063,Fabric Sofa 3-Seater,Comfortable sofa with soft fabric upholstery and sturdy wooden frame.,220000.00,12,Furniture & Decor,placeholder.jpg
+1064,Recliner Sofa 2-Seater Leather,Stylish leather recliner sofa with padded armrests and adjustable footrest.,250000.00,10,Furniture & Decor,placeholder.jpg
+1065,Wooden TV Stand 3 Drawers,Spacious TV stand with three drawers and open shelves for storage and décor.,180000.00,12,Furniture & Decor,placeholder.jpg
+1066,Wall Mirror Round 50cm,"Modern round wall mirror with wooden frame, perfect for living rooms or bedrooms.",25000.00,20,Furniture & Decor,placeholder.jpg
+1067,Floating Shelf Wooden 4pcs,"Set of four floating shelves for décor, books, or kitchen accessories.",22000.00,20,Furniture & Decor,placeholder.jpg
+1068,Kids Wooden Chair Set 2pcs,"Colorful wooden chairs designed for children, durable and safe.",45000.00,15,Furniture & Decor,placeholder.jpg
+1069,Kids Study Desk with Drawer,Compact study desk with storage drawer for children's homework and supplies.,85000.00,15,Furniture & Decor,placeholder.jpg
+1070,Baby Crib Bedding Set 3pcs,"Soft bedding set for baby cribs including sheet, blanket, and pillow cover.",25000.00,20,Furniture & Decor,placeholder.jpg
+1071,Baby Room Curtain Set 2pcs,Decorative curtains for baby's room with playful patterns and soft fabric.,18000.00,20,Furniture & Decor,placeholder.jpg
+1072,Wooden Shoe Cabinet 6-Tier,Tall shoe cabinet with six tiers to organize shoes and keep rooms tidy.,80000.00,15,Furniture & Decor,placeholder.jpg
+1073,Fabric Storage Ottoman Large,"Soft ottoman with hidden storage compartment for toys, clothes, or blankets.",90000.00,15,Furniture & Decor,placeholder.jpg
+1074,Kids Toy Chest Wooden,Wooden toy chest with hinged lid for safe and organized storage of toys.,70000.00,20,Furniture & Decor,placeholder.jpg
+1075,Baby Rocking Chair Fabric,"Comfortable rocking chair for nursery or playroom, soft cushioned seat.",60000.00,15,Furniture & Decor,placeholder.jpg
+1076,Wooden Wardrobe 2-Door,Compact 2-door wardrobe with hanging and shelf space for bedroom storage.,200000.00,10,Furniture & Decor,placeholder.jpg
+1077,Wooden Nightstand 2-Drawers,"Bedside cabinet with two drawers for bedroom essentials, durable construction.",55000.00,20,Furniture & Decor,placeholder.jpg
+1078,Wooden Coffee Table with Drawer,Stylish coffee table with drawer for storage and smooth polished surface.,100000.00,15,Furniture & Decor,placeholder.jpg
+1079,Fabric Armchair Modern,"Soft cushioned armchair with sturdy frame, ideal for reading corners.",140000.00,12,Furniture & Decor,placeholder.jpg
+1080,Wooden Bookshelf 6-Tier,"Tall bookshelf with six shelves for books, décor, and household items.",120000.00,15,Furniture & Decor,placeholder.jpg
+1081,Wooden Dressing Table with Stool,Elegant dressing table with drawers and matching stool for bedroom use.,200000.00,10,Furniture & Decor,placeholder.jpg
+1082,Fabric Sofa Bed 2-Seater,Convertible sofa bed with soft cushions and sturdy frame for living rooms.,210000.00,10,Furniture & Decor,placeholder.jpg
+1083,Wooden Bedside Cabinet Single Drawer,Simple bedside cabinet with one drawer for bedroom essentials.,45000.00,20,Furniture & Decor,placeholder.jpg
+1084,LED Floor Lamp Modern Style,Tall LED floor lamp with adjustable brightness for reading or ambient lighting.,40000.00,20,Furniture & Decor,placeholder.jpg
+1085,Wall Mounted Coat Rack 5 Hooks,Wooden wall-mounted coat rack for entryway or bedroom use.,12000.00,30,Furniture & Decor,placeholder.jpg
+1086,Fabric Bean Bag Chair Large,Soft and comfortable bean bag chair for living rooms or kids rooms.,85000.00,15,Furniture & Decor,placeholder.jpg
+1087,Kids Play Table with Chairs Set,Colorful play table with matching chairs for children's activities.,65000.00,15,Furniture & Decor,placeholder.jpg
+1088,Wooden Crib Mobile Musical Toy,"Musical mobile to entertain and soothe babies in cribs, colorful design.",30000.00,20,Furniture & Decor,placeholder.jpg
+1089,Baby Changing Table with Storage,Sturdy wooden changing table with drawers and shelves for baby essentials.,160000.00,10,Furniture & Decor,placeholder.jpg
+1090,Kids Floor Rug Soft Play Mat 120x180cm,Soft cushioned rug for safe and comfortable playtime for children.,28000.00,20,Furniture & Decor,placeholder.jpg
+1091,Nursery Glider Chair Leather,Comfortable leather glider chair for nursing and baby care.,180000.00,10,Furniture & Decor,placeholder.jpg
+1092,Wooden Side Table Small,"Compact side table for living room or bedroom, perfect for lamps or décor.",30000.00,20,Furniture & Decor,placeholder.jpg
+1093,Wall Art Canvas 80x60cm,"Decorative wall art canvas painting for living room, bedroom, or office space.",20000.00,20,Furniture & Decor,placeholder.jpg
+1094,Wooden TV Stand with Glass Door,Stylish TV stand with glass doors and shelves for electronics and décor.,160000.00,15,Furniture & Decor,placeholder.jpg
+1095,Wooden Dining Chair Single,"Sturdy wooden dining chair with smooth finish, ideal for dining sets.",25000.00,30,Furniture & Decor,placeholder.jpg
+1096,Wooden Coffee Table Square,Compact square coffee table with durable wooden surface for living rooms.,95000.00,15,Furniture & Decor,placeholder.jpg
+1097,Upholstered Headboard King Size,"Fabric upholstered headboard with soft padding, perfect for king beds.",150000.00,10,Furniture & Decor,placeholder.jpg
+1098,Wooden Shoe Rack 5-Tier,"Tall, sturdy shoe rack for organizing footwear in bedrooms or hallways.",70000.00,15,Furniture & Decor,placeholder.jpg
+1099,Fabric Sofa 4-Seater,"Comfortable 4-seater sofa with fabric upholstery, ideal for large living rooms.",300000.00,10,Furniture & Decor,placeholder.jpg
+1100,Wooden Bed Frame Double Size,"Durable wooden bed frame suitable for double mattress, modern design.",250000.00,10,Furniture & Decor,placeholder.jpg
+1101,Wooden Wall Shelf 3-Tier,"Compact wall shelf with three tiers for décor, books, or small items.",20000.00,20,Furniture & Decor,placeholder.jpg
+1102,LED Table Lamp Modern Design,Stylish table lamp with LED bulb for desk or bedside lighting.,15000.00,30,Furniture & Decor,placeholder.jpg
+1103,Wooden Kids Wardrobe 3-Door,Spacious 3-door wardrobe for children with hanging and shelf space.,220000.00,10,Furniture & Decor,placeholder.jpg
+1104,Fabric Ottoman Round,"Round soft ottoman with hidden storage, suitable for living rooms or bedrooms.",70000.00,15,Furniture & Decor,placeholder.jpg
+1105,Kids Toy Organizer Cube Storage 6pcs,"Cube storage organizer for toys, books, and games, perfect for kids' rooms.",60000.00,20,Furniture & Decor,placeholder.jpg
+1106,Wooden Dressing Mirror Full Length,Free-standing full-length mirror with wooden frame for bedroom use.,80000.00,15,Furniture & Decor,placeholder.jpg
+1107,Baby Crib Wooden Classic Design,"Safe and durable wooden crib with classic design, adjustable mattress height.",260000.00,8,Furniture & Decor,placeholder.jpg
+1108,Fabric Armchair Recliner,Comfortable recliner armchair with soft fabric upholstery for living rooms.,160000.00,12,Furniture & Decor,placeholder.jpg
+1109,Wooden Bookshelf Corner 5-Tier,Space-saving corner bookshelf with five shelves for books and décor items.,110000.00,15,Furniture & Decor,placeholder.jpg
+1110,Baby Room Night Light LED,"Soft LED night light for baby's room, energy-efficient and safe.",12000.00,20,Furniture & Decor,placeholder.jpg
+1111,Wooden Desk Organizer with Drawers,Small desk organizer with drawers for office supplies or stationery.,30000.00,20,Furniture & Decor,placeholder.jpg
+1112,Wooden Dining Table 4-Seater,"Compact dining table with four chairs, perfect for small dining spaces.",200000.00,10,Furniture & Decor,assets/images/placeholder.jpg
+1113,Fabric Sofa 3-Seater,Comfortable sofa with soft fabric upholstery and sturdy wooden frame.,220000.00,12,Furniture & Decor,assets/images/placeholder.jpg
+1114,Recliner Sofa 2-Seater Leather,Stylish leather recliner sofa with padded armrests and adjustable footrest.,250000.00,10,Furniture & Decor,assets/images/placeholder.jpg
+1115,Wooden TV Stand 3 Drawers,Spacious TV stand with three drawers and open shelves for storage and décor.,180000.00,12,Furniture & Decor,assets/images/placeholder.jpg
+1116,Wall Mirror Round 50cm,"Modern round wall mirror with wooden frame, perfect for living rooms or bedrooms.",25000.00,20,Furniture & Decor,assets/images/placeholder.jpg
+1117,Floating Shelf Wooden 4pcs,"Set of four floating shelves for décor, books, or kitchen accessories.",22000.00,20,Furniture & Decor,assets/images/placeholder.jpg
+1118,Kids Wooden Chair Set 2pcs,"Colorful wooden chairs designed for children, durable and safe.",45000.00,15,Baby & Kids,assets/images/placeholder.jpg
+1119,Kids Study Desk with Drawer,Compact study desk with storage drawer for children's homework and supplies.,85000.00,15,Baby & Kids,assets/images/placeholder.jpg
+1120,Baby Crib Bedding Set 3pcs,"Soft bedding set for baby cribs including sheet, blanket, and pillow cover.",25000.00,20,Baby & Kids,assets/images/placeholder.jpg
+1121,Baby Room Curtain Set 2pcs,Decorative curtains for baby's room with playful patterns and soft fabric.,18000.00,20,Baby & Kids,assets/images/placeholder.jpg
+1122,Wooden Shoe Cabinet 6-Tier,Tall shoe cabinet with six tiers to organize shoes and keep rooms tidy.,80000.00,15,Furniture & Decor,assets/images/placeholder.jpg
+1123,Fabric Storage Ottoman Large,"Soft ottoman with hidden storage compartment for toys, clothes, or blankets.",90000.00,15,Furniture & Decor,assets/images/placeholder.jpg
+1124,Kids Toy Chest Wooden,Wooden toy chest with hinged lid for safe and organized storage of toys.,70000.00,20,Baby & Kids,assets/images/placeholder.jpg
+1125,Baby Rocking Chair Fabric,"Comfortable rocking chair for nursery or playroom, soft cushioned seat.",60000.00,15,Baby & Kids,assets/images/placeholder.jpg
+1126,Wooden Wardrobe 2-Door,Compact 2-door wardrobe with hanging and shelf space for bedroom storage.,200000.00,10,Furniture & Decor,assets/images/placeholder.jpg
+1127,Wooden Nightstand 2-Drawers,"Bedside cabinet with two drawers for bedroom essentials, durable construction.",55000.00,20,Furniture & Decor,assets/images/placeholder.jpg
+1128,Wooden Coffee Table with Drawer,Stylish coffee table with drawer for storage and smooth polished surface.,100000.00,15,Furniture & Decor,assets/images/placeholder.jpg
+1129,Fabric Armchair Modern,"Soft cushioned armchair with sturdy frame, ideal for reading corners.",140000.00,12,Furniture & Decor,assets/images/placeholder.jpg
+1130,Wooden Bookshelf 6-Tier,"Tall bookshelf with six shelves for books, décor, and household items.",120000.00,15,Furniture & Decor,assets/images/placeholder.jpg
+1131,Wooden Dressing Table with Stool,Elegant dressing table with drawers and matching stool for bedroom use.,200000.00,10,Furniture & Decor,assets/images/placeholder.jpg
+1132,Fabric Sofa Bed 2-Seater,Convertible sofa bed with soft cushions and sturdy frame for living rooms.,210000.00,10,Furniture & Decor,assets/images/placeholder.jpg
+1133,Wooden Bedside Cabinet Single Drawer,Simple bedside cabinet with one drawer for bedroom essentials.,45000.00,20,Furniture & Decor,assets/images/placeholder.jpg
+1134,LED Floor Lamp Modern Style,Tall LED floor lamp with adjustable brightness for reading or ambient lighting.,40000.00,20,Furniture & Decor,assets/images/placeholder.jpg
+1135,Wall Mounted Coat Rack 5 Hooks,Wooden wall-mounted coat rack for entryway or bedroom use.,12000.00,30,Furniture & Decor,assets/images/placeholder.jpg
+1136,Fabric Bean Bag Chair Large,Soft and comfortable bean bag chair for living rooms or kids' rooms.,85000.00,15,Furniture & Decor,assets/images/placeholder.jpg
+1137,Kids Play Table with Chairs Set,Colorful play table with matching chairs for children's activities.,65000.00,15,Baby & Kids,assets/images/placeholder.jpg
+1138,Wooden Crib Mobile Musical Toy,"Musical mobile to entertain and soothe babies in cribs, colorful design.",30000.00,20,Baby & Kids,assets/images/placeholder.jpg
+1139,Baby Changing Table with Storage,Sturdy wooden changing table with drawers and shelves for baby essentials.,160000.00,10,Baby & Kids,assets/images/placeholder.jpg
+1140,Kids Floor Rug Soft Play Mat 120x180cm,Soft cushioned rug for safe and comfortable playtime for children.,28000.00,20,Baby & Kids,assets/images/placeholder.jpg
+1141,Nursery Glider Chair Leather,Comfortable leather glider chair for nursing and baby care.,180000.00,10,Baby & Kids,assets/images/placeholder.jpg
+1142,Wooden Side Table Small,"Compact side table for living room or bedroom, perfect for lamps or décor.",30000.00,20,Furniture & Decor,assets/images/placeholder.jpg
+1143,Wall Art Canvas 80x60cm,"Decorative wall art canvas painting for living room, bedroom, or office space.",20000.00,20,Furniture & Decor,assets/images/placeholder.jpg
+1144,Wooden TV Stand with Glass Door,Stylish TV stand with glass doors and shelves for electronics and décor.,160000.00,15,Furniture & Decor,assets/images/placeholder.jpg
+1145,Wooden Dining Chair Single,"Sturdy wooden dining chair with smooth finish, ideal for dining sets.",25000.00,30,Furniture & Decor,assets/images/placeholder.jpg
+1146,Wooden Coffee Table Square,Compact square coffee table with durable wooden surface for living rooms.,95000.00,15,Furniture & Decor,assets/images/placeholder.jpg
+1147,Upholstered Headboard King Size,"Fabric upholstered headboard with soft padding, perfect for king beds.",150000.00,10,Furniture & Decor,assets/images/placeholder.jpg
+1148,Wooden Shoe Rack 5-Tier,"Tall, sturdy shoe rack for organizing footwear in bedrooms or hallways.",70000.00,15,Furniture & Decor,assets/images/placeholder.jpg
+1149,Fabric Sofa 4-Seater,"Comfortable 4-seater sofa with fabric upholstery, ideal for large living rooms.",300000.00,10,Furniture & Decor,assets/images/placeholder.jpg
+1150,Wooden Bed Frame Double Size,"Durable wooden bed frame suitable for double mattress, modern design.",250000.00,10,Furniture & Decor,assets/images/placeholder.jpg
+1151,Wooden Wall Shelf 3-Tier,"Compact wall shelf with three tiers for décor, books, or small items.",20000.00,20,Furniture & Decor,assets/images/placeholder.jpg
+1152,LED Table Lamp Modern Design,Stylish table lamp with LED bulb for desk or bedside lighting.,15000.00,30,Furniture & Decor,assets/images/placeholder.jpg
+1153,Wooden Kids Wardrobe 3-Door,Spacious 3-door wardrobe for children with hanging and shelf space.,220000.00,10,Baby & Kids,assets/images/placeholder.jpg
+1154,Fabric Ottoman Round,"Round soft ottoman with hidden storage, suitable for living rooms or bedrooms.",70000.00,15,Furniture & Decor,assets/images/placeholder.jpg
+1155,Kids Toy Organizer Cube Storage 6pcs,"Cube storage organizer for toys, books, and games, perfect for kids' rooms.",60000.00,20,Baby & Kids,assets/images/placeholder.jpg
+1156,Wooden Dressing Mirror Full Length,Free-standing full-length mirror with wooden frame for bedroom use.,80000.00,15,Furniture & Decor,assets/images/placeholder.jpg
+1157,Baby Crib Wooden Classic Design,"Safe and durable wooden crib with classic design, adjustable mattress height.",260000.00,8,Baby & Kids,assets/images/placeholder.jpg
+1158,Fabric Armchair Recliner,Comfortable recliner armchair with soft fabric upholstery for living rooms.,160000.00,12,Furniture & Decor,assets/images/placeholder.jpg
+1159,Wooden Bookshelf Corner 5-Tier,Space-saving corner bookshelf with five shelves for books and décor items.,110000.00,15,Furniture & Decor,assets/images/placeholder.jpg
+1160,Baby Room Night Light LED,"Soft LED night light for baby's room, energy-efficient and safe.",12000.00,20,Baby & Kids,assets/images/placeholder.jpg
+1161,Wooden Desk Organizer with Drawers,Small desk organizer with drawers for office supplies or stationery.,30000.00,20,Furniture & Decor,assets/images/placeholder.jpg

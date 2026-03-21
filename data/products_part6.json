@@ -1,0 +1,362 @@
+﻿[
+    {
+        "name":  "Nike Air Max Running Shoes Men",
+        "seed":  250,
+        "cat":  9,
+        "price":  85000,
+        "stock":  30,
+        "desc":  "Air Max cushioning, breathable mesh upper, sizes 39-46, black white red",
+        "brand":  "Nike"
+    },
+    {
+        "name":  "Adidas Ultraboost 22 Running Shoes",
+        "seed":  251,
+        "cat":  9,
+        "price":  95000,
+        "stock":  25,
+        "desc":  "Boost midsole, Primeknit upper, Continental rubber outsole, sizes 39-46",
+        "brand":  "Adidas"
+    },
+    {
+        "name":  "Adidas Training T-Shirt Climalite",
+        "seed":  252,
+        "cat":  9,
+        "price":  18000,
+        "stock":  60,
+        "desc":  "Climalite moisture-wicking, slim fit, sizes S-XXL, multiple colors, gym",
+        "brand":  "Adidas"
+    },
+    {
+        "name":  "Nike Dri-FIT Training Shorts",
+        "seed":  253,
+        "cat":  9,
+        "price":  12000,
+        "stock":  70,
+        "desc":  "Moisture-wicking, elastic waistband, sizes S-XXL, multiple colors, gym wear",
+        "brand":  "Nike"
+    },
+    {
+        "name":  "TPE Yoga Mat 6mm Non-Slip",
+        "seed":  254,
+        "cat":  9,
+        "price":  15000,
+        "stock":  45,
+        "desc":  "Non-slip TPE yoga mat, 183x61cm, 6mm thick, carrying strap included",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Adjustable Dumbbell Set 20kg Pair",
+        "seed":  255,
+        "cat":  9,
+        "price":  65000,
+        "stock":  20,
+        "desc":  "Adjustable dumbbell pair, 2x10kg, cast iron, rubber grip, home gym essential",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Speed Jump Rope with Counter",
+        "seed":  256,
+        "cat":  9,
+        "price":  5500,
+        "stock":  80,
+        "desc":  "Speed jump rope, ball bearings, adjustable length, foam handles, rep counter",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Resistance Bands Set 5 Levels",
+        "seed":  257,
+        "cat":  9,
+        "price":  12000,
+        "stock":  55,
+        "desc":  "5 resistance levels, latex bands, door anchor plus handles plus ankle straps",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Adidas Football Size 5 FIFA Quality",
+        "seed":  258,
+        "cat":  9,
+        "price":  22000,
+        "stock":  35,
+        "desc":  "FIFA quality pro football, size 5, thermally bonded, all-weather use",
+        "brand":  "Adidas"
+    },
+    {
+        "name":  "Adult Cycling Helmet CE Certified",
+        "seed":  259,
+        "cat":  9,
+        "price":  18000,
+        "stock":  25,
+        "desc":  "Adult cycling helmet, 57-61cm, 21 vents, adjustable fit, CE certified",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Optimum Nutrition Whey Protein 1kg",
+        "seed":  260,
+        "cat":  9,
+        "price":  45000,
+        "stock":  30,
+        "desc":  "Whey protein isolate, 1kg, chocolate vanilla, 25g protein per serving",
+        "brand":  "Optimum Nutrition"
+    },
+    {
+        "name":  "Stainless Steel Insulated Water Bottle 1L",
+        "seed":  261,
+        "cat":  9,
+        "price":  8500,
+        "stock":  70,
+        "desc":  "Stainless steel, 1L, keeps cold 24hr hot 12hr, leak-proof, BPA-free",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Pull-Up Bar Doorframe No Screws",
+        "seed":  262,
+        "cat":  9,
+        "price":  18000,
+        "stock":  30,
+        "desc":  "Doorframe pull-up bar, no screws needed, 100kg capacity, foam grips",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Ab Roller Wheel with Knee Pad",
+        "seed":  263,
+        "cat":  9,
+        "price":  8500,
+        "stock":  45,
+        "desc":  "Ab roller wheel, non-slip handles, knee pad included, core workout",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Foam Roller 33cm Deep Tissue",
+        "seed":  264,
+        "cat":  9,
+        "price":  12000,
+        "stock":  35,
+        "desc":  "33cm foam roller, deep tissue massage, EVA foam, grid pattern, recovery",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Garmin Forerunner 55 GPS Watch",
+        "seed":  265,
+        "cat":  9,
+        "price":  180000,
+        "stock":  12,
+        "desc":  "GPS running watch, heart rate, 20hr battery, training plans, lightweight",
+        "brand":  "Garmin"
+    },
+    {
+        "name":  "Fitbit Charge 5 Fitness Tracker",
+        "seed":  266,
+        "cat":  9,
+        "price":  150000,
+        "stock":  15,
+        "desc":  "Fitness tracker, GPS, heart rate, sleep tracking, 7-day battery, AMOLED",
+        "brand":  "Fitbit"
+    },
+    {
+        "name":  "Boxing Gloves 12oz Training",
+        "seed":  267,
+        "cat":  9,
+        "price":  22000,
+        "stock":  25,
+        "desc":  "12oz boxing gloves, genuine leather, wrist support, training and sparring",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Badminton Racket Set 4 Players",
+        "seed":  268,
+        "cat":  9,
+        "price":  18000,
+        "stock":  20,
+        "desc":  "4 rackets, 3 shuttlecocks, net, carry bag, beginner to intermediate set",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Swimming Goggles Anti-Fog UV",
+        "seed":  269,
+        "cat":  9,
+        "price":  6500,
+        "stock":  40,
+        "desc":  "Anti-fog UV protection goggles, adjustable strap, adult and youth sizes",
+        "brand":  "Speedo"
+    },
+    {
+        "name":  "Pampers Diapers Size 3 52 Count",
+        "seed":  270,
+        "cat":  10,
+        "price":  12000,
+        "stock":  80,
+        "desc":  "Soft and dry diapers, size 3 6-10kg, 52 count, 12hr protection, wetness indicator",
+        "brand":  "Pampers"
+    },
+    {
+        "name":  "Pampers Diapers Size 4 46 Count",
+        "seed":  271,
+        "cat":  10,
+        "price":  13000,
+        "stock":  75,
+        "desc":  "Soft and dry diapers, size 4 9-14kg, 46 count, 12hr protection, stretchy sides",
+        "brand":  "Pampers"
+    },
+    {
+        "name":  "Huggies Diapers Size 3 56 Count",
+        "seed":  272,
+        "cat":  10,
+        "price":  11500,
+        "stock":  70,
+        "desc":  "Huggies diapers, size 3, 56 count, DryTouch liner, leak lock system",
+        "brand":  "Huggies"
+    },
+    {
+        "name":  "Johnsons Baby Lotion 500ml",
+        "seed":  273,
+        "cat":  10,
+        "price":  6500,
+        "stock":  90,
+        "desc":  "Gentle baby lotion, 500ml, clinically proven mild, 24hr moisture, no parabens",
+        "brand":  "Johnsons"
+    },
+    {
+        "name":  "Johnsons Baby Shampoo 500ml",
+        "seed":  274,
+        "cat":  10,
+        "price":  6000,
+        "stock":  85,
+        "desc":  "Gentle baby shampoo, 500ml, no more tears formula, clinically proven mild",
+        "brand":  "Johnsons"
+    },
+    {
+        "name":  "Philips Avent Baby Feeding Bottle Set",
+        "seed":  275,
+        "cat":  10,
+        "price":  8500,
+        "stock":  60,
+        "desc":  "BPA-free feeding bottles, 3-pack 150ml 250ml 300ml, anti-colic, silicone nipple",
+        "brand":  "Philips Avent"
+    },
+    {
+        "name":  "Kids School Backpack 20L",
+        "seed":  276,
+        "cat":  10,
+        "price":  9500,
+        "stock":  55,
+        "desc":  "Lightweight school bag, 20L, padded straps, multiple pockets, ages 6-12",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Lego Classic Building Bricks 484pcs",
+        "seed":  277,
+        "cat":  10,
+        "price":  28000,
+        "stock":  25,
+        "desc":  "Classic building bricks, 484 pieces, 33 colors, ages 4 plus, creativity toy",
+        "brand":  "Lego"
+    },
+    {
+        "name":  "Lego City Police Station Set",
+        "seed":  278,
+        "cat":  10,
+        "price":  45000,
+        "stock":  15,
+        "desc":  "City police station, 668 pieces, ages 6 plus, includes 5 minifigures",
+        "brand":  "Lego"
+    },
+    {
+        "name":  "Graco Lightweight Baby Stroller",
+        "seed":  279,
+        "cat":  10,
+        "price":  85000,
+        "stock":  10,
+        "desc":  "Foldable stroller, 0-36 months, 5-point harness, sun canopy, storage basket",
+        "brand":  "Graco"
+    },
+    {
+        "name":  "Kids Bicycle 16 inch with Training Wheels",
+        "seed":  280,
+        "cat":  10,
+        "price":  45000,
+        "stock":  15,
+        "desc":  "16 inch wheel bicycle, training wheels included, ages 4-7, multiple colors",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Wooden Educational Puzzle 100 Pieces",
+        "seed":  281,
+        "cat":  10,
+        "price":  6500,
+        "stock":  50,
+        "desc":  "Wooden jigsaw puzzle, 100 pieces, animals theme, ages 3 plus, cognitive",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Motorola WiFi Baby Monitor 1080p",
+        "seed":  282,
+        "cat":  10,
+        "price":  65000,
+        "stock":  12,
+        "desc":  "WiFi baby monitor, 1080p camera, night vision, 2-way audio, temperature sensor",
+        "brand":  "Motorola"
+    },
+    {
+        "name":  "Kids Cotton Clothing Set 3-Piece",
+        "seed":  283,
+        "cat":  10,
+        "price":  7500,
+        "stock":  70,
+        "desc":  "Cotton t-shirt plus shorts plus cap set, ages 1-8, bright colors, machine washable",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Baby Bouncer Rocker Electric",
+        "seed":  284,
+        "cat":  10,
+        "price":  35000,
+        "stock":  15,
+        "desc":  "Electric baby bouncer, 5 speeds, music and vibration, 0-9 months, foldable",
+        "brand":  "Fisher-Price"
+    },
+    {
+        "name":  "Kids Tablet 7 inch Educational",
+        "seed":  285,
+        "cat":  10,
+        "price":  55000,
+        "stock":  20,
+        "desc":  "7 inch kids tablet, parental controls, educational apps, drop-proof case",
+        "brand":  "Amazon"
+    },
+    {
+        "name":  "Baby Food Maker Steamer Blender",
+        "seed":  286,
+        "cat":  10,
+        "price":  45000,
+        "stock":  18,
+        "desc":  "4-in-1 baby food maker, steam, blend, defrost, reheat, BPA-free, 1L",
+        "brand":  "Beaba"
+    },
+    {
+        "name":  "Kids Scooter 3-Wheel Adjustable",
+        "seed":  287,
+        "cat":  10,
+        "price":  22000,
+        "stock":  25,
+        "desc":  "3-wheel scooter, adjustable height, ages 2-8, LED wheels, foldable",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Baby Carrier Ergonomic 4-Position",
+        "seed":  288,
+        "cat":  10,
+        "price":  28000,
+        "stock":  20,
+        "desc":  "Ergonomic baby carrier, 4 positions, 3.5-20kg, padded straps, breathable",
+        "brand":  "Ergobaby"
+    },
+    {
+        "name":  "Kids Art and Craft Set 100 Pieces",
+        "seed":  289,
+        "cat":  10,
+        "price":  8500,
+        "stock":  45,
+        "desc":  "100-piece art set, crayons, markers, colored pencils, watercolors, ages 3 plus",
+        "brand":  "Local Brand"
+    }
+]

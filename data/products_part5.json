@@ -1,0 +1,407 @@
+﻿[
+    {
+        "name":  "Inyange Fresh Milk 1L",
+        "seed":  200,
+        "cat":  7,
+        "price":  1200,
+        "stock":  200,
+        "desc":  "Fresh whole milk, pasteurized, 1 liter pack, locally produced in Rwanda, chilled",
+        "brand":  "Inyange"
+    },
+    {
+        "name":  "Inyange Strawberry Yogurt 500ml",
+        "seed":  201,
+        "cat":  7,
+        "price":  1500,
+        "stock":  150,
+        "desc":  "Strawberry yogurt, 500ml, no preservatives, locally made in Rwanda, chilled",
+        "brand":  "Inyange"
+    },
+    {
+        "name":  "Akabanga Chili Oil 50ml",
+        "seed":  202,
+        "cat":  7,
+        "price":  2500,
+        "stock":  300,
+        "desc":  "Rwanda famous hot chili oil, 50ml bottle, authentic Rwandan flavor, very spicy",
+        "brand":  "Akabanga"
+    },
+    {
+        "name":  "Isange Premium Rice 5kg",
+        "seed":  203,
+        "cat":  7,
+        "price":  6500,
+        "stock":  100,
+        "desc":  "Premium long grain white rice, 5kg bag, locally grown in Rwanda, clean",
+        "brand":  "Isange"
+    },
+    {
+        "name":  "Kimbo Cooking Oil 2L",
+        "seed":  204,
+        "cat":  7,
+        "price":  4500,
+        "stock":  120,
+        "desc":  "Refined vegetable cooking oil, 2 liters, cholesterol-free, high smoke point",
+        "brand":  "Kimbo"
+    },
+    {
+        "name":  "Nido Full Cream Milk Powder 400g",
+        "seed":  205,
+        "cat":  7,
+        "price":  5500,
+        "stock":  80,
+        "desc":  "Full cream milk powder, 400g tin, fortified with vitamins A and D, Nestle",
+        "brand":  "Nestle"
+    },
+    {
+        "name":  "Lipton Yellow Label Tea 100 Bags",
+        "seed":  206,
+        "cat":  7,
+        "price":  3500,
+        "stock":  150,
+        "desc":  "Black tea bags, 100 pack, classic blend, rich flavor, everyday tea Rwanda",
+        "brand":  "Lipton"
+    },
+    {
+        "name":  "Nescafe Classic Instant Coffee 200g",
+        "seed":  207,
+        "cat":  7,
+        "price":  6000,
+        "stock":  90,
+        "desc":  "Instant coffee, 200g jar, rich aroma, smooth taste, morning coffee Rwanda",
+        "brand":  "Nestle"
+    },
+    {
+        "name":  "Indomie Noodles Chicken 10-Pack",
+        "seed":  208,
+        "cat":  7,
+        "price":  3000,
+        "stock":  200,
+        "desc":  "Instant noodles, chicken flavor, 10-pack bundle, quick meal, popular Rwanda",
+        "brand":  "Indomie"
+    },
+    {
+        "name":  "Colgate Cavity Protection Toothpaste 150ml",
+        "seed":  209,
+        "cat":  7,
+        "price":  2200,
+        "stock":  180,
+        "desc":  "Cavity protection toothpaste, fluoride, fresh mint, 150ml, daily use",
+        "brand":  "Colgate"
+    },
+    {
+        "name":  "Ariel Washing Powder 1kg",
+        "seed":  210,
+        "cat":  7,
+        "price":  3800,
+        "stock":  130,
+        "desc":  "Washing powder, 1kg, removes tough stains, fresh scent, hand and machine wash",
+        "brand":  "Ariel"
+    },
+    {
+        "name":  "Dettol Antibacterial Soap 3-Pack",
+        "seed":  211,
+        "cat":  7,
+        "price":  2800,
+        "stock":  200,
+        "desc":  "Antibacterial bar soap, 3 x 100g, original scent, kills 99.9% germs",
+        "brand":  "Dettol"
+    },
+    {
+        "name":  "Heinz Tomato Ketchup 570g",
+        "seed":  212,
+        "cat":  7,
+        "price":  4200,
+        "stock":  100,
+        "desc":  "Classic tomato ketchup, 570g squeeze bottle, no artificial colors or flavors",
+        "brand":  "Heinz"
+    },
+    {
+        "name":  "Pringles Original Chips 165g",
+        "seed":  213,
+        "cat":  7,
+        "price":  3500,
+        "stock":  120,
+        "desc":  "Crispy potato chips, original flavor, 165g can, perfect snack anytime",
+        "brand":  "Pringles"
+    },
+    {
+        "name":  "Coca-Cola 1.5L Bottle",
+        "seed":  214,
+        "cat":  7,
+        "price":  1800,
+        "stock":  250,
+        "desc":  "Carbonated soft drink, 1.5L bottle, chilled and refreshing, classic taste",
+        "brand":  "Coca-Cola"
+    },
+    {
+        "name":  "Fanta Orange 1.5L Bottle",
+        "seed":  215,
+        "cat":  7,
+        "price":  1800,
+        "stock":  200,
+        "desc":  "Carbonated orange drink, 1.5L bottle, sweet and refreshing, popular Rwanda",
+        "brand":  "Fanta"
+    },
+    {
+        "name":  "Sprite 1.5L Bottle",
+        "seed":  216,
+        "cat":  7,
+        "price":  1800,
+        "stock":  200,
+        "desc":  "Carbonated lemon-lime drink, 1.5L bottle, crisp and refreshing taste",
+        "brand":  "Sprite"
+    },
+    {
+        "name":  "Omo Washing Powder 2kg",
+        "seed":  217,
+        "cat":  7,
+        "price":  6500,
+        "stock":  110,
+        "desc":  "Washing powder, 2kg, active clean formula, removes stains, fresh scent",
+        "brand":  "Omo"
+    },
+    {
+        "name":  "Sunlight Dishwashing Liquid 750ml",
+        "seed":  218,
+        "cat":  7,
+        "price":  2500,
+        "stock":  160,
+        "desc":  "Dishwashing liquid, 750ml, lemon scent, cuts grease, gentle on hands",
+        "brand":  "Sunlight"
+    },
+    {
+        "name":  "Kelloggs Corn Flakes 500g",
+        "seed":  219,
+        "cat":  7,
+        "price":  4500,
+        "stock":  80,
+        "desc":  "Corn flakes cereal, 500g, fortified with vitamins, crispy, breakfast Rwanda",
+        "brand":  "Kelloggs"
+    },
+    {
+        "name":  "Milo Chocolate Drink 400g",
+        "seed":  220,
+        "cat":  7,
+        "price":  5500,
+        "stock":  90,
+        "desc":  "Chocolate malt drink, 400g tin, energy drink, popular with kids Rwanda",
+        "brand":  "Nestle"
+    },
+    {
+        "name":  "Royco Beef Seasoning Cubes 100g",
+        "seed":  221,
+        "cat":  7,
+        "price":  1500,
+        "stock":  300,
+        "desc":  "Beef seasoning cubes, 100g pack, enhances flavor, popular in Rwanda cooking",
+        "brand":  "Royco"
+    },
+    {
+        "name":  "Blue Band Margarine 500g",
+        "seed":  222,
+        "cat":  7,
+        "price":  3200,
+        "stock":  120,
+        "desc":  "Margarine spread, 500g, fortified with vitamins A and D, baking and spreading",
+        "brand":  "Blue Band"
+    },
+    {
+        "name":  "Safi Laundry Bar Soap 800g",
+        "seed":  223,
+        "cat":  7,
+        "price":  2000,
+        "stock":  200,
+        "desc":  "Laundry bar soap, 800g, removes tough stains, affordable, popular Rwanda",
+        "brand":  "Safi"
+    },
+    {
+        "name":  "Cowbell Milk Powder 360g",
+        "seed":  224,
+        "cat":  7,
+        "price":  4800,
+        "stock":  100,
+        "desc":  "Full cream milk powder, 360g, fortified, affordable, popular in Rwanda",
+        "brand":  "Cowbell"
+    },
+    {
+        "name":  "Nivea Body Lotion 400ml Shea Butter",
+        "seed":  230,
+        "cat":  8,
+        "price":  5500,
+        "stock":  80,
+        "desc":  "Moisturizing body lotion, shea butter, 400ml, 48hr moisture, all skin types",
+        "brand":  "Nivea"
+    },
+    {
+        "name":  "Neutrogena Oil-Free Acne Face Wash 200ml",
+        "seed":  231,
+        "cat":  8,
+        "price":  8500,
+        "stock":  60,
+        "desc":  "Oil-free acne wash, salicylic acid, 200ml, gentle daily cleanser, dermatologist",
+        "brand":  "Neutrogena"
+    },
+    {
+        "name":  "Garnier Vitamin C Brightening Serum 30ml",
+        "seed":  232,
+        "cat":  8,
+        "price":  12000,
+        "stock":  50,
+        "desc":  "Brightening serum, 30ml, vitamin C plus niacinamide, reduces dark spots",
+        "brand":  "Garnier"
+    },
+    {
+        "name":  "Dove Intensive Repair Shampoo 400ml",
+        "seed":  233,
+        "cat":  8,
+        "price":  5000,
+        "stock":  90,
+        "desc":  "Moisturizing shampoo, 400ml, intensive repair, for dry and damaged hair",
+        "brand":  "Dove"
+    },
+    {
+        "name":  "Oral-B Rechargeable Electric Toothbrush",
+        "seed":  234,
+        "cat":  8,
+        "price":  35000,
+        "stock":  25,
+        "desc":  "Rechargeable electric toothbrush, 2 modes, 2-min timer, removes 100% more plaque",
+        "brand":  "Oral-B"
+    },
+    {
+        "name":  "Centrum Complete Multivitamin 30 Tablets",
+        "seed":  235,
+        "cat":  8,
+        "price":  8000,
+        "stock":  70,
+        "desc":  "Complete multivitamin, 30 tablets, vitamins A-Z, immune support, energy boost",
+        "brand":  "Centrum"
+    },
+    {
+        "name":  "Vaseline Pure Petroleum Jelly 250g",
+        "seed":  236,
+        "cat":  8,
+        "price":  3500,
+        "stock":  120,
+        "desc":  "Pure petroleum jelly, 250g, heals dry skin, lips, elbows, multipurpose",
+        "brand":  "Vaseline"
+    },
+    {
+        "name":  "Gillette Fusion 5-Blade Razor",
+        "seed":  237,
+        "cat":  8,
+        "price":  9500,
+        "stock":  55,
+        "desc":  "5-blade precision razor, lubricating strip, FlexBall technology, 2 cartridges",
+        "brand":  "Gillette"
+    },
+    {
+        "name":  "Maybelline Superstay Matte Lipstick",
+        "seed":  238,
+        "cat":  8,
+        "price":  7500,
+        "stock":  65,
+        "desc":  "Superstay matte ink lipstick, 16hr wear, 20 shades available, transfer-proof",
+        "brand":  "Maybelline"
+    },
+    {
+        "name":  "Dettol Hand Sanitizer 500ml Pump",
+        "seed":  239,
+        "cat":  8,
+        "price":  4500,
+        "stock":  100,
+        "desc":  "Alcohol-based hand sanitizer, 500ml pump, kills 99.9% bacteria and viruses",
+        "brand":  "Dettol"
+    },
+    {
+        "name":  "Loreal Paris Revitalift Face Cream 50ml",
+        "seed":  240,
+        "cat":  8,
+        "price":  15000,
+        "stock":  40,
+        "desc":  "Anti-aging face cream, 50ml, Pro-Retinol, reduces wrinkles, day cream",
+        "brand":  "Loreal"
+    },
+    {
+        "name":  "Pantene Pro-V Conditioner 400ml",
+        "seed":  241,
+        "cat":  8,
+        "price":  5500,
+        "stock":  75,
+        "desc":  "Moisturizing conditioner, 400ml, Pro-V formula, smooth and silky hair",
+        "brand":  "Pantene"
+    },
+    {
+        "name":  "Cetaphil Gentle Skin Cleanser 500ml",
+        "seed":  242,
+        "cat":  8,
+        "price":  18000,
+        "stock":  35,
+        "desc":  "Gentle skin cleanser, 500ml, dermatologist recommended, sensitive skin",
+        "brand":  "Cetaphil"
+    },
+    {
+        "name":  "Bioderma Sensibio H2O Micellar Water 500ml",
+        "seed":  243,
+        "cat":  8,
+        "price":  22000,
+        "stock":  30,
+        "desc":  "Micellar water, 500ml, removes makeup, gentle, no rinsing needed",
+        "brand":  "Bioderma"
+    },
+    {
+        "name":  "Revlon ColorStay Foundation 30ml",
+        "seed":  244,
+        "cat":  8,
+        "price":  12000,
+        "stock":  45,
+        "desc":  "Full coverage foundation, 30ml, 24hr wear, SPF 15, 40 shades available",
+        "brand":  "Revlon"
+    },
+    {
+        "name":  "Schwarzkopf Hair Color Cream",
+        "seed":  245,
+        "cat":  8,
+        "price":  8500,
+        "stock":  55,
+        "desc":  "Permanent hair color cream, 100% grey coverage, conditioning formula",
+        "brand":  "Schwarzkopf"
+    },
+    {
+        "name":  "Colgate Optic White Toothpaste 100ml",
+        "seed":  246,
+        "cat":  8,
+        "price":  3500,
+        "stock":  100,
+        "desc":  "Whitening toothpaste, 100ml, hydrogen peroxide, removes surface stains",
+        "brand":  "Colgate"
+    },
+    {
+        "name":  "Dove Men Care Body Wash 400ml",
+        "seed":  247,
+        "cat":  8,
+        "price":  6500,
+        "stock":  60,
+        "desc":  "Men body wash, 400ml, moisturizing formula, fresh clean scent, daily use",
+        "brand":  "Dove"
+    },
+    {
+        "name":  "Olay Total Effects 7-in-1 Moisturizer 50ml",
+        "seed":  248,
+        "cat":  8,
+        "price":  18000,
+        "stock":  35,
+        "desc":  "7-in-1 moisturizer, 50ml, SPF 15, anti-aging, brightening, daily use",
+        "brand":  "Olay"
+    },
+    {
+        "name":  "Sensodyne Sensitive Toothpaste 100ml",
+        "seed":  249,
+        "cat":  8,
+        "price":  4500,
+        "stock":  80,
+        "desc":  "Sensitive toothpaste, 100ml, builds protection against sensitivity, daily use",
+        "brand":  "Sensodyne"
+    }
+]

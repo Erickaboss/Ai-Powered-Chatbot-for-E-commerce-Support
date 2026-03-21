@@ -1,0 +1,362 @@
+﻿[
+    {
+        "name":  "Men Slim Fit Chino Pants",
+        "seed":  160,
+        "cat":  5,
+        "price":  18000,
+        "stock":  60,
+        "desc":  "Stretch cotton chino, slim fit, available in khaki navy black, sizes 28-38, Rwanda",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men Formal Dress Shirt White",
+        "seed":  161,
+        "cat":  5,
+        "price":  12000,
+        "stock":  80,
+        "desc":  "100% cotton, long sleeve, slim fit, white, sizes S-XXL, office and formal wear",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men Formal Dress Shirt Blue",
+        "seed":  162,
+        "cat":  5,
+        "price":  12000,
+        "stock":  75,
+        "desc":  "100% cotton, long sleeve, slim fit, blue, sizes S-XXL, office and formal wear",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men Premium Polo Shirt",
+        "seed":  163,
+        "cat":  5,
+        "price":  8500,
+        "stock":  100,
+        "desc":  "Premium pique cotton polo, embroidered logo, sizes S-XXL, multiple colors",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men Leather Oxford Shoes Black",
+        "seed":  164,
+        "cat":  5,
+        "price":  65000,
+        "stock":  30,
+        "desc":  "Genuine leather, lace-up, rubber sole, formal and casual, sizes 39-45, black",
+        "brand":  "Clarks"
+    },
+    {
+        "name":  "Men Leather Oxford Shoes Brown",
+        "seed":  165,
+        "cat":  5,
+        "price":  65000,
+        "stock":  25,
+        "desc":  "Genuine leather, lace-up, rubber sole, formal and casual, sizes 39-45, brown",
+        "brand":  "Clarks"
+    },
+    {
+        "name":  "Men Nike Running Sneakers",
+        "seed":  166,
+        "cat":  5,
+        "price":  85000,
+        "stock":  35,
+        "desc":  "Lightweight mesh upper, Air cushioning, breathable, sizes 39-45, multiple colors",
+        "brand":  "Nike"
+    },
+    {
+        "name":  "Men Adidas Ultraboost Sneakers",
+        "seed":  167,
+        "cat":  5,
+        "price":  95000,
+        "stock":  25,
+        "desc":  "Boost midsole, Primeknit upper, Continental rubber outsole, sizes 39-45",
+        "brand":  "Adidas"
+    },
+    {
+        "name":  "Men Genuine Leather Belt",
+        "seed":  168,
+        "cat":  5,
+        "price":  9500,
+        "stock":  70,
+        "desc":  "Genuine leather belt, automatic buckle, 3.5cm width, black and brown available",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men Casual Fleece Hoodie",
+        "seed":  169,
+        "cat":  5,
+        "price":  15000,
+        "stock":  55,
+        "desc":  "Fleece hoodie, kangaroo pocket, drawstring, sizes S-XXL, grey black navy",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men Slim Fit Denim Jeans Dark Blue",
+        "seed":  170,
+        "cat":  5,
+        "price":  16000,
+        "stock":  65,
+        "desc":  "Stretch denim, slim fit, 5-pocket, dark blue, sizes 28-38, comfortable",
+        "brand":  "Levis"
+    },
+    {
+        "name":  "Men Slim Fit Denim Jeans Black",
+        "seed":  171,
+        "cat":  5,
+        "price":  16000,
+        "stock":  60,
+        "desc":  "Stretch denim, slim fit, 5-pocket, black, sizes 28-38, versatile style",
+        "brand":  "Levis"
+    },
+    {
+        "name":  "Men 2-Piece Suit Navy",
+        "seed":  172,
+        "cat":  5,
+        "price":  85000,
+        "stock":  20,
+        "desc":  "Polyester-wool blend, slim fit, 2-button, navy, sizes 36-52, formal events",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men 2-Piece Suit Charcoal",
+        "seed":  173,
+        "cat":  5,
+        "price":  85000,
+        "stock":  18,
+        "desc":  "Polyester-wool blend, slim fit, 2-button, charcoal grey, sizes 36-52",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men Casio Watch Classic",
+        "seed":  174,
+        "cat":  5,
+        "price":  22000,
+        "stock":  40,
+        "desc":  "Casio MTP-V001, analog, stainless steel, water resistant 50m, classic design",
+        "brand":  "Casio"
+    },
+    {
+        "name":  "Men Polarized Sunglasses",
+        "seed":  175,
+        "cat":  5,
+        "price":  8000,
+        "stock":  50,
+        "desc":  "UV400 polarized lenses, metal frame, unisex, comes with case and cloth",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men Laptop Backpack 30L",
+        "seed":  176,
+        "cat":  5,
+        "price":  25000,
+        "stock":  35,
+        "desc":  "Water-resistant polyester, laptop compartment 15.6 inch, USB charging port, black",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men Leather Wallet Slim",
+        "seed":  177,
+        "cat":  5,
+        "price":  12000,
+        "stock":  60,
+        "desc":  "Genuine leather bifold wallet, 8 card slots, slim design, black and brown",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men Sports T-Shirt Dri-Fit",
+        "seed":  178,
+        "cat":  5,
+        "price":  7500,
+        "stock":  90,
+        "desc":  "Moisture-wicking polyester, slim fit, sizes S-XXL, multiple colors, gym wear",
+        "brand":  "Nike"
+    },
+    {
+        "name":  "Men Formal Leather Loafers",
+        "seed":  179,
+        "cat":  5,
+        "price":  55000,
+        "stock":  28,
+        "desc":  "Genuine leather loafers, slip-on, rubber sole, sizes 39-45, black and brown",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Floral Maxi Dress",
+        "seed":  180,
+        "cat":  6,
+        "price":  14000,
+        "stock":  50,
+        "desc":  "Chiffon floral print, V-neck, sleeveless, flowy, sizes XS-XL, multiple prints",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Office Blazer Black",
+        "seed":  181,
+        "cat":  6,
+        "price":  28000,
+        "stock":  30,
+        "desc":  "Structured blazer, single button, slim fit, black, sizes XS-XL, professional",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Office Blazer Navy",
+        "seed":  182,
+        "cat":  6,
+        "price":  28000,
+        "stock":  25,
+        "desc":  "Structured blazer, single button, slim fit, navy, sizes XS-XL, professional",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women High Waist Skinny Jeans Blue",
+        "seed":  183,
+        "cat":  6,
+        "price":  16000,
+        "stock":  55,
+        "desc":  "Stretch denim, high waist, skinny fit, blue, sizes 26-34, comfortable",
+        "brand":  "Zara"
+    },
+    {
+        "name":  "Women High Waist Skinny Jeans Black",
+        "seed":  184,
+        "cat":  6,
+        "price":  16000,
+        "stock":  50,
+        "desc":  "Stretch denim, high waist, skinny fit, black, sizes 26-34, versatile",
+        "brand":  "Zara"
+    },
+    {
+        "name":  "Women PU Leather Tote Handbag Black",
+        "seed":  185,
+        "cat":  6,
+        "price":  22000,
+        "stock":  40,
+        "desc":  "PU leather tote bag, spacious interior, zip closure, shoulder strap, black",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women PU Leather Tote Handbag Brown",
+        "seed":  186,
+        "cat":  6,
+        "price":  22000,
+        "stock":  35,
+        "desc":  "PU leather tote bag, spacious interior, zip closure, shoulder strap, brown",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Block Heel Sandals Nude",
+        "seed":  187,
+        "cat":  6,
+        "price":  18000,
+        "stock":  35,
+        "desc":  "Block heel 7cm, ankle strap, faux leather, sizes 36-41, nude color",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Block Heel Sandals Black",
+        "seed":  188,
+        "cat":  6,
+        "price":  18000,
+        "stock":  30,
+        "desc":  "Block heel 7cm, ankle strap, faux leather, sizes 36-41, black color",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women High Waist Compression Leggings",
+        "seed":  189,
+        "cat":  6,
+        "price":  9500,
+        "stock":  70,
+        "desc":  "High waist compression leggings, moisture-wicking, 4-way stretch, sizes XS-XL",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Satin Blouse V-Neck",
+        "seed":  190,
+        "cat":  6,
+        "price":  11000,
+        "stock":  45,
+        "desc":  "100% polyester satin blouse, V-neck, long sleeve, elegant, sizes XS-XL",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Canvas Sneakers White",
+        "seed":  191,
+        "cat":  6,
+        "price":  18000,
+        "stock":  40,
+        "desc":  "Canvas sneakers, rubber sole, lace-up, classic white, sizes 36-41",
+        "brand":  "Converse"
+    },
+    {
+        "name":  "Women Crossbody Bag Small",
+        "seed":  192,
+        "cat":  6,
+        "price":  12000,
+        "stock":  50,
+        "desc":  "Small crossbody bag, adjustable strap, multiple pockets, trendy design",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Elegant Wrist Watch Rose Gold",
+        "seed":  193,
+        "cat":  6,
+        "price":  28000,
+        "stock":  25,
+        "desc":  "Rose gold case, leather strap, quartz movement, water resistant, gift box",
+        "brand":  "Fossil"
+    },
+    {
+        "name":  "Women Floral Perfume 100ml",
+        "seed":  194,
+        "cat":  6,
+        "price":  35000,
+        "stock":  30,
+        "desc":  "Floral-fruity fragrance, long-lasting 8hrs, elegant bottle, gift-ready packaging",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Ankara Print Dress",
+        "seed":  195,
+        "cat":  6,
+        "price":  20000,
+        "stock":  40,
+        "desc":  "African print Ankara fabric, fitted bodice, flared skirt, custom sizes available",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Sports Bra High Impact",
+        "seed":  196,
+        "cat":  6,
+        "price":  8500,
+        "stock":  65,
+        "desc":  "High impact sports bra, moisture-wicking, sizes XS-XL, multiple colors",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Wrap Midi Dress",
+        "seed":  197,
+        "cat":  6,
+        "price":  16000,
+        "stock":  35,
+        "desc":  "Wrap style midi dress, floral print, V-neck, sizes XS-XL, elegant",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Leather Ankle Boots",
+        "seed":  198,
+        "cat":  6,
+        "price":  32000,
+        "stock":  25,
+        "desc":  "Faux leather ankle boots, block heel 5cm, zip closure, sizes 36-41",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Women Silk Scarf 90x90cm",
+        "seed":  199,
+        "cat":  6,
+        "price":  6500,
+        "stock":  60,
+        "desc":  "100% polyester silk-feel scarf, 90x90cm, multiple prints, versatile accessory",
+        "brand":  "Local Brand"
+    }
+]

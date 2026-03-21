@@ -1,0 +1,65 @@
+
+=================================================================
+  AI CHATBOT FOR E-COMMERCE — MODEL PERFORMANCE REPORT
+  AI-Powered Chatbot For E-commerce Support
+=================================================================
+
+1. DATASET SUMMARY
+-----------------------------------------------------------------
+   Source         : Custom E-commerce Intents (intents.json)
+   Total Patterns : 2074
+   Total Intents  : 21
+   Train Samples  : 1659
+   Test  Samples  : 415
+   Split Ratio    : 80% Train / 20% Test (Stratified)
+
+2. MODELS SELECTED
+-----------------------------------------------------------------
+   Model 1 : Logistic Regression (TF-IDF + LR)   — ML Baseline
+   Model 2 : Random Forest (TF-IDF + RF)          — ML Ensemble
+   Model 3 : SVM with RBF Kernel                  — ML Kernel Method
+   Model 4 : MLP Neural Network (256-128-64)      — Deep Learning
+   Model 5 : Google Gemini API                    — LLM (multilingual)
+
+3. PERFORMANCE METRICS
+-----------------------------------------------------------------
+   Model                          Accuracy  Precision     Recall   F1 Score
+   ------------------------------------------------------------
+   Logistic Regression              87.95%     88.85%     87.95%     87.99%
+   Random Forest                    81.45%     83.33%     81.45%     81.46%
+   SVM (RBF Kernel)                 86.27%     87.62%     86.27%     86.38%
+   MLP Neural Network               87.47%     89.00%     87.47%     87.62%
+
+4. CROSS-VALIDATION (5-Fold)
+-----------------------------------------------------------------
+   Logistic Regression          Mean: 81.82%  Std: ±1.70%
+   Random Forest                Mean: 73.29%  Std: ±2.71%
+   SVM (RBF Kernel)             Mean: 79.65%  Std: ±1.80%
+   MLP Neural Network           Mean: 77.34%  Std: ±4.04%
+
+5. BEST MODEL
+-----------------------------------------------------------------
+   Selected Model : Logistic Regression
+   Accuracy       : 87.95%
+   F1 Score       : 87.99%
+
+6. SYSTEM ARCHITECTURE
+-----------------------------------------------------------------
+   Frontend  : JavaScript (chatbot widget)
+   Backend   : PHP 8 (intent routing, DB queries)
+   ML API    : Python Flask (intent classification)
+   Database  : MySQL (products, orders, users, logs)
+   AI Layer  : Google Gemini API (multilingual polish)
+   Email     : PHPMailer + Gmail SMTP
+
+7. PLOTS GENERATED
+-----------------------------------------------------------------
+   plots/all_metrics_comparison.png
+   plots/model_comparison_grouped.png
+   plots/dataset_distribution.png
+   plots/cross_validation.png
+   plots/cm_logistic_regression.png
+   plots/cm_random_forest.png
+   plots/cm_svm_rbf_kernel.png
+   plots/cm_mlp_neural_network.png
+=================================================================

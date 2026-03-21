@@ -1,0 +1,83 @@
+{
+  "results": {
+    "Logistic Regression": {
+      "accuracy": 0.8795180722891566,
+      "precision": 0.8885301233346665,
+      "recall": 0.8795180722891566,
+      "f1": 0.8798824326895551
+    },
+    "Random Forest": {
+      "accuracy": 0.8144578313253013,
+      "precision": 0.8332651086866697,
+      "recall": 0.8144578313253013,
+      "f1": 0.814610546050938
+    },
+    "SVM (RBF Kernel)": {
+      "accuracy": 0.8626506024096385,
+      "precision": 0.8761894942244824,
+      "recall": 0.8626506024096385,
+      "f1": 0.863782071622811
+    },
+    "MLP Neural Network": {
+      "accuracy": 0.8746987951807229,
+      "precision": 0.889971139091214,
+      "recall": 0.8746987951807229,
+      "f1": 0.8762180920145443
+    }
+  },
+  "best_model": "Logistic Regression",
+  "num_classes": 21,
+  "intents": [
+    "account_help",
+    "bot_identity",
+    "complaint",
+    "contact_support",
+    "delivery_time",
+    "discount_promo",
+    "goodbye",
+    "greeting",
+    "order_cancel",
+    "order_history",
+    "order_track",
+    "payment_methods",
+    "place_order",
+    "product_price",
+    "product_search",
+    "recommendation",
+    "return_policy",
+    "shipping_fee",
+    "stock_check",
+    "thanks",
+    "warranty"
+  ],
+  "cv_results": {
+    "Logistic Regression": [
+      0.7975903614457831,
+      0.8216867469879519,
+      0.8072289156626506,
+      0.8168674698795181,
+      0.8478260869565217
+    ],
+    "Random Forest": [
+      0.6963855421686747,
+      0.7325301204819277,
+      0.7325301204819277,
+      0.7228915662650602,
+      0.7801932367149759
+    ],
+    "SVM (RBF Kernel)": [
+      0.7879518072289157,
+      0.8120481927710843,
+      0.7710843373493976,
+      0.7903614457831325,
+      0.821256038647343
+    ],
+    "MLP Neural Network": [
+      0.763855421686747,
+      0.7975903614457831,
+      0.7253012048192771,
+      0.7421686746987952,
+      0.8381642512077294
+    ]
+  }
+}

@@ -1,0 +1,317 @@
+﻿[
+    {
+        "name":  "3-Seater Fabric Sofa Grey",
+        "seed":  290,
+        "cat":  11,
+        "price":  280000,
+        "stock":  8,
+        "desc":  "3-seater sofa, grey fabric, foam cushions, wooden legs, living room Rwanda",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "L-Shaped Corner Sofa Dark Grey",
+        "seed":  291,
+        "cat":  11,
+        "price":  450000,
+        "stock":  5,
+        "desc":  "L-shaped corner sofa, dark grey, high-density foam, removable covers",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Queen Size Bed Frame with Headboard",
+        "seed":  292,
+        "cat":  11,
+        "price":  180000,
+        "stock":  10,
+        "desc":  "Queen size bed frame, wooden headboard, slat base, 160x200cm, sturdy",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "King Size Bed Frame Upholstered",
+        "seed":  293,
+        "cat":  11,
+        "price":  280000,
+        "stock":  6,
+        "desc":  "King size bed frame, upholstered headboard, 180x200cm, storage drawers",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Orthopedic Mattress Queen 160x200cm",
+        "seed":  294,
+        "cat":  11,
+        "price":  220000,
+        "stock":  8,
+        "desc":  "Orthopedic spring mattress, 160x200cm, 25cm thick, medium firm, breathable",
+        "brand":  "Sealy"
+    },
+    {
+        "name":  "Memory Foam Mattress King 180x200cm",
+        "seed":  295,
+        "cat":  11,
+        "price":  320000,
+        "stock":  5,
+        "desc":  "Memory foam mattress, 180x200cm, 30cm thick, pressure relief, hypoallergenic",
+        "brand":  "Tempur"
+    },
+    {
+        "name":  "6-Drawer Wooden Dresser",
+        "seed":  296,
+        "cat":  11,
+        "price":  120000,
+        "stock":  10,
+        "desc":  "6-drawer dresser, solid wood, antique brass handles, 120x45x80cm",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "4-Door Wardrobe with Mirror",
+        "seed":  297,
+        "cat":  11,
+        "price":  250000,
+        "stock":  6,
+        "desc":  "4-door wardrobe, full-length mirror, hanging rail, shelves, 200x60x220cm",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Dining Table Set 6 Chairs",
+        "seed":  298,
+        "cat":  11,
+        "price":  380000,
+        "stock":  4,
+        "desc":  "Dining table plus 6 chairs, solid wood, 180x90cm table, upholstered chairs",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Office Desk with Drawers 120cm",
+        "seed":  299,
+        "cat":  11,
+        "price":  85000,
+        "stock":  12,
+        "desc":  "Office desk, 120cm, 2 drawers, cable management, MDF, home office Rwanda",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Ergonomic Office Chair Mesh",
+        "seed":  300,
+        "cat":  11,
+        "price":  95000,
+        "stock":  15,
+        "desc":  "Ergonomic mesh chair, lumbar support, adjustable height, armrests, 150kg",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Gaming Chair Racing Style",
+        "seed":  301,
+        "cat":  11,
+        "price":  120000,
+        "stock":  10,
+        "desc":  "Gaming chair, racing style, lumbar pillow, headrest, reclining, 120kg max",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Bookshelf 5-Tier Wooden",
+        "seed":  302,
+        "cat":  11,
+        "price":  65000,
+        "stock":  15,
+        "desc":  "5-tier bookshelf, solid wood, 80x30x180cm, natural finish, living room",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Coffee Table Glass Top",
+        "seed":  303,
+        "cat":  11,
+        "price":  55000,
+        "stock":  12,
+        "desc":  "Coffee table, tempered glass top, metal frame, 120x60x45cm, modern design",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "TV Stand with Storage 150cm",
+        "seed":  304,
+        "cat":  11,
+        "price":  75000,
+        "stock":  10,
+        "desc":  "TV stand, 150cm, 2 cabinets, open shelves, fits up to 65 inch TV",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Wall Art Canvas Print Set 3 Pieces",
+        "seed":  305,
+        "cat":  11,
+        "price":  25000,
+        "stock":  30,
+        "desc":  "Canvas wall art, 3-piece set, abstract design, 40x60cm each, ready to hang",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Floor Lamp LED Dimmable",
+        "seed":  306,
+        "cat":  11,
+        "price":  35000,
+        "stock":  20,
+        "desc":  "Floor lamp, LED, dimmable, 3 color temperatures, 150cm, modern design",
+        "brand":  "Philips"
+    },
+    {
+        "name":  "Decorative Throw Pillows Set 4",
+        "seed":  307,
+        "cat":  11,
+        "price":  18000,
+        "stock":  40,
+        "desc":  "Decorative throw pillows, 4-piece set, 45x45cm, multiple patterns, sofa",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Area Rug 160x230cm Living Room",
+        "seed":  308,
+        "cat":  11,
+        "price":  65000,
+        "stock":  12,
+        "desc":  "Area rug, 160x230cm, soft pile, non-slip backing, multiple patterns",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Curtains Blackout 2 Panels 140x260cm",
+        "seed":  309,
+        "cat":  11,
+        "price":  28000,
+        "stock":  25,
+        "desc":  "Blackout curtains, 2 panels, 140x260cm, thermal insulated, multiple colors",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Car Dash Camera 4K Front and Rear",
+        "seed":  310,
+        "cat":  12,
+        "price":  85000,
+        "stock":  20,
+        "desc":  "4K front plus 1080p rear dash cam, night vision, GPS, WiFi, loop recording",
+        "brand":  "Vantrue"
+    },
+    {
+        "name":  "Car Phone Mount Dashboard",
+        "seed":  311,
+        "cat":  12,
+        "price":  8500,
+        "stock":  60,
+        "desc":  "Universal car phone mount, dashboard, 360 rotation, fits 4-7 inch phones",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Car Vacuum Cleaner 12V Portable",
+        "seed":  312,
+        "cat":  12,
+        "price":  18000,
+        "stock":  35,
+        "desc":  "12V portable car vacuum, 120W, wet and dry, HEPA filter, 5m cord",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Car Jump Starter 2000A Peak",
+        "seed":  313,
+        "cat":  12,
+        "price":  65000,
+        "stock":  15,
+        "desc":  "2000A peak jump starter, 20000mAh, USB charging, LED flashlight, compact",
+        "brand":  "NOCO"
+    },
+    {
+        "name":  "Car Seat Covers Full Set Universal",
+        "seed":  314,
+        "cat":  12,
+        "price":  35000,
+        "stock":  25,
+        "desc":  "Universal car seat covers, full set, waterproof, breathable, easy install",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Car Air Freshener Vent Clip",
+        "seed":  315,
+        "cat":  12,
+        "price":  3500,
+        "stock":  100,
+        "desc":  "Car air freshener, vent clip, long-lasting fragrance, multiple scents",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Tire Inflator Portable 12V",
+        "seed":  316,
+        "cat":  12,
+        "price":  28000,
+        "stock":  30,
+        "desc":  "Portable tire inflator, 12V, digital display, auto shut-off, LED light",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Car Bluetooth FM Transmitter",
+        "seed":  317,
+        "cat":  12,
+        "price":  12000,
+        "stock":  45,
+        "desc":  "Bluetooth 5.0 FM transmitter, USB charging, hands-free calling, music",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Car Floor Mats Rubber Universal",
+        "seed":  318,
+        "cat":  12,
+        "price":  18000,
+        "stock":  40,
+        "desc":  "Universal rubber floor mats, 4-piece set, waterproof, easy clean, black",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Car Steering Wheel Cover Leather",
+        "seed":  319,
+        "cat":  12,
+        "price":  12000,
+        "stock":  35,
+        "desc":  "Genuine leather steering wheel cover, 38cm, anti-slip, breathable, black",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Car Reverse Camera 170 Degree",
+        "seed":  320,
+        "cat":  12,
+        "price":  22000,
+        "stock":  25,
+        "desc":  "170 degree reverse camera, night vision, waterproof, universal fit",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Car Organizer Back Seat",
+        "seed":  321,
+        "cat":  12,
+        "price":  12000,
+        "stock":  40,
+        "desc":  "Back seat car organizer, 8 pockets, tablet holder, waterproof, black",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Car Battery Charger 12V 24V",
+        "seed":  322,
+        "cat":  12,
+        "price":  35000,
+        "stock":  20,
+        "desc":  "Smart battery charger, 12V 24V, 10A, LCD display, overcharge protection",
+        "brand":  "CTEK"
+    },
+    {
+        "name":  "Car Wax Polish Kit Professional",
+        "seed":  323,
+        "cat":  12,
+        "price":  22000,
+        "stock":  25,
+        "desc":  "Professional car wax polish kit, 5 products, microfiber cloths, applicators",
+        "brand":  "Meguiars"
+    },
+    {
+        "name":  "Car First Aid Kit 50 Pieces",
+        "seed":  324,
+        "cat":  12,
+        "price":  18000,
+        "stock":  30,
+        "desc":  "50-piece car first aid kit, reflective vest, warning triangle, fire extinguisher",
+        "brand":  "Local Brand"
+    }
+]

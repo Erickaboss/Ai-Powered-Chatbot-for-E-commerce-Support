@@ -1,0 +1,272 @@
+﻿[
+    {
+        "name":  "HP Laptop 15s Intel i5 12th Gen",
+        "seed":  60,
+        "cat":  2,
+        "price":  750000,
+        "stock":  15,
+        "desc":  "15.6 inch FHD IPS, 8GB RAM, 512GB SSD, Windows 11, backlit keyboard, fingerprint reader",
+        "brand":  "HP"
+    },
+    {
+        "name":  "HP Laptop 15s Intel i7 12th Gen",
+        "seed":  61,
+        "cat":  2,
+        "price":  950000,
+        "stock":  10,
+        "desc":  "15.6 inch FHD IPS, 16GB RAM, 512GB SSD, Windows 11, fingerprint reader, fast charge",
+        "brand":  "HP"
+    },
+    {
+        "name":  "HP EliteBook 840 G9 Business",
+        "seed":  62,
+        "cat":  2,
+        "price":  1200000,
+        "stock":  8,
+        "desc":  "14 inch FHD IPS, Intel i7, 16GB RAM, 512GB SSD, business laptop, fingerprint, MIL-SPEC",
+        "brand":  "HP"
+    },
+    {
+        "name":  "HP Pavilion 15 AMD Ryzen 7",
+        "seed":  63,
+        "cat":  2,
+        "price":  880000,
+        "stock":  10,
+        "desc":  "15.6 inch FHD IPS, Ryzen 7 5700U, 16GB RAM, 512GB SSD, Windows 11, backlit keyboard",
+        "brand":  "HP"
+    },
+    {
+        "name":  "HP Spectre x360 14 2-in-1",
+        "seed":  64,
+        "cat":  2,
+        "price":  1850000,
+        "stock":  5,
+        "desc":  "13.5 inch OLED 2K, Intel i7, 16GB RAM, 1TB SSD, convertible, pen included, premium",
+        "brand":  "HP"
+    },
+    {
+        "name":  "Dell Inspiron 15 Intel i5",
+        "seed":  65,
+        "cat":  2,
+        "price":  780000,
+        "stock":  12,
+        "desc":  "15.6 inch FHD, Intel i5-12th Gen, 8GB RAM, 512GB SSD, Windows 11, slim design",
+        "brand":  "Dell"
+    },
+    {
+        "name":  "Dell Inspiron 15 Intel i7",
+        "seed":  66,
+        "cat":  2,
+        "price":  1050000,
+        "stock":  8,
+        "desc":  "15.6 inch FHD, Intel i7-12th Gen, 16GB RAM, 512GB SSD, Windows 11, backlit keyboard",
+        "brand":  "Dell"
+    },
+    {
+        "name":  "Dell XPS 15 OLED Intel i7",
+        "seed":  67,
+        "cat":  2,
+        "price":  2200000,
+        "stock":  4,
+        "desc":  "15.6 inch OLED 3.5K, Intel i7, 16GB RAM, 512GB SSD, NVIDIA RTX 3050, premium laptop",
+        "brand":  "Dell"
+    },
+    {
+        "name":  "Dell Latitude 5540 Business",
+        "seed":  68,
+        "cat":  2,
+        "price":  1150000,
+        "stock":  6,
+        "desc":  "15.6 inch FHD, Intel i5, 16GB RAM, 512GB SSD, MIL-SPEC durability, fingerprint reader",
+        "brand":  "Dell"
+    },
+    {
+        "name":  "Lenovo IdeaPad 3 AMD Ryzen 5",
+        "seed":  69,
+        "cat":  2,
+        "price":  620000,
+        "stock":  18,
+        "desc":  "15.6 inch FHD IPS, Ryzen 5 5500U, 8GB RAM, 256GB SSD, Windows 11, student laptop",
+        "brand":  "Lenovo"
+    },
+    {
+        "name":  "Lenovo IdeaPad Slim 5 Intel i5",
+        "seed":  70,
+        "cat":  2,
+        "price":  720000,
+        "stock":  14,
+        "desc":  "14 inch FHD IPS, Intel i5-12th Gen, 8GB RAM, 512GB SSD, slim 1.46kg, fast charge",
+        "brand":  "Lenovo"
+    },
+    {
+        "name":  "Lenovo ThinkPad E15 Intel i7",
+        "seed":  71,
+        "cat":  2,
+        "price":  1100000,
+        "stock":  7,
+        "desc":  "15.6 inch FHD IPS, Intel i7, 16GB RAM, 512GB SSD, MIL-SPEC durability, business",
+        "brand":  "Lenovo"
+    },
+    {
+        "name":  "Lenovo Legion 5 Gaming Ryzen 7",
+        "seed":  72,
+        "cat":  2,
+        "price":  1650000,
+        "stock":  6,
+        "desc":  "15.6 inch FHD 144Hz, AMD Ryzen 7, 16GB RAM, 512GB SSD, RTX 3060, gaming laptop",
+        "brand":  "Lenovo"
+    },
+    {
+        "name":  "MacBook Air M2 8GB 256GB",
+        "seed":  73,
+        "cat":  2,
+        "price":  1650000,
+        "stock":  6,
+        "desc":  "13.6 inch Liquid Retina, M2 chip, 8GB RAM, 256GB SSD, 18hr battery, fanless design",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "MacBook Air M2 16GB 512GB",
+        "seed":  74,
+        "cat":  2,
+        "price":  2100000,
+        "stock":  4,
+        "desc":  "13.6 inch Liquid Retina, M2 chip, 16GB RAM, 512GB SSD, 18hr battery, midnight color",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "MacBook Pro M3 14 inch 512GB",
+        "seed":  75,
+        "cat":  2,
+        "price":  2800000,
+        "stock":  3,
+        "desc":  "14.2 inch Liquid Retina XDR, M3 chip, 8GB RAM, 512GB SSD, ProMotion 120Hz display",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "Asus VivoBook 15 Intel i5 OLED",
+        "seed":  76,
+        "cat":  2,
+        "price":  680000,
+        "stock":  12,
+        "desc":  "15.6 inch FHD OLED, Intel i5, 8GB RAM, 512GB SSD, fingerprint reader, slim design",
+        "brand":  "Asus"
+    },
+    {
+        "name":  "Asus ZenBook 14 OLED Intel i7",
+        "seed":  77,
+        "cat":  2,
+        "price":  1350000,
+        "stock":  7,
+        "desc":  "14 inch 2.8K OLED, Intel i7, 16GB RAM, 512GB SSD, slim 1.39kg, Thunderbolt 4",
+        "brand":  "Asus"
+    },
+    {
+        "name":  "Asus ROG Strix G15 Gaming",
+        "seed":  78,
+        "cat":  2,
+        "price":  2100000,
+        "stock":  4,
+        "desc":  "15.6 inch FHD 144Hz, AMD Ryzen 9, 16GB RAM, 512GB SSD, RTX 3070, gaming laptop",
+        "brand":  "Asus"
+    },
+    {
+        "name":  "Acer Aspire 5 Intel i5",
+        "seed":  79,
+        "cat":  2,
+        "price":  640000,
+        "stock":  14,
+        "desc":  "15.6 inch FHD IPS, Intel i5, 8GB RAM, 512GB SSD, slim design, backlit keyboard",
+        "brand":  "Acer"
+    },
+    {
+        "name":  "Acer Swift 3 AMD Ryzen 7",
+        "seed":  80,
+        "cat":  2,
+        "price":  850000,
+        "stock":  9,
+        "desc":  "14 inch FHD IPS, Ryzen 7 5700U, 16GB RAM, 512GB SSD, ultrabook, 1.2kg",
+        "brand":  "Acer"
+    },
+    {
+        "name":  "Acer Nitro 5 Gaming Intel i5",
+        "seed":  81,
+        "cat":  2,
+        "price":  980000,
+        "stock":  8,
+        "desc":  "15.6 inch FHD 144Hz, Intel i5, 8GB RAM, 512GB SSD, GTX 1650, gaming laptop",
+        "brand":  "Acer"
+    },
+    {
+        "name":  "Dell 24 inch Monitor FHD IPS",
+        "seed":  82,
+        "cat":  2,
+        "price":  180000,
+        "stock":  20,
+        "desc":  "24 inch Full HD IPS, 75Hz, HDMI+VGA, slim bezel, eye-care technology, tilt stand",
+        "brand":  "Dell"
+    },
+    {
+        "name":  "LG 27 inch 4K UHD Monitor",
+        "seed":  83,
+        "cat":  2,
+        "price":  380000,
+        "stock":  10,
+        "desc":  "27 inch UHD 4K IPS, 60Hz, HDR400, USB-C, height adjustable, sRGB 99%, ergonomic",
+        "brand":  "LG"
+    },
+    {
+        "name":  "Samsung 27 inch Curved Gaming Monitor",
+        "seed":  84,
+        "cat":  2,
+        "price":  280000,
+        "stock":  15,
+        "desc":  "27 inch FHD VA 165Hz, 1ms response, FreeSync Premium, curved, HDMI+DisplayPort",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Logitech MX Keys Wireless Keyboard",
+        "seed":  85,
+        "cat":  2,
+        "price":  65000,
+        "stock":  30,
+        "desc":  "Wireless backlit keyboard, multi-device, USB-C rechargeable, quiet keys, ergonomic",
+        "brand":  "Logitech"
+    },
+    {
+        "name":  "Logitech MX Master 3 Mouse",
+        "seed":  86,
+        "cat":  2,
+        "price":  55000,
+        "stock":  35,
+        "desc":  "Wireless ergonomic mouse, 4000 DPI, MagSpeed scroll, multi-device, USB-C charge",
+        "brand":  "Logitech"
+    },
+    {
+        "name":  "Kingston 1TB External SSD USB 3.2",
+        "seed":  87,
+        "cat":  2,
+        "price":  120000,
+        "stock":  25,
+        "desc":  "1050MB/s read speed, compact, shock-resistant, plug and play, black aluminum",
+        "brand":  "Kingston"
+    },
+    {
+        "name":  "Seagate 2TB External HDD",
+        "seed":  88,
+        "cat":  2,
+        "price":  65000,
+        "stock":  30,
+        "desc":  "USB 3.0, 2TB portable hard drive, slim design, plug and play, 3yr warranty",
+        "brand":  "Seagate"
+    },
+    {
+        "name":  "TP-Link WiFi 6 Router AX3000",
+        "seed":  89,
+        "cat":  2,
+        "price":  85000,
+        "stock":  20,
+        "desc":  "AX3000 dual-band, WiFi 6, 4 antennas, MU-MIMO, Alexa compatible, parental controls",
+        "brand":  "TP-Link"
+    }
+]

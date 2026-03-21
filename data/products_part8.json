@@ -1,0 +1,542 @@
+﻿[
+    {
+        "name":  "Atomic Habits by James Clear",
+        "seed":  330,
+        "cat":  13,
+        "price":  18000,
+        "stock":  40,
+        "desc":  "Bestselling book on building good habits, breaking bad ones, practical guide",
+        "brand":  "Penguin"
+    },
+    {
+        "name":  "Rich Dad Poor Dad by Robert Kiyosaki",
+        "seed":  331,
+        "cat":  13,
+        "price":  15000,
+        "stock":  45,
+        "desc":  "Personal finance classic, financial education, investing, wealth building",
+        "brand":  "Plata Publishing"
+    },
+    {
+        "name":  "Think and Grow Rich Napoleon Hill",
+        "seed":  332,
+        "cat":  13,
+        "price":  12000,
+        "stock":  50,
+        "desc":  "Classic self-help book, success principles, mindset, wealth creation",
+        "brand":  "Tarcher"
+    },
+    {
+        "name":  "The 48 Laws of Power Robert Greene",
+        "seed":  333,
+        "cat":  13,
+        "price":  22000,
+        "stock":  35,
+        "desc":  "48 laws of power, strategy, influence, history, bestselling book",
+        "brand":  "Penguin"
+    },
+    {
+        "name":  "Python Programming for Beginners",
+        "seed":  334,
+        "cat":  13,
+        "price":  25000,
+        "stock":  30,
+        "desc":  "Python programming book, beginners to advanced, exercises, projects",
+        "brand":  "No Starch Press"
+    },
+    {
+        "name":  "Web Development HTML CSS JavaScript",
+        "seed":  335,
+        "cat":  13,
+        "price":  28000,
+        "stock":  25,
+        "desc":  "Complete web development guide, HTML5, CSS3, JavaScript, responsive design",
+        "brand":  "Wiley"
+    },
+    {
+        "name":  "A4 Hardcover Notebook 200 Pages",
+        "seed":  336,
+        "cat":  13,
+        "price":  3500,
+        "stock":  150,
+        "desc":  "A4 hardcover notebook, 200 pages, ruled, quality paper, multiple colors",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Ballpoint Pen Set 12 Colors",
+        "seed":  337,
+        "cat":  13,
+        "price":  2500,
+        "stock":  200,
+        "desc":  "Ballpoint pen set, 12 colors, smooth writing, 1.0mm tip, office school",
+        "brand":  "Bic"
+    },
+    {
+        "name":  "Scientific Calculator Casio FX-991",
+        "seed":  338,
+        "cat":  13,
+        "price":  18000,
+        "stock":  40,
+        "desc":  "Casio FX-991EX, 552 functions, natural display, solar powered, students",
+        "brand":  "Casio"
+    },
+    {
+        "name":  "Stapler Heavy Duty 50 Sheets",
+        "seed":  339,
+        "cat":  13,
+        "price":  8500,
+        "stock":  50,
+        "desc":  "Heavy duty stapler, 50 sheets capacity, includes 1000 staples, metal",
+        "brand":  "Swingline"
+    },
+    {
+        "name":  "Whiteboard Marker Set 8 Colors",
+        "seed":  340,
+        "cat":  13,
+        "price":  4500,
+        "stock":  100,
+        "desc":  "Whiteboard markers, 8 colors, chisel tip, easy erase, office classroom",
+        "brand":  "Expo"
+    },
+    {
+        "name":  "Highlighter Set 6 Colors",
+        "seed":  341,
+        "cat":  13,
+        "price":  3000,
+        "stock":  120,
+        "desc":  "Highlighter set, 6 colors, chisel tip, quick-dry, smear-free, students",
+        "brand":  "Stabilo"
+    },
+    {
+        "name":  "A4 Printer Paper 500 Sheets 80gsm",
+        "seed":  342,
+        "cat":  13,
+        "price":  5500,
+        "stock":  100,
+        "desc":  "A4 printer paper, 500 sheets, 80gsm, bright white, laser and inkjet",
+        "brand":  "Double A"
+    },
+    {
+        "name":  "Pencil Case Large Capacity",
+        "seed":  343,
+        "cat":  13,
+        "price":  4500,
+        "stock":  80,
+        "desc":  "Large capacity pencil case, 3 compartments, zipper, multiple colors",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Geometry Set 9 Pieces Students",
+        "seed":  344,
+        "cat":  13,
+        "price":  3500,
+        "stock":  100,
+        "desc":  "9-piece geometry set, compass, protractor, ruler, set squares, pencil",
+        "brand":  "Maped"
+    },
+    {
+        "name":  "Sticky Notes 3x3 inch 12 Pads",
+        "seed":  345,
+        "cat":  13,
+        "price":  6500,
+        "stock":  80,
+        "desc":  "Sticky notes, 3x3 inch, 12 pads, 100 sheets each, multiple colors",
+        "brand":  "Post-it"
+    },
+    {
+        "name":  "File Folder A4 Plastic 10 Pack",
+        "seed":  346,
+        "cat":  13,
+        "price":  4000,
+        "stock":  100,
+        "desc":  "A4 plastic file folders, 10 pack, clear front, multiple colors, office",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Desk Organizer 6 Compartments",
+        "seed":  347,
+        "cat":  13,
+        "price":  12000,
+        "stock":  35,
+        "desc":  "Desk organizer, 6 compartments, bamboo, pen holder, paper tray, modern",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Laminator A4 Machine",
+        "seed":  348,
+        "cat":  13,
+        "price":  35000,
+        "stock":  15,
+        "desc":  "A4 laminator, hot and cold, 80-125 micron, fast warm-up, office home",
+        "brand":  "Fellowes"
+    },
+    {
+        "name":  "Shredder Paper 8 Sheet Cross-Cut",
+        "seed":  349,
+        "cat":  13,
+        "price":  45000,
+        "stock":  12,
+        "desc":  "8-sheet cross-cut paper shredder, CD shredding, 15L bin, home office",
+        "brand":  "Fellowes"
+    },
+    {
+        "name":  "Casio G-Shock GA-2100 Watch",
+        "seed":  350,
+        "cat":  14,
+        "price":  85000,
+        "stock":  20,
+        "desc":  "G-Shock, shock resistant, 200m water resistant, world time, stopwatch",
+        "brand":  "Casio"
+    },
+    {
+        "name":  "Casio Edifice Chronograph Watch",
+        "seed":  351,
+        "cat":  14,
+        "price":  65000,
+        "stock":  18,
+        "desc":  "Edifice chronograph, stainless steel, 100m water resistant, tachymeter",
+        "brand":  "Casio"
+    },
+    {
+        "name":  "Fossil Gen 6 Smartwatch 44mm",
+        "seed":  352,
+        "cat":  14,
+        "price":  280000,
+        "stock":  10,
+        "desc":  "Smartwatch, 44mm, AMOLED, heart rate, GPS, NFC, Wear OS, 24hr battery",
+        "brand":  "Fossil"
+    },
+    {
+        "name":  "Apple Watch Series 9 41mm",
+        "seed":  353,
+        "cat":  14,
+        "price":  580000,
+        "stock":  8,
+        "desc":  "Apple Watch Series 9, 41mm, LTPO OLED, S9 chip, health sensors, GPS",
+        "brand":  "Apple"
+    },
+    {
+        "name":  "Samsung Galaxy Watch6 Classic 47mm",
+        "seed":  354,
+        "cat":  14,
+        "price":  380000,
+        "stock":  10,
+        "desc":  "Galaxy Watch6 Classic, 47mm, AMOLED, rotating bezel, health tracking",
+        "brand":  "Samsung"
+    },
+    {
+        "name":  "Gold Plated Necklace 18K Women",
+        "seed":  355,
+        "cat":  14,
+        "price":  18000,
+        "stock":  40,
+        "desc":  "18K gold plated necklace, 45cm chain, pendant, gift box included",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Sterling Silver Earrings Stud",
+        "seed":  356,
+        "cat":  14,
+        "price":  12000,
+        "stock":  50,
+        "desc":  "925 sterling silver stud earrings, cubic zirconia, hypoallergenic, gift box",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Gold Plated Bracelet Women",
+        "seed":  357,
+        "cat":  14,
+        "price":  15000,
+        "stock":  45,
+        "desc":  "18K gold plated bracelet, adjustable, charm design, gift box included",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men Stainless Steel Ring",
+        "seed":  358,
+        "cat":  14,
+        "price":  8500,
+        "stock":  55,
+        "desc":  "Stainless steel ring, brushed finish, sizes 7-13, modern minimalist design",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Pearl Necklace Set Earrings",
+        "seed":  359,
+        "cat":  14,
+        "price":  28000,
+        "stock":  25,
+        "desc":  "Freshwater pearl necklace and earring set, 925 silver clasp, gift box",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Diamond Engagement Ring 18K Gold",
+        "seed":  360,
+        "cat":  14,
+        "price":  850000,
+        "stock":  5,
+        "desc":  "18K gold engagement ring, 0.5ct diamond, certified, gift box, sizes 5-9",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Men Leather Strap Watch Brown",
+        "seed":  361,
+        "cat":  14,
+        "price":  22000,
+        "stock":  35,
+        "desc":  "Men analog watch, genuine leather strap, brown, quartz, water resistant",
+        "brand":  "Seiko"
+    },
+    {
+        "name":  "Women Rose Gold Watch Leather",
+        "seed":  362,
+        "cat":  14,
+        "price":  28000,
+        "stock":  30,
+        "desc":  "Women analog watch, rose gold case, leather strap, quartz, gift box",
+        "brand":  "Fossil"
+    },
+    {
+        "name":  "Titanium Wedding Band Set",
+        "seed":  363,
+        "cat":  14,
+        "price":  45000,
+        "stock":  15,
+        "desc":  "Titanium wedding band set, his and hers, comfort fit, sizes 5-13",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Gold Chain Necklace Men 60cm",
+        "seed":  364,
+        "cat":  14,
+        "price":  22000,
+        "stock":  30,
+        "desc":  "18K gold plated chain necklace, 60cm, 4mm width, men jewelry, gift box",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Crystal Pendant Necklace Women",
+        "seed":  365,
+        "cat":  14,
+        "price":  18000,
+        "stock":  35,
+        "desc":  "Crystal pendant necklace, Swarovski crystal, 925 silver chain, gift box",
+        "brand":  "Swarovski"
+    },
+    {
+        "name":  "Charm Bracelet Silver Women",
+        "seed":  366,
+        "cat":  14,
+        "price":  22000,
+        "stock":  30,
+        "desc":  "925 sterling silver charm bracelet, 5 charms included, adjustable, gift",
+        "brand":  "Pandora"
+    },
+    {
+        "name":  "Cufflinks Set Men Silver",
+        "seed":  367,
+        "cat":  14,
+        "price":  12000,
+        "stock":  40,
+        "desc":  "Men cufflinks set, stainless steel, silver finish, gift box, formal wear",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Anklet Gold Plated Women",
+        "seed":  368,
+        "cat":  14,
+        "price":  8500,
+        "stock":  45,
+        "desc":  "18K gold plated anklet, adjustable 22-26cm, delicate chain, gift box",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "Brooch Pin Vintage Women",
+        "seed":  369,
+        "cat":  14,
+        "price":  6500,
+        "stock":  50,
+        "desc":  "Vintage brooch pin, gold plated, crystal embellishment, coat scarf pin",
+        "brand":  "Local Brand"
+    },
+    {
+        "name":  "PlayStation 5 Console Disc Edition",
+        "seed":  370,
+        "cat":  15,
+        "price":  1200000,
+        "stock":  5,
+        "desc":  "PS5 disc edition, 825GB SSD, 4K gaming, ray tracing, DualSense controller",
+        "brand":  "Sony"
+    },
+    {
+        "name":  "PlayStation 5 Digital Edition",
+        "seed":  371,
+        "cat":  15,
+        "price":  1050000,
+        "stock":  6,
+        "desc":  "PS5 digital edition, 825GB SSD, 4K gaming, ray tracing, no disc drive",
+        "brand":  "Sony"
+    },
+    {
+        "name":  "Xbox Series X 1TB",
+        "seed":  372,
+        "cat":  15,
+        "price":  1100000,
+        "stock":  5,
+        "desc":  "Xbox Series X, 1TB SSD, 4K 120fps, ray tracing, Xbox Game Pass ready",
+        "brand":  "Microsoft"
+    },
+    {
+        "name":  "Xbox Series S 512GB",
+        "seed":  373,
+        "cat":  15,
+        "price":  680000,
+        "stock":  8,
+        "desc":  "Xbox Series S, 512GB SSD, 1440p gaming, all-digital, compact design",
+        "brand":  "Microsoft"
+    },
+    {
+        "name":  "Nintendo Switch OLED Model",
+        "seed":  374,
+        "cat":  15,
+        "price":  580000,
+        "stock":  8,
+        "desc":  "Nintendo Switch OLED, 7 inch OLED screen, 64GB, dock, Joy-Con controllers",
+        "brand":  "Nintendo"
+    },
+    {
+        "name":  "DualSense PS5 Controller White",
+        "seed":  375,
+        "cat":  15,
+        "price":  120000,
+        "stock":  20,
+        "desc":  "PS5 DualSense controller, haptic feedback, adaptive triggers, USB-C",
+        "brand":  "Sony"
+    },
+    {
+        "name":  "Xbox Wireless Controller Carbon Black",
+        "seed":  376,
+        "cat":  15,
+        "price":  95000,
+        "stock":  18,
+        "desc":  "Xbox wireless controller, textured grip, USB-C, Bluetooth, 40hr battery",
+        "brand":  "Microsoft"
+    },
+    {
+        "name":  "Gaming Headset 7.1 Surround Sound",
+        "seed":  377,
+        "cat":  15,
+        "price":  65000,
+        "stock":  20,
+        "desc":  "7.1 surround sound gaming headset, noise-cancelling mic, RGB, USB",
+        "brand":  "HyperX"
+    },
+    {
+        "name":  "Mechanical Gaming Keyboard RGB",
+        "seed":  378,
+        "cat":  15,
+        "price":  85000,
+        "stock":  15,
+        "desc":  "Mechanical gaming keyboard, RGB backlight, Cherry MX switches, TKL",
+        "brand":  "Corsair"
+    },
+    {
+        "name":  "Gaming Mouse 16000 DPI RGB",
+        "seed":  379,
+        "cat":  15,
+        "price":  55000,
+        "stock":  20,
+        "desc":  "Gaming mouse, 16000 DPI, 7 programmable buttons, RGB, 1000Hz polling",
+        "brand":  "Logitech"
+    },
+    {
+        "name":  "Gaming Chair RGB LED",
+        "seed":  380,
+        "cat":  15,
+        "price":  150000,
+        "stock":  8,
+        "desc":  "Gaming chair, RGB LED, lumbar support, reclining 180 degrees, 150kg",
+        "brand":  "Secretlab"
+    },
+    {
+        "name":  "Portable Power Bank 20000mAh",
+        "seed":  381,
+        "cat":  15,
+        "price":  45000,
+        "stock":  35,
+        "desc":  "20000mAh power bank, 65W PD fast charge, 3 ports, LED display, compact",
+        "brand":  "Anker"
+    },
+    {
+        "name":  "USB-C Hub 7-in-1 Multiport",
+        "seed":  382,
+        "cat":  15,
+        "price":  35000,
+        "stock":  30,
+        "desc":  "7-in-1 USB-C hub, 4K HDMI, 100W PD, USB 3.0, SD card, Ethernet",
+        "brand":  "Anker"
+    },
+    {
+        "name":  "Wireless Charging Pad 15W Fast",
+        "seed":  383,
+        "cat":  15,
+        "price":  18000,
+        "stock":  40,
+        "desc":  "15W wireless charging pad, Qi compatible, LED indicator, non-slip, slim",
+        "brand":  "Belkin"
+    },
+    {
+        "name":  "Smart Home Speaker Amazon Echo Dot",
+        "seed":  384,
+        "cat":  15,
+        "price":  55000,
+        "stock":  25,
+        "desc":  "Amazon Echo Dot 5th Gen, Alexa, improved bass, smart home hub, clock",
+        "brand":  "Amazon"
+    },
+    {
+        "name":  "Google Nest Mini Smart Speaker",
+        "seed":  385,
+        "cat":  15,
+        "price":  45000,
+        "stock":  20,
+        "desc":  "Google Nest Mini, Google Assistant, 360 degree sound, smart home control",
+        "brand":  "Google"
+    },
+    {
+        "name":  "Ring Video Doorbell Wired",
+        "seed":  386,
+        "cat":  15,
+        "price":  120000,
+        "stock":  12,
+        "desc":  "1080p HD video doorbell, motion detection, two-way audio, night vision",
+        "brand":  "Ring"
+    },
+    {
+        "name":  "Xiaomi Smart Bulb Color E27",
+        "seed":  387,
+        "cat":  15,
+        "price":  8500,
+        "stock":  60,
+        "desc":  "Smart LED bulb, E27, 16 million colors, WiFi, voice control, 10W",
+        "brand":  "Xiaomi"
+    },
+    {
+        "name":  "TP-Link Smart Plug WiFi",
+        "seed":  388,
+        "cat":  15,
+        "price":  12000,
+        "stock":  45,
+        "desc":  "Smart plug, WiFi, voice control, energy monitoring, timer, away mode",
+        "brand":  "TP-Link"
+    },
+    {
+        "name":  "Drone DJI Mini 3 with Camera",
+        "seed":  389,
+        "cat":  15,
+        "price":  580000,
+        "stock":  6,
+        "desc":  "DJI Mini 3, 4K camera, 38min flight time, obstacle avoidance, 249g",
+        "brand":  "DJI"
+    }
+]
