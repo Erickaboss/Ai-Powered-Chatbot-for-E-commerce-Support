@@ -1,4 +1,4 @@
-﻿﻿<?php
+﻿<?php
 require_once 'includes/header.php';
 $id   = (int)($_GET['id'] ?? 0);
 $stmt = $conn->prepare("SELECT p.*, c.name as cat_name FROM products p LEFT JOIN categories c ON p.category_id=c.id WHERE p.id=?");

@@ -1,4 +1,4 @@
-﻿﻿<?php require_once 'includes/admin_header.php'; ?>
+﻿<?php require_once 'includes/admin_header.php'; ?>
 <?php
 // ── Core stats ────────────────────────────────────────────────
 $total_products = $conn->query("SELECT COUNT(*) as c FROM products")->fetch_assoc()['c'];

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * AI Chatbot — Full intent engine + Gemini polish
  * Works 100% from DB even when Gemini quota is exhausted

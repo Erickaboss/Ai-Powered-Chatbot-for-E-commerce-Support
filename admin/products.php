@@ -1,4 +1,4 @@
-﻿﻿<?php require_once 'includes/admin_header.php'; ?>
+﻿<?php require_once 'includes/admin_header.php'; ?>
 <?php
 $msg = '';
 $upload_dir = __DIR__ . '/../assets/images/products/';

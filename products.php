@@ -1,4 +1,4 @@
-﻿﻿<?php
+﻿<?php
 require_once 'includes/header.php';
 
 $where = "WHERE p.stock >= 0";

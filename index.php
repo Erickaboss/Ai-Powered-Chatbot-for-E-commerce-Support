@@ -1,4 +1,4 @@
-﻿﻿<?php
+﻿<?php
 require_once 'includes/header.php';
 $featured   = $conn->query("SELECT p.*, c.name as cat_name FROM products p LEFT JOIN categories c ON p.category_id=c.id WHERE p.stock>0 ORDER BY p.id DESC LIMIT 8");
 $categories = $conn->query("SELECT c.*, COUNT(p.id) as total FROM categories c LEFT JOIN products p ON p.category_id=c.id GROUP BY c.id ORDER BY c.id");

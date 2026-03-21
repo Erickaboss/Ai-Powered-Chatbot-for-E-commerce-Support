@@ -1,4 +1,4 @@
-﻿﻿<?php
+﻿<?php
 require_once 'includes/header.php';
 if (!isset($_SESSION['user_id'])) { header('Location: login.php'); exit; }
 $uid    = $_SESSION['user_id'];
