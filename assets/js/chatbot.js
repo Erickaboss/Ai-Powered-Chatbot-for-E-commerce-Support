@@ -1,11 +1,12 @@
 // ===== Chatbot Widget JS — Persistent History =====
 
 let chatOpen = true;
+let historyLoaded = false;
 
 // ── Persistent session ID stored in localStorage ──
 function getChatSessionId() {
     let sid = localStorage.getItem('chat_session_id');
-    if (!sid || sid.length !== 32) {
+    if (!sid || !/^[a-f0-9]{32}$/.test(sid)) {
         sid = Array.from(crypto.getRandomValues(new Uint8Array(16)))
                    .map(b => b.toString(16).padStart(2, '0')).join('');
         localStorage.setItem('chat_session_id', sid);
@@ -16,6 +17,9 @@ const CHAT_SESSION_ID = getChatSessionId();
 
 // ── Load history from DB on widget open ──
 async function loadChatHistory() {
+    if (historyLoaded) return;
+    historyLoaded = true;
+
     try {
         const res = await fetch(CHATBOT_API_URL + '?action=history', {
             method: 'POST',
@@ -30,20 +34,44 @@ async function loadChatHistory() {
         // Clear the default welcome message before loading history
         messages.innerHTML = '';
 
-        data.history.forEach(row => {
+        // Show last 20 messages to avoid overwhelming the widget
+        const recent = data.history.slice(-20);
+        recent.forEach(row => {
             appendMessage(row.message, 'user');
             appendMessage(row.response, 'bot');
         });
 
-        // Add a subtle "history loaded" divider
+        // Divider + clear button
         const divider = document.createElement('div');
-        divider.style.cssText = 'text-align:center;font-size:.7rem;color:#aaa;padding:4px 0;margin:4px 0;border-top:1px solid rgba(255,255,255,.08)';
-        divider.textContent = '— Previous conversation loaded —';
+        divider.style.cssText = 'text-align:center;font-size:.7rem;color:#aaa;padding:6px 0 2px;margin:4px 0;border-top:1px solid rgba(255,255,255,.08)';
+        divider.innerHTML = '— Previous conversation restored —'
+            + ' <button onclick="clearChatHistory()" style="background:none;border:none;color:#e94560;font-size:.7rem;cursor:pointer;text-decoration:underline">Clear</button>';
         messages.appendChild(divider);
         messages.scrollTop = messages.scrollHeight;
     } catch (e) {
         // Silently fail — history is a bonus, not critical
     }
+}
+
+// ── Clear history from localStorage and reload widget ──
+function clearChatHistory() {
+    localStorage.removeItem('chat_session_id');
+    const messages = document.getElementById('chat-messages');
+    messages.innerHTML = `<div class="bot-msg">
+        <i class="bi bi-robot"></i> Hi! I'm your AI shopping assistant.<br>
+        I can help you find products, track orders, and answer any question.<br>
+        <div class="quick-replies">
+            <button class="qr-btn" onclick="quickReply('Show me products')">🛍️ Products</button>
+            <button class="qr-btn" onclick="quickReply('Track my order')">📦 Track Order</button>
+            <button class="qr-btn" onclick="quickReply('Delivery info')">🚚 Delivery</button>
+            <button class="qr-btn" onclick="quickReply('Payment methods')">💳 Payment</button>
+        </div>
+    </div>`;
+    historyLoaded = false;
+    // Regenerate session ID
+    const newSid = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                        .map(b => b.toString(16).padStart(2, '0')).join('');
+    localStorage.setItem('chat_session_id', newSid);
 }
 
 function toggleChat() {
@@ -54,6 +82,8 @@ function toggleChat() {
     icon.innerHTML = chatOpen
         ? '<i class="bi bi-chevron-down"></i>'
         : '<i class="bi bi-chevron-up"></i>';
+    // Load history when user opens the chat
+    if (chatOpen && !historyLoaded) loadChatHistory();
 }
 
 function handleKey(e) {
@@ -124,7 +154,10 @@ async function sendMessage() {
         const res = await fetch(CHATBOT_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: msg, session_id: CHAT_SESSION_ID })
+            body: JSON.stringify({
+                message: msg,
+                session_id: localStorage.getItem('chat_session_id') || CHAT_SESSION_ID
+            })
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const text = await res.text();
@@ -135,8 +168,8 @@ async function sendMessage() {
             throw new Error('Invalid response');
         }
         removeTyping();
-        // Persist the server-confirmed session_id (in case server regenerated it)
-        if (data.session_id && data.session_id.length === 32) {
+        // Keep localStorage in sync with server-confirmed session_id
+        if (data.session_id && /^[a-f0-9]{32}$/.test(data.session_id)) {
             localStorage.setItem('chat_session_id', data.session_id);
         }
         appendMessage(
@@ -151,7 +184,8 @@ async function sendMessage() {
     }
 }
 
-// ── Load history when page is ready ──
+// ── Auto-load history on page ready ──
 document.addEventListener('DOMContentLoaded', () => {
-    loadChatHistory();
+    // Small delay so the widget renders first
+    setTimeout(loadChatHistory, 300);
 });

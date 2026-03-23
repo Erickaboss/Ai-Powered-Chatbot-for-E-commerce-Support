@@ -31,14 +31,26 @@ $input   = json_decode(file_get_contents('php://input'), true);
 $message = trim($input['message'] ?? '');
 $user_id = $_SESSION['user_id'] ?? null;
 
-// ── History endpoint: GET /api/chatbot.php?action=history ──
+// ── History endpoint: POST /api/chatbot.php?action=history ──
 if (($_GET['action'] ?? '') === 'history') {
     $clientSid = preg_replace('/[^a-f0-9]/i', '', $input['session_id'] ?? '');
-    if (strlen($clientSid) !== 32) { echo json_encode(['history' => []]); exit; }
-    $sid = $conn->real_escape_string($clientSid);
-    $res = $conn->query("SELECT message, response, created_at FROM chatbot_logs WHERE session_id='$sid' ORDER BY created_at ASC LIMIT 40");
+    $uid = $_SESSION['user_id'] ?? null;
+
     $history = [];
-    if ($res) while ($r = $res->fetch_assoc()) $history[] = $r;
+
+    // For logged-in users: load by user_id (most reliable)
+    if ($uid) {
+        $uid = (int)$uid;
+        $res = $conn->query("SELECT message, response, created_at FROM chatbot_logs WHERE user_id=$uid ORDER BY created_at ASC LIMIT 40");
+        if ($res) while ($r = $res->fetch_assoc()) $history[] = $r;
+    }
+    // For guests: load by localStorage session_id
+    elseif (strlen($clientSid) === 32) {
+        $sid = $conn->real_escape_string($clientSid);
+        $res = $conn->query("SELECT message, response, created_at FROM chatbot_logs WHERE session_id='$sid' ORDER BY created_at ASC LIMIT 40");
+        if ($res) while ($r = $res->fetch_assoc()) $history[] = $r;
+    }
+
     echo json_encode(['history' => $history]);
     exit;
 }
@@ -55,6 +67,7 @@ try {
     }
 
     // ── Accept persistent session_id from client (localStorage) ──
+    // This ties the PHP session to the browser's localStorage session_id
     $clientSid = preg_replace('/[^a-f0-9]/i', '', $input['session_id'] ?? '');
     if (strlen($clientSid) === 32) {
         $_SESSION['chat_session_id'] = $clientSid;
@@ -63,6 +76,12 @@ try {
         $_SESSION['chat_session_id'] = bin2hex(random_bytes(16));
     }
     $session_id = $_SESSION['chat_session_id'];
+
+    // ── Reset chat_ctx if session_id changed (new browser session) ──
+    if (isset($_SESSION['chat_ctx_sid']) && $_SESSION['chat_ctx_sid'] !== $session_id) {
+        $_SESSION['chat_ctx'] = ['awaiting' => null, 'last_products' => [], 'order_cart' => [], 'order_step' => null, 'order_data' => []];
+    }
+    $_SESSION['chat_ctx_sid'] = $session_id;
 
     if (!isset($_SESSION['chat_ctx'])) {
         $_SESSION['chat_ctx'] = ['awaiting' => null, 'last_products' => [], 'order_cart' => [], 'order_step' => null, 'order_data' => []];
