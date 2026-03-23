@@ -733,7 +733,52 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
     $gemini = askGemini($msg, $uid, $conn, $session_id);
     if ($gemini) return reply($gemini, ['Show me products', 'Track my order', 'Delivery info', 'Contact support']);
 
-    // ── 22. FINAL FALLBACK ──
+    // ── 22. KINYARWANDA FALLBACK — when Gemini is offline ──
+    // Common Kinyarwanda shopping phrases mapped to actions
+    if (preg_match('/\b(nyereka|erekana|mpore|mbwira|ndashaka|nshaka|fungura|reba|soma)\b/i', $ml)) {
+        // Product search in Kinyarwanda
+        if (preg_match('/\b(ibicuruzwa|ibintu|products?|telefoni|laptop|simu|imyenda|inzu|imodoka)\b/i', $ml)) {
+            $catId = null;
+            if (preg_match('/telefoni|simu|phone/i', $ml))    $catId = 1;
+            elseif (preg_match('/laptop|ordinateur/i', $ml))  $catId = 2;
+            elseif (preg_match('/imyenda|clothes|fashion/i', $ml)) $catId = 6;
+            $rows = dbProductSearch('', $conn, $catId);
+            if (!empty($rows)) {
+                $ctx['last_products'] = $rows;
+                $fp = formatProducts($rows, $catId ? '' : 'Ibicuruzwa / Products');
+                return reply($fp['text'], array_merge($fp['qr'], ['Show me products', 'Delivery info']));
+            }
+        }
+        // Price in Kinyarwanda
+        if (preg_match('/\b(igiciro|price|bingahe|angahe|mafrw|amafaranga)\b/i', $ml)) {
+            $rows = dbProductSearch($msg, $conn);
+            if (!empty($rows)) {
+                $out = "💰 <strong>Ibiciro / Prices:</strong><br>";
+                foreach ($rows as $p)
+                    $out .= "• <a href='" . SITE_URL . "/product.php?id={$p['id']}'>" . htmlspecialchars($p['name']) . "</a> — <strong>RWF " . number_format($p['price']) . "</strong><br>";
+                return reply($out, ['Show me products', 'Delivery info']);
+            }
+        }
+        // Generic — show products
+        $rows = dbProductSearch('', $conn, null);
+        if (!empty($rows)) {
+            $fp = formatProducts($rows, 'Ibicuruzwa / Products');
+            return reply($fp['text'], array_merge($fp['qr'], ['Show me products', 'Delivery info']));
+        }
+    }
+
+    // French fallback
+    if (preg_match('/\b(montrez|afficher|cherche|produits|téléphone|livraison|paiement|retour|prix)\b/i', $ml)) {
+        if (preg_match('/produits|afficher|montrez/i', $ml)) {
+            $rows = dbProductSearch('', $conn, null);
+            if (!empty($rows)) { $fp = formatProducts($rows, 'Produits'); return reply($fp['text'], array_merge($fp['qr'], ['Show me products'])); }
+        }
+        if (preg_match('/livraison/i', $ml)) return reply("🚚 <strong>Délais de livraison:</strong><br>• Kigali: 1–2 jours<br>• Autres provinces: 2–4 jours<br>• Livraison gratuite au-dessus de RWF 50,000", ['Show me products', 'Payment methods']);
+        if (preg_match('/paiement/i', $ml)) return reply("💳 <strong>Modes de paiement:</strong><br>• MTN MoMo • Airtel Money • Cash • Virement bancaire • Visa/Mastercard", ['Delivery info', 'Show me products']);
+        if (preg_match('/retour/i', $ml))   return reply("↩️ <strong>Politique de retour:</strong> 7 jours après livraison. Email: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a>", ['Contact support']);
+    }
+
+    // ── 23. FINAL FALLBACK ──
     return reply(
         "😊 I'm not sure I understood that. Here's what I can help with:<br>" .
         "• 🛍️ <em>Show me phones / laptops / fashion</em><br>" .
