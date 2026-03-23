@@ -728,12 +728,12 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
     }
 
     // ── 20. ML MODEL — Python Flask classifier (if running) ──
-    $ml = askMLModel($msg);
-    if ($ml) {
+    $mlResult = askMLModel($msg);
+    if ($mlResult) {
         // ML detected an intent with high confidence — log it and let Gemini polish
-        $intent     = $ml['intent'];
-        $confidence = round($ml['confidence'] * 100, 1);
-        $model_used = $ml['model_used'];
+        $intent     = $mlResult['intent'];
+        $confidence = round($mlResult['confidence'] * 100, 1);
+        $model_used = $mlResult['model_used'];
         // Try Gemini with ML intent context for a polished response
         $gemini = askGemini("[$intent intent detected by $model_used with {$confidence}% confidence] " . $msg, $uid, $conn, $session_id);
         if ($gemini) return reply($gemini . "<br><small style='color:#aaa;font-size:.7rem'>🤖 ML: $model_used ({$confidence}%)</small>",
@@ -1014,12 +1014,12 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
     if ($uid) {
         $u  = $conn->query("SELECT name FROM users WHERE id=$uid")->fetch_assoc();
         $oc = $conn->query("SELECT COUNT(*) as c FROM orders WHERE user_id=$uid")->fetch_assoc();
-        $lo = $conn->query("SELECT o.id, o.status, o.total_amount FROM orders o WHERE o.user_id=$uid ORDER BY o.created_at DESC LIMIT 3");
+        $lo = $conn->query("SELECT o.id, o.status, o.total_price FROM orders o WHERE o.user_id=$uid ORDER BY o.created_at DESC LIMIT 3");
         $userCtx = "\nCUSTOMER: {$u['name']} | Total orders: {$oc['c']}";
         if ($lo) {
             $userCtx .= "\nRECENT ORDERS:";
             while ($o = $lo->fetch_assoc())
-                $userCtx .= "\n- Order #{$o['id']} | Status: {$o['status']} | RWF " . number_format($o['total_amount']);
+                $userCtx .= "\n- Order #{$o['id']} | Status: {$o['status']} | RWF " . number_format($o['total_price']);
         }
     }
 
@@ -1045,7 +1045,7 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
         . "- When showing products, always include the product name and price from the database.\n"
         . "- Be friendly, helpful, and concise (max 250 words).\n"
         . "- Respond in the SAME language the customer uses (English, French, or Kinyarwanda).\n"
-        . "- For product links, format as: [Product Name](http://localhost/ecommerce-chatbot/product.php?id=ID)\n"
+        . "- For product links, format as: [Product Name](" . SITE_URL . "/product.php?id=ID)\n"
         . "\nSTORE POLICIES:\n"
         . "- Free shipping on orders above RWF 50,000\n"
         . "- Delivery: 1-2 days Kigali | 2-4 days other provinces\n"
