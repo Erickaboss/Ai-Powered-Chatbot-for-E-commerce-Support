@@ -1017,7 +1017,7 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
     $payload = json_encode([
         'system_instruction' => ['parts' => [['text' => $system]]],
         'contents'           => $history,
-        'generationConfig'   => ['temperature' => 0.3, 'maxOutputTokens' => 400],
+        'generationConfig'   => ['temperature' => 0.3, 'maxOutputTokens' => 800],
     ]);
 
     // Try models in order until one works
@@ -1043,7 +1043,7 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
                 $text = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $text);
                 $text = preg_replace('/\*(.*?)\*/s',     '<em>$1</em>',         $text);
                 $text = preg_replace('/\n/',             '<br>',                $text);
-                return '🤖 ' . trim($text);
+                return trim($text);
             }
         }
         // 429 = quota exhausted, try next model; anything else = stop
