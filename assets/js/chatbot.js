@@ -18,13 +18,14 @@ const CHAT_SESSION_ID = getChatSessionId();
 // ── Load history from DB on widget open ──
 async function loadChatHistory() {
     if (historyLoaded) return;
-    historyLoaded = true;
+    historyLoaded = true; // Set early to prevent duplicate calls
 
     try {
+        const sid = localStorage.getItem('chat_session_id') || CHAT_SESSION_ID;
         const res = await fetch(CHATBOT_API_URL + '?action=history', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ session_id: CHAT_SESSION_ID })
+            body: JSON.stringify({ session_id: sid })
         });
         if (!res.ok) return;
         const data = await res.json();
@@ -49,7 +50,7 @@ async function loadChatHistory() {
         messages.appendChild(divider);
         messages.scrollTop = messages.scrollHeight;
     } catch (e) {
-        // Silently fail — history is a bonus, not critical
+        historyLoaded = false; // Allow retry on failure
     }
 }
 

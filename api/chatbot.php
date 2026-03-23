@@ -96,7 +96,11 @@ try {
     $sr  = $conn->real_escape_string($response);
     $ui  = $user_id ? (int)$user_id : 'NULL';
     $sid = $conn->real_escape_string($session_id);
-    $conn->query("INSERT INTO chatbot_logs (user_id,session_id,is_guest,message,response) VALUES ($ui,'$sid'," . ($user_id ? 0 : 1) . ",'$sm','$sr')");
+    $guest = $user_id ? 0 : 1;
+    $saved = $conn->query("INSERT INTO chatbot_logs (user_id, session_id, is_guest, message, response) VALUES ($ui, '$sid', $guest, '$sm', '$sr')");
+    if (!$saved) {
+        error_log("chatbot_logs INSERT failed: " . $conn->error . " | uid=$ui sid=$sid");
+    }
 
     echo json_encode(['response' => $response, 'quick_replies' => $qr, 'session_id' => $session_id]);
 } catch (Throwable $e) {

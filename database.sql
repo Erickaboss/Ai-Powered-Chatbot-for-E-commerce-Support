@@ -91,10 +91,14 @@ CREATE TABLE order_items (
 CREATE TABLE chatbot_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT DEFAULT NULL,
+    session_id VARCHAR(64) DEFAULT NULL,
+    is_guest TINYINT(1) DEFAULT 1,
     message TEXT NOT NULL,
     response TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_session (session_id),
+    INDEX idx_user (user_id)
 );
 
 CREATE TABLE reviews (
