@@ -31,6 +31,18 @@ $input   = json_decode(file_get_contents('php://input'), true);
 $message = trim($input['message'] ?? '');
 $user_id = $_SESSION['user_id'] ?? null;
 
+// ── History endpoint: GET /api/chatbot.php?action=history ──
+if (($_GET['action'] ?? '') === 'history') {
+    $clientSid = preg_replace('/[^a-f0-9]/i', '', $input['session_id'] ?? '');
+    if (strlen($clientSid) !== 32) { echo json_encode(['history' => []]); exit; }
+    $sid = $conn->real_escape_string($clientSid);
+    $res = $conn->query("SELECT message, response, created_at FROM chatbot_logs WHERE session_id='$sid' ORDER BY created_at ASC LIMIT 40");
+    $history = [];
+    if ($res) while ($r = $res->fetch_assoc()) $history[] = $r;
+    echo json_encode(['history' => $history]);
+    exit;
+}
+
 if (empty($message)) {
     echo json_encode(['response' => 'Please type a message.', 'quick_replies' => []]);
     exit;
@@ -42,6 +54,11 @@ try {
         if (!$chk || $chk->num_rows === 0) { $user_id = null; $_SESSION['user_id'] = null; }
     }
 
+    // ── Accept persistent session_id from client (localStorage) ──
+    $clientSid = preg_replace('/[^a-f0-9]/i', '', $input['session_id'] ?? '');
+    if (strlen($clientSid) === 32) {
+        $_SESSION['chat_session_id'] = $clientSid;
+    }
     if (empty($_SESSION['chat_session_id'])) {
         $_SESSION['chat_session_id'] = bin2hex(random_bytes(16));
     }
@@ -62,7 +79,7 @@ try {
     $sid = $conn->real_escape_string($session_id);
     $conn->query("INSERT INTO chatbot_logs (user_id,session_id,is_guest,message,response) VALUES ($ui,'$sid'," . ($user_id ? 0 : 1) . ",'$sm','$sr')");
 
-    echo json_encode(['response' => $response, 'quick_replies' => $qr]);
+    echo json_encode(['response' => $response, 'quick_replies' => $qr, 'session_id' => $session_id]);
 } catch (Throwable $e) {
     echo json_encode(['response' => 'Something went wrong. Please try again.', 'quick_replies' => ['Show me products', 'Contact support']]);
 }
@@ -1023,9 +1040,9 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
         }
     }
 
-    // ── 6. Conversation history (last 6 turns) ──
+    // ── 6. Conversation history (last 12 turns) ──
     $sid  = $conn->real_escape_string($session_id);
-    $hist = $conn->query("SELECT message,response FROM chatbot_logs WHERE session_id='$sid' ORDER BY created_at DESC LIMIT 6");
+    $hist = $conn->query("SELECT message,response FROM chatbot_logs WHERE session_id='$sid' ORDER BY created_at DESC LIMIT 12");
     $history = [];
     if ($hist) {
         $rows2 = [];
@@ -1046,6 +1063,11 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
         . "- Be friendly, helpful, and concise (max 250 words).\n"
         . "- Respond in the SAME language the customer uses (English, French, or Kinyarwanda).\n"
         . "- For product links, format as: [Product Name](" . SITE_URL . "/product.php?id=ID)\n"
+        . "- IMPORTANT: The conversation history below contains ALL previous messages from this customer. Use it to:\n"
+        . "  * Remember what products they asked about before\n"
+        . "  * Avoid repeating the same products if they already saw them\n"
+        . "  * Understand their preferences and budget from earlier messages\n"
+        . "  * Give follow-up answers that reference what was already discussed\n"
         . "\nSTORE POLICIES:\n"
         . "- Free shipping on orders above RWF 50,000\n"
         . "- Delivery: 1-2 days Kigali | 2-4 days other provinces\n"

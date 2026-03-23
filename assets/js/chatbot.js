@@ -1,6 +1,50 @@
-// ===== Chatbot Widget JS =====
+// ===== Chatbot Widget JS — Persistent History =====
 
 let chatOpen = true;
+
+// ── Persistent session ID stored in localStorage ──
+function getChatSessionId() {
+    let sid = localStorage.getItem('chat_session_id');
+    if (!sid || sid.length !== 32) {
+        sid = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                   .map(b => b.toString(16).padStart(2, '0')).join('');
+        localStorage.setItem('chat_session_id', sid);
+    }
+    return sid;
+}
+const CHAT_SESSION_ID = getChatSessionId();
+
+// ── Load history from DB on widget open ──
+async function loadChatHistory() {
+    try {
+        const res = await fetch(CHATBOT_API_URL + '?action=history', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: CHAT_SESSION_ID })
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.history || data.history.length === 0) return;
+
+        const messages = document.getElementById('chat-messages');
+        // Clear the default welcome message before loading history
+        messages.innerHTML = '';
+
+        data.history.forEach(row => {
+            appendMessage(row.message, 'user');
+            appendMessage(row.response, 'bot');
+        });
+
+        // Add a subtle "history loaded" divider
+        const divider = document.createElement('div');
+        divider.style.cssText = 'text-align:center;font-size:.7rem;color:#aaa;padding:4px 0;margin:4px 0;border-top:1px solid rgba(255,255,255,.08)';
+        divider.textContent = '— Previous conversation loaded —';
+        messages.appendChild(divider);
+        messages.scrollTop = messages.scrollHeight;
+    } catch (e) {
+        // Silently fail — history is a bonus, not critical
+    }
+}
 
 function toggleChat() {
     const body = document.getElementById('chat-body');
@@ -17,11 +61,8 @@ function handleKey(e) {
 }
 
 function quickReply(text) {
-    // add_to_cart:ID — send the command but show a friendly label
     if (text.startsWith('🛒 Add: add_to_cart:')) {
-        const cmd = text.replace('🛒 Add: ', '');
-        const productName = text.replace('🛒 Add: add_to_cart:', 'Product #');
-        document.getElementById('chat-input').value = cmd;
+        document.getElementById('chat-input').value = text.replace('🛒 Add: ', '');
         sendMessage();
         return;
     }
@@ -37,14 +78,12 @@ function appendMessage(text, type, quickReplies) {
         ? `<i class="bi bi-robot"></i> ${text}`
         : text;
 
-    // Render quick reply chips if provided
     if (quickReplies && quickReplies.length > 0) {
         const qrDiv = document.createElement('div');
         qrDiv.className = 'quick-replies';
         quickReplies.forEach(qr => {
             const btn = document.createElement('button');
             btn.className = 'qr-btn';
-            // Clean display label for add_to_cart commands
             btn.textContent = qr.startsWith('🛒 Add: add_to_cart:') ? '🛒 Add to Cart' : qr;
             btn.onclick = () => quickReply(qr);
             qrDiv.appendChild(btn);
@@ -85,7 +124,7 @@ async function sendMessage() {
         const res = await fetch(CHATBOT_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: msg })
+            body: JSON.stringify({ message: msg, session_id: CHAT_SESSION_ID })
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const text = await res.text();
@@ -96,6 +135,10 @@ async function sendMessage() {
             throw new Error('Invalid response');
         }
         removeTyping();
+        // Persist the server-confirmed session_id (in case server regenerated it)
+        if (data.session_id && data.session_id.length === 32) {
+            localStorage.setItem('chat_session_id', data.session_id);
+        }
         appendMessage(
             data.response || 'Sorry, I could not process that.',
             'bot',
@@ -107,3 +150,8 @@ async function sendMessage() {
         appendMessage('Sorry, something went wrong. Please try again in a moment.', 'bot', ['Show me products', 'Contact support']);
     }
 }
+
+// ── Load history when page is ready ──
+document.addEventListener('DOMContentLoaded', () => {
+    loadChatHistory();
+});
