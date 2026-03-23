@@ -212,6 +212,17 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         return reply(trackOrder((int)$m[1], $uid, $conn), ['View all orders', 'Cancel an order']);
     }
 
+    // ── GEMINI FIRST — use AI for every message when internet is available ──
+    // Only skip for multi-step flows that need exact PHP state handling
+    $inMultiStep = !empty($ctx['awaiting']) || !empty($ctx['order_step']);
+    $isCartCmd   = preg_match('/^(add_to_cart:\d+$|confirm$|cancel$)/i', trim($msg));
+    if (!$inMultiStep && !$isCartCmd) {
+        $gemini = askGemini($msg, $uid, $conn, $session_id);
+        if ($gemini) {
+            return reply($gemini, ['Show me products', 'Track my order', 'Delivery info', 'Contact support']);
+        }
+    }
+
     // ── Awaiting support message — handle BEFORE anything else ──
     if ($ctx['awaiting'] === 'support_message') {
         $ctx['awaiting'] = null;
