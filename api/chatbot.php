@@ -957,41 +957,73 @@ function askMLModel(string $message): ?array {
 }
 
 // ================================================================
-// GEMINI — multilingual polish + anything not caught above
+// GEMINI — DB-grounded AI responses
 // ================================================================
 function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?string {
     $apiKey = GEMINI_API_KEY ?? '';
     if (empty($apiKey) || $apiKey === 'your-gemini-api-key-here') return null;
 
-    // Category catalog
-    $catRows    = $conn->query("SELECT c.name AS cat, COUNT(p.id) AS total, MIN(p.price) AS mn, MAX(p.price) AS mx FROM categories c LEFT JOIN products p ON p.category_id=c.id AND p.stock>0 GROUP BY c.id ORDER BY c.id");
-    $catalogCtx = "STORE CATALOG:\n";
-    while ($row = $catRows->fetch_assoc())
-        $catalogCtx .= "- {$row['cat']}: {$row['total']} products, RWF " . number_format($row['mn']) . " – RWF " . number_format($row['mx']) . "\n";
+    $ml = strtolower($userMessage);
 
-    // Smart product fetch
-    $rows       = dbProductSearch($userMessage, $conn);
+    // ── 1. Detect category from message ──
+    $catId = detectCategory($ml);
+
+    // ── 2. Fetch matching products (keyword + category) ──
+    $rows = dbProductSearch($userMessage, $conn);
+
+    // If no keyword match, try category-only
+    if (empty($rows) && $catId) {
+        $rows = dbProductSearch('', $conn, $catId);
+    }
+
+    // If still empty, fetch a broad sample: 3 products from each category
+    if (empty($rows)) {
+        $sampleRes = $conn->query("
+            SELECT p.id, p.name, p.brand, p.price, p.stock, p.description, c.name AS cat
+            FROM products p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.stock > 0
+            ORDER BY RAND()
+            LIMIT 16
+        ");
+        if ($sampleRes) while ($r = $sampleRes->fetch_assoc()) $rows[] = $r;
+    }
+
+    // ── 3. Build rich product context ──
     $productCtx = '';
     if (!empty($rows)) {
-        $productCtx = "\nMATCHING PRODUCTS FROM DATABASE:\n";
+        $productCtx = "\nPRODUCTS FROM DATABASE (use ONLY these — never invent):\n";
         foreach ($rows as $p) {
-            $productCtx .= "- [ID:{$p['id']}] {$p['name']}"
+            $productCtx .= "• [ID:{$p['id']}] {$p['name']}"
                 . ($p['brand'] ? " ({$p['brand']})" : '')
-                . " — RWF " . number_format($p['price'])
-                . " | Stock: {$p['stock']}"
-                . (!empty($p['description']) ? " | " . mb_substr(strip_tags($p['description']), 0, 80) : '') . "\n";
+                . " | Price: RWF " . number_format($p['price'])
+                . " | Stock: {$p['stock']} units"
+                . (!empty($p['description']) ? " | " . mb_substr(strip_tags($p['description']), 0, 60) : '')
+                . "\n";
         }
     }
 
-    // User context
+    // ── 4. Category catalog (totals + price ranges) ──
+    $catRows  = $conn->query("SELECT c.name AS cat, COUNT(p.id) AS total, MIN(p.price) AS mn, MAX(p.price) AS mx FROM categories c LEFT JOIN products p ON p.category_id=c.id AND p.stock>0 GROUP BY c.id ORDER BY c.id");
+    $catCtx   = "\nSTORE CATEGORIES:\n";
+    while ($row = $catRows->fetch_assoc())
+        $catCtx .= "- {$row['cat']}: {$row['total']} products, RWF " . number_format($row['mn']) . " – RWF " . number_format($row['mx']) . "\n";
+
+    // ── 5. Customer context ──
     $userCtx = '';
     if ($uid) {
         $u  = $conn->query("SELECT name FROM users WHERE id=$uid")->fetch_assoc();
         $oc = $conn->query("SELECT COUNT(*) as c FROM orders WHERE user_id=$uid")->fetch_assoc();
-        $userCtx = "\nCUSTOMER: {$u['name']}, Total orders: {$oc['c']}";
+        $lo = $conn->query("SELECT o.id, o.status, o.total_amount FROM orders o WHERE o.user_id=$uid ORDER BY o.created_at DESC LIMIT 3");
+        $userCtx = "\nCUSTOMER: {$u['name']} | Total orders: {$oc['c']}";
+        if ($lo) {
+            $userCtx .= "\nRECENT ORDERS:";
+            while ($o = $lo->fetch_assoc())
+                $userCtx .= "\n- Order #{$o['id']} | Status: {$o['status']} | RWF " . number_format($o['total_amount']);
+        }
     }
 
-    // Conversation history (last 6 turns)
+    // ── 6. Conversation history (last 6 turns) ──
     $sid  = $conn->real_escape_string($session_id);
     $hist = $conn->query("SELECT message,response FROM chatbot_logs WHERE session_id='$sid' ORDER BY created_at DESC LIMIT 6");
     $history = [];
@@ -1005,22 +1037,32 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
     }
     $history[] = ['role' => 'user', 'parts' => [['text' => $userMessage]]];
 
+    // ── 7. System prompt ──
     $system = "You are the AI shopping assistant for \"" . SITE_NAME . "\", an e-commerce store in Rwanda.\n"
-        . "Answer ONLY from the database data below. Never invent products or prices.\n"
-        . "Always show prices in RWF. Be friendly and concise (max 200 words).\n"
-        . "Respond in the SAME language the customer uses (English, French, or Kinyarwanda).\n"
-        . "Store policies: Free shipping above RWF 50,000 | Delivery 1-2 days Kigali | Returns 7 days | "
-        . "Payment: MTN MoMo, Airtel, COD, Bank Transfer, Visa/Mastercard\n"
-        . "Support: " . ADMIN_EMAIL . " | " . ADMIN_PHONE . "\n\n"
-        . $catalogCtx . $productCtx . $userCtx;
+        . "CRITICAL RULES:\n"
+        . "- ONLY recommend products listed in the PRODUCTS FROM DATABASE section below. Never invent products, names, or prices.\n"
+        . "- Always show prices in RWF exactly as listed.\n"
+        . "- When showing products, always include the product name and price from the database.\n"
+        . "- Be friendly, helpful, and concise (max 250 words).\n"
+        . "- Respond in the SAME language the customer uses (English, French, or Kinyarwanda).\n"
+        . "- For product links, format as: [Product Name](http://localhost/ecommerce-chatbot/product.php?id=ID)\n"
+        . "\nSTORE POLICIES:\n"
+        . "- Free shipping on orders above RWF 50,000\n"
+        . "- Delivery: 1-2 days Kigali | 2-4 days other provinces\n"
+        . "- Returns: 7 days after delivery\n"
+        . "- Payment: MTN MoMo, Airtel Money, Cash on Delivery, Bank Transfer, Visa/Mastercard\n"
+        . "- Support: " . ADMIN_EMAIL . " | " . ADMIN_PHONE . "\n"
+        . $catCtx
+        . $productCtx
+        . $userCtx;
 
     $payload = json_encode([
         'system_instruction' => ['parts' => [['text' => $system]]],
         'contents'           => $history,
-        'generationConfig'   => ['temperature' => 0.3, 'maxOutputTokens' => 800],
+        'generationConfig'   => ['temperature' => 0.2, 'maxOutputTokens' => 1000],
     ]);
 
-    // Try models in order until one works
+    // ── 8. Try Gemini models in order ──
     $models = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
     foreach ($models as $model) {
         $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
@@ -1030,7 +1072,7 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
             CURLOPT_POST           => true,
             CURLOPT_POSTFIELDS     => $payload,
             CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
-            CURLOPT_TIMEOUT        => 12,
+            CURLOPT_TIMEOUT        => 15,
         ]);
         $resp = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1040,13 +1082,14 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
             $data = json_decode($resp, true);
             $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
             if ($text) {
+                // Convert markdown to HTML
                 $text = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $text);
                 $text = preg_replace('/\*(.*?)\*/s',     '<em>$1</em>',         $text);
-                $text = preg_replace('/\n/',             '<br>',                $text);
+                $text = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', "<a href='$2'>$1</a>", $text);
+                $text = preg_replace('/\n/', '<br>', $text);
                 return trim($text);
             }
         }
-        // 429 = quota exhausted, try next model; anything else = stop
         if ($code !== 429 && $code !== 404) break;
     }
     return null;
