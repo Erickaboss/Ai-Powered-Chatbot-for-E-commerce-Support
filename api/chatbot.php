@@ -304,38 +304,46 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         );
     }
     // ================================================================
-    // CHATBOT ORDER FLOW — multi-step cart + checkout via chat
+    // CHATBOT ORDER FLOW — full multi-step cart + checkout via chat
+    // Every step saves to DB on confirm. Gemini never touches this flow.
     // ================================================================
 
-    // Step: awaiting quantity for a product being added to chat-cart
+    // ── STEP: awaiting quantity ──
     if ($ctx['order_step'] === 'qty' && isset($ctx['order_pending_product'])) {
         $qty = (int)preg_replace('/[^0-9]/', '', $msg);
         if ($qty < 1) $qty = 1;
         $p = $ctx['order_pending_product'];
-        if ($qty > $p['stock']) {
-            return reply("⚠️ Only <strong>{$p['stock']}</strong> units available. How many would you like (max {$p['stock']})?");
+        if ($qty > (int)$p['stock']) {
+            return reply("⚠️ Only <strong>{$p['stock']}</strong> units available. How many would you like? (max {$p['stock']})",
+                ['1','2','3']);
         }
-        // Add to chat-cart
+        // Merge into cart
         $found = false;
         foreach ($ctx['order_cart'] as &$item) {
             if ($item['id'] == $p['id']) { $item['qty'] += $qty; $found = true; break; }
         }
         unset($item);
-        if (!$found) $ctx['order_cart'][] = ['id'=>$p['id'],'name'=>$p['name'],'price'=>$p['price'],'qty'=>$qty,'stock'=>$p['stock']];
+        if (!$found) {
+            $ctx['order_cart'][] = ['id'=>(int)$p['id'],'name'=>$p['name'],'price'=>(float)$p['price'],'qty'=>$qty,'stock'=>(int)$p['stock']];
+        }
         $ctx['order_step'] = null;
         unset($ctx['order_pending_product']);
         $cartSummary = chatCartSummary($ctx['order_cart']);
         return reply(
-            "✅ Added <strong>{$qty}x {$p['name']}</strong> to your cart.<br><br>$cartSummary",
+            "✅ Added <strong>{$qty}x " . htmlspecialchars($p['name']) . "</strong> to your cart.<br><br>$cartSummary",
             ['Add more products', 'Proceed to checkout', 'Clear cart']
         );
     }
 
-    // Step: awaiting delivery address
+    // ── STEP: awaiting delivery address ──
     if ($ctx['order_step'] === 'address') {
+        if (preg_match('/\bcancel\b/i', $ml)) {
+            $ctx['order_cart'] = []; $ctx['order_step'] = null; $ctx['order_data'] = [];
+            return reply("❌ Order cancelled. Cart cleared.", ['Show me products']);
+        }
         $address = trim($msg);
         if (strlen($address) < 5) {
-            return reply("Please enter a valid delivery address (e.g. KG 15 Ave, Kigali).");
+            return reply("📍 Please enter a valid delivery address (e.g. KG 15 Ave, Kigali, Gasabo District).");
         }
         $ctx['order_data']['address'] = $address;
         $ctx['order_step'] = 'payment';
@@ -352,8 +360,12 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         );
     }
 
-    // Step: awaiting payment method
+    // ── STEP: awaiting payment method ──
     if ($ctx['order_step'] === 'payment') {
+        if (preg_match('/\bcancel\b/i', $ml)) {
+            $ctx['order_cart'] = []; $ctx['order_step'] = null; $ctx['order_data'] = [];
+            return reply("❌ Order cancelled. Cart cleared.", ['Show me products']);
+        }
         $payMap = [
             '1'=>'cod','cod'=>'cod','cash'=>'cod','cash on delivery'=>'cod',
             '2'=>'momo','momo'=>'momo','mtn'=>'momo','mtn momo'=>'momo','mobile money'=>'momo',
@@ -361,62 +373,75 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
             '4'=>'card','visa'=>'card','mastercard'=>'card','card'=>'card',
             '5'=>'bank','bank'=>'bank','bank transfer'=>'bank',
         ];
-        $key = strtolower(trim($msg));
-        $payment = $payMap[$key] ?? null;
+        $payment = $payMap[strtolower(trim($msg))] ?? null;
         if (!$payment) {
             return reply("Please choose a valid payment method — type 1, 2, 3, 4, or 5.",
                 ['1', '2', '3', '4', '5']);
         }
         $ctx['order_data']['payment'] = $payment;
         $ctx['order_step'] = 'confirm';
-        // Build confirmation summary
         $cartSummary = chatCartSummary($ctx['order_cart']);
         $total = array_sum(array_map(fn($i) => $i['price'] * $i['qty'], $ctx['order_cart']));
         $payLabels = ['cod'=>'Cash on Delivery','momo'=>'MTN Mobile Money','airtel'=>'Airtel Money','card'=>'Visa/Mastercard','bank'=>'Bank Transfer'];
         return reply(
             "📋 <strong>Order Summary — Please Confirm:</strong><br><br>" .
-            $cartSummary . "<br>" .
+            $cartSummary . "<br><br>" .
             "📍 <strong>Delivery:</strong> " . htmlspecialchars($ctx['order_data']['address']) . "<br>" .
             "💳 <strong>Payment:</strong> " . ($payLabels[$payment] ?? $payment) . "<br>" .
             "💰 <strong>Total: RWF " . number_format($total) . "</strong><br><br>" .
-            "Type <strong>confirm</strong> to place your order, or <strong>cancel</strong> to start over.",
+            "✅ Type <strong>confirm</strong> to place your order<br>" .
+            "❌ Type <strong>cancel</strong> to start over.",
             ['confirm', 'cancel']
         );
     }
 
-    // Step: awaiting final confirmation
+    // ── STEP: awaiting final confirmation — THIS IS WHERE THE DB INSERT HAPPENS ──
     if ($ctx['order_step'] === 'confirm') {
         if (preg_match('/\bcancel\b/i', $ml)) {
-            $ctx['order_cart'] = [];
-            $ctx['order_step'] = null;
-            $ctx['order_data'] = [];
-            return reply("❌ Order cancelled. Your cart has been cleared. How else can I help you?",
-                ['Show me products', 'Track my order']);
+            $ctx['order_cart'] = []; $ctx['order_step'] = null; $ctx['order_data'] = [];
+            return reply("❌ Order cancelled. Your cart has been cleared.", ['Show me products', 'Track my order']);
         }
         if (preg_match('/\bconfirm\b/i', $ml)) {
             if (!$uid) {
-                return reply("🔒 You need to be logged in to place an order. <a href='" . SITE_URL . "/login.php'>Login here →</a>",
-                    ['Login', 'Register']);
+                // Save cart state so it survives login redirect
+                return reply(
+                    "🔒 You need to be logged in to place an order.<br>" .
+                    "<a href='" . SITE_URL . "/login.php'><strong>Login here →</strong></a> then come back to complete your order.",
+                    ['Login', 'Register']
+                );
             }
-            return reply(placeChatOrder($uid, $ctx, $conn));
+            // ── PLACE THE ORDER — saves to DB ──
+            return placeChatOrder($uid, $ctx, $conn);
         }
-        return reply("Type <strong>confirm</strong> to place your order or <strong>cancel</strong> to start over.",
-            ['confirm', 'cancel']);
+        return reply(
+            "Type <strong>confirm</strong> to place your order or <strong>cancel</strong> to start over.",
+            ['confirm', 'cancel']
+        );
     }
 
-    // Trigger: "add to cart" with product ID from quick reply
+    // ── TRIGGER: add_to_cart:ID (from quick reply buttons) ──
     if (preg_match('/^add_to_cart:(\d+)$/i', $msg, $m)) {
-        if (!$uid) return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> to add items to your cart.");
+        if (!$uid) {
+            return reply(
+                "🔒 Please <a href='" . SITE_URL . "/login.php'><strong>login</strong></a> first to add items to your cart and place an order.",
+                ['Login', 'Register']
+            );
+        }
         $pid = (int)$m[1];
-        $p = $conn->query("SELECT id,name,price,stock FROM products WHERE id=$pid AND stock>0")->fetch_assoc();
-        if (!$p) return reply("❌ Product not found or out of stock.");
+        $p = $conn->query("SELECT id,name,price,stock FROM products WHERE id=$pid AND stock>0 LIMIT 1")->fetch_assoc();
+        if (!$p) return reply("❌ Product not found or out of stock. Please try another product.", ['Show me products']);
         $ctx['order_pending_product'] = $p;
         $ctx['order_step'] = 'qty';
-        return reply("How many <strong>" . htmlspecialchars($p['name']) . "</strong> would you like? (Available: {$p['stock']})", ['1','2','3']);
+        return reply(
+            "🛒 <strong>" . htmlspecialchars($p['name']) . "</strong><br>" .
+            "Price: <strong>RWF " . number_format($p['price']) . "</strong> | Stock: {$p['stock']} units<br><br>" .
+            "How many would you like to order?",
+            ['1', '2', '3', '5']
+        );
     }
 
-    // Trigger: view/manage chat-cart
-    if (preg_match('/\b(my cart|view cart|show cart|what.*in.*cart|cart items)\b/i', $ml)) {
+    // ── TRIGGER: view cart ──
+    if (preg_match('/\b(my cart|view cart|show cart|what.*in.*cart|cart items|show my cart)\b/i', $ml)) {
         if (empty($ctx['order_cart'])) {
             return reply("🛒 Your cart is empty. Tell me what you're looking for!", ['Show me products']);
         }
@@ -424,26 +449,31 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         return reply("🛒 <strong>Your Cart:</strong><br><br>$cartSummary", ['Proceed to checkout', 'Clear cart', 'Add more products']);
     }
 
-    // Trigger: clear chat-cart
-    if (preg_match('/\bclear cart\b/i', $ml)) {
-        $ctx['order_cart'] = [];
-        $ctx['order_step'] = null;
-        $ctx['order_data'] = [];
+    // ── TRIGGER: clear cart ──
+    if (preg_match('/\b(clear cart|empty cart|remove all|start over)\b/i', $ml)) {
+        $ctx['order_cart'] = []; $ctx['order_step'] = null; $ctx['order_data'] = [];
         return reply("🗑️ Cart cleared. What would you like to shop for?", ['Show me products']);
     }
 
-    // Trigger: proceed to checkout from chat
-    if (preg_match('/\b(proceed to checkout|checkout|place order|buy now|order now|i want to buy|i want to order)\b/i', $ml)) {
-        if (!$uid) return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> first to place an order.", ['Login', 'Register']);
+    // ── TRIGGER: proceed to checkout ──
+    if (preg_match('/\b(proceed to checkout|checkout|place order|buy now|order now|i want to buy|i want to order|finalize order|complete order)\b/i', $ml)) {
+        if (!$uid) {
+            return reply(
+                "🔒 Please <a href='" . SITE_URL . "/login.php'><strong>login</strong></a> first to place an order.",
+                ['Login', 'Register']
+            );
+        }
         if (empty($ctx['order_cart'])) {
             return reply("🛒 Your cart is empty. Tell me what product you'd like to buy!", ['Show me products']);
         }
         $ctx['order_step'] = 'address';
         $cartSummary = chatCartSummary($ctx['order_cart']);
         return reply(
-            "🛒 <strong>Your Cart:</strong><br>$cartSummary<br>" .
-            "📍 <strong>Where should we deliver?</strong><br>" .
-            "Please type your full delivery address (e.g. KG 15 Ave, Kigali, Gasabo District)."
+            "🛒 <strong>Your Cart:</strong><br>" . $cartSummary . "<br><br>" .
+            "📍 <strong>Step 1 of 3 — Delivery Address</strong><br>" .
+            "Please type your full delivery address:<br>" .
+            "<em>Example: KG 15 Ave, Kigali, Gasabo District</em>",
+            ['Cancel order']
         );
     }
 
@@ -751,25 +781,35 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Gaming'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me products'])); }
     }
 
-    // ── 19b. "I WANT [product]" — find product and offer to add to PHP cart ──
-    if (preg_match('/\b(i want|i need|buy|purchase|get me|order)\b/i', $ml) && !preg_match('/\b(to buy|to order|to cancel|to track)\b/i', $ml)) {
+    // ── 19b. "I WANT [product]" — find product and start cart flow directly ──
+    if (preg_match('/\b(i want|i need|buy|purchase|get me|order)\b/i', $ml) && !preg_match('/\b(to buy|to order|to cancel|to track|history|status)\b/i', $ml)) {
         $rows = dbProductSearch($msg, $conn);
         if (!empty($rows)) {
-            $p = $rows[0]; // best match
+            $p = $rows[0];
             $ctx['last_products'] = $rows;
-            $out = "🛍️ Found: <a href='" . SITE_URL . "/product.php?id={$p['id']}'><strong>" . htmlspecialchars($p['name']) . "</strong></a>"
-                 . ($p['brand'] ? " <em>({$p['brand']})</em>" : '')
-                 . " — <strong>RWF " . number_format($p['price']) . "</strong> ({$p['stock']} in stock)<br><br>"
-                 . "Would you like to add this to your cart and place an order?";
-            $qr = ["🛒 Add: add_to_cart:{$p['id']}", "Show me more options", "Show me products"];
-            // Show more results if multiple found
-            if (count($rows) > 1) {
-                $out .= "<br><br>Other options:<br>";
-                foreach (array_slice($rows, 1, 3) as $r) {
-                    $out .= "• <a href='" . SITE_URL . "/product.php?id={$r['id']}'>" . htmlspecialchars($r['name']) . "</a> — RWF " . number_format($r['price']) . "<br>";
-                }
+            if (!$uid) {
+                // Show product but prompt login
+                $out = "🛍️ Found: <a href='" . SITE_URL . "/product.php?id={$p['id']}'><strong>" . htmlspecialchars($p['name']) . "</strong></a>"
+                     . ($p['brand'] ? " <em>({$p['brand']})</em>" : '')
+                     . " — <strong>RWF " . number_format($p['price']) . "</strong> ({$p['stock']} in stock)<br><br>"
+                     . "🔒 Please <a href='" . SITE_URL . "/login.php'><strong>login</strong></a> to add this to your cart and place an order.";
+                return reply($out, ['Login', 'Register', 'Show me more']);
             }
-            return reply($out, $qr);
+            // Logged in — start cart flow immediately
+            $ctx['order_pending_product'] = ['id'=>(int)$p['id'],'name'=>$p['name'],'price'=>(float)$p['price'],'stock'=>(int)$p['stock']];
+            $ctx['order_step'] = 'qty';
+            $out = "🛍️ <strong>" . htmlspecialchars($p['name']) . "</strong>"
+                 . ($p['brand'] ? " <em>({$p['brand']})</em>" : '')
+                 . "<br>Price: <strong>RWF " . number_format($p['price']) . "</strong> | Stock: {$p['stock']} units<br><br>"
+                 . "How many would you like to order?";
+            if (count($rows) > 1) {
+                $out .= "<br><br><small>Other options: ";
+                foreach (array_slice($rows, 1, 3) as $r) {
+                    $out .= "<a href='" . SITE_URL . "/product.php?id={$r['id']}'>" . htmlspecialchars($r['name']) . "</a> (RWF " . number_format($r['price']) . "), ";
+                }
+                $out = rtrim($out, ', ') . "</small>";
+            }
+            return reply($out, ['1', '2', '3', '5']);
         }
     }
 
@@ -890,61 +930,102 @@ function chatCartSummary(array $cart): string {
 
 function placeChatOrder(int $uid, array &$ctx, $conn): array {
     $cart    = $ctx['order_cart'];
-    $address = $conn->real_escape_string($ctx['order_data']['address']);
-    $payment = $conn->real_escape_string($ctx['order_data']['payment']);
-    $total   = array_sum(array_map(fn($i) => $i['price'] * $i['qty'], $cart));
+    if (empty($cart)) {
+        return reply("🛒 Your cart is empty. Please add products first.", ['Show me products']);
+    }
 
-    // Validate stock one more time
+    $address = $conn->real_escape_string(trim($ctx['order_data']['address'] ?? ''));
+    $payment = $conn->real_escape_string(trim($ctx['order_data']['payment'] ?? 'cod'));
+    $total   = array_sum(array_map(fn($i) => (float)$i['price'] * (int)$i['qty'], $cart));
+
+    if (empty($address)) {
+        $ctx['order_step'] = 'address';
+        return reply("📍 Please provide your delivery address first.");
+    }
+
+    // Final stock validation
     foreach ($cart as $item) {
-        $stock = $conn->query("SELECT stock FROM products WHERE id={$item['id']}")->fetch_assoc()['stock'] ?? 0;
-        if ($stock < $item['qty']) {
-            return reply("⚠️ Sorry, <strong>" . htmlspecialchars($item['name']) . "</strong> only has $stock units left. Please update your cart.",
-                ['View cart', 'Clear cart']);
+        $row = $conn->query("SELECT stock, name FROM products WHERE id=" . (int)$item['id'] . " LIMIT 1")->fetch_assoc();
+        if (!$row || (int)$row['stock'] < (int)$item['qty']) {
+            $avail = $row['stock'] ?? 0;
+            return reply(
+                "⚠️ <strong>" . htmlspecialchars($item['name']) . "</strong> only has <strong>$avail</strong> units left. " .
+                "Please update your cart.",
+                ['View cart', 'Clear cart']
+            );
         }
     }
 
-    // Insert order
-    $conn->query("INSERT INTO orders (user_id, total_price, address, payment_method, status) VALUES ($uid, $total, '$address', '$payment', 'pending')");
+    // ── INSERT ORDER ──
+    $conn->query("INSERT INTO orders (user_id, total_price, address, payment_method, status)
+                  VALUES ($uid, $total, '$address', '$payment', 'pending')");
     $order_id = (int)$conn->insert_id;
 
     if (!$order_id) {
-        return reply("❌ Could not place order. Please try again or use the <a href='" . SITE_URL . "/checkout.php'>checkout page</a>.");
+        // Log the MySQL error for debugging
+        error_log("placeChatOrder INSERT failed: " . $conn->error . " | uid=$uid total=$total");
+        return reply(
+            "❌ Could not save your order. Please try again or use the <a href='" . SITE_URL . "/checkout.php'>checkout page</a>.",
+            ['Try again', 'Contact support']
+        );
     }
 
-    // Insert items & update stock
+    // ── INSERT ORDER ITEMS + DEDUCT STOCK ──
     foreach ($cart as $item) {
+        $pid   = (int)$item['id'];
+        $qty   = (int)$item['qty'];
         $price = (float)$item['price'];
-        $conn->query("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($order_id, {$item['id']}, {$item['qty']}, $price)");
-        $conn->query("UPDATE products SET stock=stock-{$item['qty']} WHERE id={$item['id']}");
+        $conn->query("INSERT INTO order_items (order_id, product_id, quantity, price)
+                      VALUES ($order_id, $pid, $qty, $price)");
+        $conn->query("UPDATE products SET stock = stock - $qty WHERE id = $pid AND stock >= $qty");
     }
 
-    // Send confirmation email
-    require_once __DIR__ . '/../includes/mailer.php';
-    $user = $conn->query("SELECT name, email FROM users WHERE id=$uid")->fetch_assoc();
-    $emailItems = array_map(fn($i) => ['name'=>$i['name'],'price'=>$i['price'],'quantity'=>$i['qty']], $cart);
-    $orderData  = ['id'=>$order_id,'customer_name'=>$user['name'],'address'=>$ctx['order_data']['address'],
-                   'payment_method'=>$payment,'status'=>'pending','created_at'=>date('Y-m-d H:i:s')];
-    sendMail($user['email'], $user['name'],
-        'Order Confirmed — #' . str_pad($order_id, 6, '0', STR_PAD_LEFT) . ' | ' . SITE_NAME,
-        emailOrderConfirmation($orderData, $emailItems)
-    );
+    // ── SEND CONFIRMATION EMAIL ──
+    $savedAddress = $ctx['order_data']['address'];
+    $savedPayment = $ctx['order_data']['payment'];
 
-    // Clear chat cart
-    $savedAddress = $ctx['order_data']['address'] ?? $address;
+    // Clear cart BEFORE email (so any email error doesn't block the success message)
     $ctx['order_cart'] = [];
     $ctx['order_step'] = null;
     $ctx['order_data'] = [];
 
+    try {
+        require_once __DIR__ . '/../includes/mailer.php';
+        $user = $conn->query("SELECT name, email FROM users WHERE id=$uid LIMIT 1")->fetch_assoc();
+        if ($user && !empty($user['email'])) {
+            $emailItems = array_map(fn($i) => ['name'=>$i['name'],'price'=>$i['price'],'quantity'=>$i['qty']], $cart);
+            $orderData  = [
+                'id'              => $order_id,
+                'customer_name'   => $user['name'],
+                'address'         => $savedAddress,
+                'payment_method'  => $savedPayment,
+                'status'          => 'pending',
+                'created_at'      => date('Y-m-d H:i:s'),
+            ];
+            sendMail(
+                $user['email'], $user['name'],
+                'Order Confirmed — #' . str_pad($order_id, 6, '0', STR_PAD_LEFT) . ' | ' . SITE_NAME,
+                emailOrderConfirmation($orderData, $emailItems)
+            );
+        }
+    } catch (Throwable $e) {
+        error_log("placeChatOrder email error: " . $e->getMessage());
+        // Email failure must NOT prevent showing success
+    }
+
     $payLabels = ['cod'=>'Cash on Delivery','momo'=>'MTN Mobile Money','airtel'=>'Airtel Money','card'=>'Visa/Mastercard','bank'=>'Bank Transfer'];
+    $orderNum  = str_pad($order_id, 6, '0', STR_PAD_LEFT);
+
     return reply(
         "🎉 <strong>Order Placed Successfully!</strong><br><br>" .
-        "📦 <strong>Order #" . str_pad($order_id, 6, '0', STR_PAD_LEFT) . "</strong><br>" .
+        "📦 <strong>Order #$orderNum</strong><br>" .
         "💰 Total: <strong>RWF " . number_format($total) . "</strong><br>" .
-        "📍 Delivery to: " . htmlspecialchars($savedAddress) . "<br>" .
-        "💳 Payment: " . ($payLabels[$payment] ?? $payment) . "<br>" .
-        "📧 A confirmation email has been sent to <strong>" . htmlspecialchars($user['email']) . "</strong><br><br>" .
-        "🚚 Expected delivery: <strong>1–4 business days</strong><br>" .
-        "<a href='" . SITE_URL . "/order_detail.php?id=$order_id'>View Order Details →</a>",
+        "📍 Delivery to: <strong>" . htmlspecialchars($savedAddress) . "</strong><br>" .
+        "💳 Payment: <strong>" . ($payLabels[$savedPayment] ?? $savedPayment) . "</strong><br>" .
+        "📧 Confirmation email sent.<br><br>" .
+        "🚚 Expected delivery: <strong>1–4 business days</strong><br><br>" .
+        "<a href='" . SITE_URL . "/order_detail.php?id=$order_id'><strong>View Order Details →</strong></a> | " .
+        "<a href='" . SITE_URL . "/orders.php'>My Orders →</a>",
         ['Track my order', 'Continue shopping', 'Contact support']
     );
 }
