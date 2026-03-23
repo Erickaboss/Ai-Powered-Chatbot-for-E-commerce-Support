@@ -247,7 +247,7 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
     $ml = strtolower(trim($msg));
 
     // ── Awaiting order number from previous turn ──
-    if ($ctx['awaiting'] === 'order_number' && preg_match('/\b(\d+)\b/', $msg, $m)) {
+    if ($ctx['awaiting'] === 'order_number' && preg_match('/#?0*(\d+)\b/', $msg, $m)) {
         $ctx['awaiting'] = null;
         return reply(trackOrder((int)$m[1], $uid, $conn), ['View all orders', 'Cancel an order']);
     }
@@ -528,10 +528,11 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
 
     // ── 4. ORDER TRACKING ──
     if (preg_match('/\b(track|tracking|order status|where is my order|check order|order #|order no|my order)\b/i', $ml)
+        || preg_match('/^#\d+$/', trim($ml))
         || $ctx['awaiting'] === 'order_number') {
         if (!$uid) return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> first to track your orders.",
             ['Login', 'Register']);
-        if (preg_match('/\b(\d+)\b/', $msg, $m)) {
+        if (preg_match('/#?0*(\d+)\b/', $msg, $m)) {
             return reply(trackOrder((int)$m[1], $uid, $conn), ['View all orders', 'Cancel an order']);
         }
         $latest = $conn->query("SELECT id,status FROM orders WHERE user_id=$uid ORDER BY created_at DESC LIMIT 1")->fetch_assoc();
