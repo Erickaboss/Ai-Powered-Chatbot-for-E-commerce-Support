@@ -252,7 +252,19 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
     // Only skip for multi-step flows that need exact PHP state handling
     $inMultiStep = !empty($ctx['awaiting']) || !empty($ctx['order_step']);
     $isCartCmd   = preg_match('/^(add_to_cart:\d+$|confirm$|cancel$)/i', trim($msg));
-    if (!$inMultiStep && !$isCartCmd) {
+
+    // Block Gemini from intercepting any order/cart/checkout intent — PHP handles these
+    $isOrderIntent = preg_match(
+        '/\b(add to cart|add_to_cart|place order|checkout|proceed to checkout|buy now|order now|' .
+        'i want to buy|i want to order|confirm order|my cart|view cart|clear cart|' .
+        'track.*order|cancel.*order|order.*cancel|order.*track|my order|order history|' .
+        'order summary|order detail|order status|where is my order|payment method|' .
+        'delivery address|finalize.*order|complete.*order|help.*place.*order|' .
+        'place.*order|order.*place)\b/i',
+        $ml
+    );
+
+    if (!$inMultiStep && !$isCartCmd && !$isOrderIntent) {
         $gemini = askGemini($msg, $uid, $conn, $session_id);
         if ($gemini) {
             return reply($gemini, ['Show me products', 'Track my order', 'Delivery info', 'Contact support']);
@@ -739,6 +751,28 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Gaming'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me products'])); }
     }
 
+    // ── 19b. "I WANT [product]" — find product and offer to add to PHP cart ──
+    if (preg_match('/\b(i want|i need|buy|purchase|get me|order)\b/i', $ml) && !preg_match('/\b(to buy|to order|to cancel|to track)\b/i', $ml)) {
+        $rows = dbProductSearch($msg, $conn);
+        if (!empty($rows)) {
+            $p = $rows[0]; // best match
+            $ctx['last_products'] = $rows;
+            $out = "🛍️ Found: <a href='" . SITE_URL . "/product.php?id={$p['id']}'><strong>" . htmlspecialchars($p['name']) . "</strong></a>"
+                 . ($p['brand'] ? " <em>({$p['brand']})</em>" : '')
+                 . " — <strong>RWF " . number_format($p['price']) . "</strong> ({$p['stock']} in stock)<br><br>"
+                 . "Would you like to add this to your cart and place an order?";
+            $qr = ["🛒 Add: add_to_cart:{$p['id']}", "Show me more options", "Show me products"];
+            // Show more results if multiple found
+            if (count($rows) > 1) {
+                $out .= "<br><br>Other options:<br>";
+                foreach (array_slice($rows, 1, 3) as $r) {
+                    $out .= "• <a href='" . SITE_URL . "/product.php?id={$r['id']}'>" . htmlspecialchars($r['name']) . "</a> — RWF " . number_format($r['price']) . "<br>";
+                }
+            }
+            return reply($out, $qr);
+        }
+    }
+
     if (preg_match('/\b(show me|do you have|do you sell|looking for|find me|search for|i need|i want|i am looking|got any|list|display|give me)\b/i', $ml)
         || detectCategory($ml)
         || extractPriceRange($ml) !== [null, null]) {
@@ -1082,6 +1116,9 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
         . "- Be friendly, helpful, and concise (max 250 words).\n"
         . "- Respond in the SAME language the customer uses (English, French, or Kinyarwanda).\n"
         . "- For product links, format as: [Product Name](" . SITE_URL . "/product.php?id=ID)\n"
+        . "- NEVER place orders, add items to cart, confirm orders, or collect delivery/payment details. "
+        . "  If a customer wants to buy or place an order, tell them to click the product link or use the Add to Cart button. "
+        . "  Order placement is handled by the system — you must NOT simulate or pretend to place orders.\n"
         . "- IMPORTANT: The conversation history below contains ALL previous messages from this customer. Use it to:\n"
         . "  * Remember what products they asked about before\n"
         . "  * Avoid repeating the same products if they already saw them\n"
