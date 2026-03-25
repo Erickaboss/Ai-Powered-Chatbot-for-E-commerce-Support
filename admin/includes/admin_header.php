@@ -12,8 +12,9 @@ $nav = [
     'categories.php'   => ['bi-tags',         'Categories'],
     'orders.php'       => ['bi-bag',          'Orders'],
     'users.php'        => ['bi-people',       'Customers'],
-    'chatbot_logs.php' => ['bi-chat-dots',    'Chatbot Logs'],
-    'store.php'        => ['bi-shop',         'View Store'],
+    'chatbot_logs.php'   => ['bi-chat-dots',    'Chatbot Logs'],
+    'product_images.php' => ['bi-images',        'Product Images'],
+    'store.php'          => ['bi-shop',           'View Store'],
 ];
 ?>
 <!DOCTYPE html>
