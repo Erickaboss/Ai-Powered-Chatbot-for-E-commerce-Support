@@ -96,7 +96,16 @@ if (!empty($_GET['edit'])) {
             <?php while ($p = $products->fetch_assoc()): ?>
             <tr>
                 <td><?= $p['id'] ?></td>
-                <td><img src="<?= SITE_URL ?>/assets/images/products/<?= htmlspecialchars($p['image']) ?>"
+                <td><?php
+                    $img = $p['image'];
+                    if (strpos($img, 'http') === 0) {
+                        $imgSrc = htmlspecialchars($img);
+                    } elseif (strpos($img, 'products/') === 0) {
+                        $imgSrc = SITE_URL . '/assets/images/' . htmlspecialchars($img);
+                    } else {
+                        $imgSrc = SITE_URL . '/assets/images/products/' . htmlspecialchars($img);
+                    }
+                ?><img src="<?= $imgSrc ?>"
                          style="width:55px;height:55px;object-fit:cover;border-radius:8px"
                          onerror="this.src='<?= SITE_URL ?>/assets/images/placeholder.jpg'"></td>
                 <td><?= htmlspecialchars($p['name']) ?></td>
@@ -167,7 +176,17 @@ if (!empty($_GET['edit'])) {
                         <label class="form-label">Product Image</label>
                         <?php if (!empty($edit['image'])): ?>
                         <div class="mb-2">
-                            <img id="current-img" src="<?= SITE_URL ?>/assets/images/products/<?= htmlspecialchars($edit['image']) ?>"
+                            <?php
+                            $eimg = $edit['image'];
+                            if (strpos($eimg, 'http') === 0) {
+                                $eimgSrc = htmlspecialchars($eimg);
+                            } elseif (strpos($eimg, 'products/') === 0) {
+                                $eimgSrc = SITE_URL . '/assets/images/' . htmlspecialchars($eimg);
+                            } else {
+                                $eimgSrc = SITE_URL . '/assets/images/products/' . htmlspecialchars($eimg);
+                            }
+                            ?>
+                            <img id="current-img" src="<?= $eimgSrc ?>"
                                  style="height:80px;border-radius:8px;object-fit:cover"
                                  onerror="this.style.display='none'">
                         </div>
