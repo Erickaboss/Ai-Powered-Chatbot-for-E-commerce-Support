@@ -116,6 +116,9 @@ if ($filterSess) {
     <!-- CONVERSATION DETAIL VIEW -->
     <div class="d-flex align-items-center gap-2 mb-3">
         <a href="chatbot_logs.php" class="btn btn-sm btn-outline-secondary">← Back to all conversations</a>
+        <button onclick="exportChatPDF()" class="btn btn-sm btn-dark ms-auto">
+            <i class="bi bi-file-earmark-pdf me-1"></i>Export PDF
+        </button>
         <h5 class="mb-0">
             Conversation:
             <?php if ($detailUser): ?>
@@ -290,6 +293,33 @@ async function loadMLStatus() {
     }
 }
 loadMLStatus();
+</script>
+
+<script>
+function exportChatPDF() {
+    const cv = document.getElementById('chatView');
+    if (!cv) return;
+    const w = window.open('', '_blank');
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+        <title>Chat Export</title>
+        <style>
+            body{font-family:Arial,sans-serif;padding:30px;color:#333;font-size:13px}
+            h2{color:#0f3460;border-bottom:2px solid #e94560;padding-bottom:8px}
+            .user-msg{background:#0d6efd;color:#fff;border-radius:12px 12px 4px 12px;padding:8px 14px;display:inline-block;max-width:70%;margin:4px 0}
+            .bot-msg{background:#f1f3f5;color:#212529;border-radius:12px 12px 12px 4px;padding:8px 14px;display:inline-block;max-width:70%;margin:4px 0}
+            .msg-row{margin-bottom:12px}
+            .time{font-size:10px;color:#aaa;margin-top:2px}
+            .right{text-align:right}
+            @media print{body{padding:10px}}
+        </style></head><body>
+        <h2>💬 Chat Conversation Export</h2>
+        <p style="color:#888;font-size:12px">Exported on ${new Date().toLocaleString()} | <?= SITE_NAME ?></p>
+        <hr>
+        ${cv.innerHTML}
+        </body></html>`);
+    w.document.close();
+    setTimeout(() => w.print(), 500);
+}
 </script>
 
 <?php require_once 'includes/admin_footer.php'; ?>

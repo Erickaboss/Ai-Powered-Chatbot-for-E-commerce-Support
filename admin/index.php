@@ -52,6 +52,24 @@ $recent_orders = $conn->query("SELECT o.*, u.name as uname FROM orders o JOIN us
 <div class="admin-content">
     <h4 class="mb-4">Dashboard</h4>
 
+    <?php
+    // Low stock warning banner
+    $ls = $conn->query("SELECT id, name, stock FROM products WHERE stock > 0 AND stock <= 5 ORDER BY stock ASC LIMIT 5");
+    $lsItems = $ls ? $ls->fetch_all(MYSQLI_ASSOC) : [];
+    if (!empty($lsItems)):
+    ?>
+    <div class="alert alert-warning d-flex align-items-start gap-3 mb-4" style="border-radius:12px;border:none;background:#fff3cd">
+        <i class="bi bi-exclamation-triangle-fill text-warning fs-4 mt-1"></i>
+        <div>
+            <strong>⚠️ Low Stock Alert:</strong>
+            <?php foreach ($lsItems as $ls): ?>
+            <span class="badge bg-warning text-dark me-1"><?= htmlspecialchars($ls['name']) ?> (<?= $ls['stock'] ?> left)</span>
+            <?php endforeach; ?>
+            <a href="products.php" class="ms-2 small fw-600">Manage →</a>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- ── Stat Cards ── -->
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">

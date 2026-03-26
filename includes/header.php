@@ -74,6 +74,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <?php endif; ?>
                     </a>
                 </li>
+                <!-- Language Toggle -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" style="font-size:.82rem" id="langBtn">
+                        🌐 <span id="langLabel">EN</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius:10px;min-width:120px">
+                        <li><a class="dropdown-item" href="#" onclick="setLang('en')">🇬🇧 English</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="setLang('fr')">🇫🇷 Français</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="setLang('rw')">🇷🇼 Kinyarwanda</a></li>
+                    </ul>
+                </li>
                 <?php if (isset($_SESSION['user_id'])): ?>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
@@ -128,4 +139,33 @@ navSearch?.addEventListener('input', function() {
     }, 280);
 });
 document.addEventListener('click', e => { if (!navSearch?.contains(e.target)) searchBox.style.display='none'; });
+</script>
+
+<script>
+// ── Language toggle ──
+const translations = {
+    en: { 'Home':'Home','Products':'Products','My Orders':'My Orders','Login':'Login','Register':'Register','Search products...':'Search products...' },
+    fr: { 'Home':'Accueil','Products':'Produits','My Orders':'Mes Commandes','Login':'Connexion','Register':'S\'inscrire','Search products...':'Rechercher des produits...' },
+    rw: { 'Home':'Ahabanza','Products':'Ibicuruzwa','My Orders':'Amabwiriza Yanjye','Login':'Injira','Register':'Iyandikishe','Search products...':'Shakisha ibicuruzwa...' }
+};
+function setLang(lang) {
+    localStorage.setItem('site_lang', lang);
+    const labels = { en:'EN', fr:'FR', rw:'RW' };
+    document.getElementById('langLabel').textContent = labels[lang] || 'EN';
+    const t = translations[lang] || translations.en;
+    document.querySelectorAll('[data-translate]').forEach(el => {
+        const key = el.getAttribute('data-translate');
+        if (t[key]) el.textContent = t[key];
+    });
+    // Update search placeholder
+    const si = document.getElementById('nav-search');
+    if (si) si.placeholder = t['Search products...'] || 'Search products...';
+    // Update chatbot greeting
+    const ci = document.getElementById('chat-input');
+    const greetings = { en:'Type a message...', fr:'Tapez un message...', rw:'Andika ubutumwa...' };
+    if (ci) ci.placeholder = greetings[lang] || 'Type a message...';
+}
+// Apply saved language on load
+const savedLang = localStorage.getItem('site_lang') || 'en';
+document.addEventListener('DOMContentLoaded', () => setLang(savedLang));
 </script>

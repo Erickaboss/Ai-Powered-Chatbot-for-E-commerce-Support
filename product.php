@@ -8,6 +8,40 @@ $p = $stmt->get_result()->fetch_assoc();
 if (!$p) { header('Location: products.php'); exit; }
 
 $related = $conn->query("SELECT * FROM products WHERE category_id={$p['category_id']} AND id!=$id AND stock>0 ORDER BY RAND() LIMIT 4");
+
+// ── Handle review submission ──
+$review_msg = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'review') {
+    if (!isset($_SESSION['user_id'])) {
+        $review_msg = 'error:Please login to leave a review.';
+    } else {
+        $uid    = (int)$_SESSION['user_id'];
+        $rating = (int)$_POST['rating'];
+        $comment = $conn->real_escape_string(trim($_POST['comment']));
+        // Check if already reviewed
+        $exists = $conn->query("SELECT id FROM reviews WHERE product_id=$id AND user_id=$uid")->num_rows;
+        if ($exists) {
+            $conn->query("UPDATE reviews SET rating=$rating, comment='$comment' WHERE product_id=$id AND user_id=$uid");
+            $review_msg = 'success:Your review has been updated!';
+        } else {
+            $conn->query("INSERT INTO reviews (product_id, user_id, rating, comment) VALUES ($id, $uid, $rating, '$comment')");
+            $review_msg = 'success:Thank you for your review!';
+        }
+    }
+}
+
+// ── Load reviews ──
+$reviews    = $conn->query("SELECT r.*, u.name as uname FROM reviews r JOIN users u ON r.user_id=u.id WHERE r.product_id=$id ORDER BY r.created_at DESC");
+$reviewStats = $conn->query("SELECT COUNT(*) as total, AVG(rating) as avg_rating FROM reviews WHERE product_id=$id")->fetch_assoc();
+$avgRating  = round($reviewStats['avg_rating'] ?? 0, 1);
+$totalReviews = (int)($reviewStats['total'] ?? 0);
+
+// Check if current user already reviewed
+$userReview = null;
+if (isset($_SESSION['user_id'])) {
+    $uid = (int)$_SESSION['user_id'];
+    $userReview = $conn->query("SELECT * FROM reviews WHERE product_id=$id AND user_id=$uid")->fetch_assoc();
+}
 ?>
 
 <div class="page-hero">
@@ -43,6 +77,16 @@ $related = $conn->query("SELECT * FROM products WHERE category_id={$p['category_
             <?php endif; ?>
 
             <div class="price-big my-3">RWF <?= number_format($p['price']) ?></div>
+
+            <?php if ($totalReviews > 0): ?>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <?php for ($s=1;$s<=5;$s++): ?>
+                <i class="bi bi-star<?= $s<=$avgRating?'-fill':($s-0.5<=$avgRating?'-half':'')?>" style="color:#f5a623;font-size:1rem"></i>
+                <?php endfor; ?>
+                <span class="fw-700" style="color:#f5a623"><?= $avgRating ?></span>
+                <span class="text-muted small">(<?= $totalReviews ?> review<?= $totalReviews!=1?'s':'' ?>)</span>
+            </div>
+            <?php endif; ?>
 
             <?php if ($p['stock'] > 0): ?>
             <span class="stock-badge-in mb-3 d-inline-block"><i class="bi bi-check-circle me-1"></i>In Stock (<?= $p['stock'] ?> available)</span>
@@ -95,9 +139,100 @@ $related = $conn->query("SELECT * FROM products WHERE category_id={$p['category_
         </div>
     </div>
 
-    <!-- Related Products -->
-    <?php if ($related && $related->num_rows > 0): ?>
+    <!-- Reviews Section -->
     <div class="mt-5">
+        <div class="section-title mb-1">Customer <span>Reviews</span></div>
+        <div class="section-divider mb-4"></div>
+
+        <?php if ($review_msg): [$rtype,$rtext] = explode(':',$review_msg,2); ?>
+        <div class="alert alert-<?= $rtype==='error'?'danger':'success' ?> mb-3" style="border-radius:12px;border:none">
+            <?= htmlspecialchars($rtext) ?>
+        </div>
+        <?php endif; ?>
+
+        <div class="row g-4">
+            <!-- Write review -->
+            <div class="col-lg-4">
+                <div class="card-clean p-4">
+                    <h6 class="fw-700 mb-3"><?= $userReview ? 'Update Your Review' : 'Write a Review' ?></h6>
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                    <form method="POST">
+                        <input type="hidden" name="action" value="review">
+                        <div class="mb-3">
+                            <label class="form-label small fw-600">Your Rating</label>
+                            <div class="star-select d-flex gap-2" id="starSelect">
+                                <?php for ($s=1;$s<=5;$s++): ?>
+                                <i class="bi bi-star<?= $userReview && $s<=$userReview['rating']?'-fill':'' ?>"
+                                   data-val="<?= $s ?>" style="font-size:1.6rem;cursor:pointer;color:#f5a623"
+                                   onclick="setRating(<?= $s ?>)"></i>
+                                <?php endfor; ?>
+                            </div>
+                            <input type="hidden" name="rating" id="ratingInput" value="<?= $userReview['rating'] ?? 0 ?>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-600">Your Comment</label>
+                            <textarea name="comment" class="form-control" rows="3" style="border-radius:10px"
+                                      placeholder="Share your experience..."><?= htmlspecialchars($userReview['comment'] ?? '') ?></textarea>
+                        </div>
+                        <button class="btn w-100" style="background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border-radius:10px;font-weight:600">
+                            <i class="bi bi-send me-2"></i><?= $userReview ? 'Update Review' : 'Submit Review' ?>
+                        </button>
+                    </form>
+                    <?php else: ?>
+                    <p class="text-muted small">Please <a href="login.php" class="fw-600">login</a> to leave a review.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Reviews list -->
+            <div class="col-lg-8">
+                <?php if ($totalReviews > 0): ?>
+                <div class="d-flex align-items-center gap-3 mb-4 p-3" style="background:#f8faff;border-radius:12px">
+                    <div class="text-center">
+                        <div style="font-size:3rem;font-weight:800;color:#f5a623;line-height:1"><?= $avgRating ?></div>
+                        <div class="d-flex gap-1 justify-content-center my-1">
+                            <?php for ($s=1;$s<=5;$s++): ?>
+                            <i class="bi bi-star<?= $s<=$avgRating?'-fill':'' ?>" style="color:#f5a623;font-size:.9rem"></i>
+                            <?php endfor; ?>
+                        </div>
+                        <div class="text-muted small"><?= $totalReviews ?> reviews</div>
+                    </div>
+                </div>
+                <?php while ($rv = $reviews->fetch_assoc()): ?>
+                <div class="p-3 mb-3" style="background:#fff;border:1px solid #eee;border-radius:12px">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem">
+                                <?= strtoupper(substr($rv['uname'],0,1)) ?>
+                            </div>
+                            <div>
+                                <div class="fw-600 small"><?= htmlspecialchars($rv['uname']) ?></div>
+                                <div class="d-flex gap-1">
+                                    <?php for ($s=1;$s<=5;$s++): ?>
+                                    <i class="bi bi-star<?= $s<=$rv['rating']?'-fill':'' ?>" style="color:#f5a623;font-size:.75rem"></i>
+                                    <?php endfor; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-muted"><?= date('d M Y', strtotime($rv['created_at'])) ?></small>
+                    </div>
+                    <?php if ($rv['comment']): ?>
+                    <p class="mb-0 small" style="color:#555"><?= nl2br(htmlspecialchars($rv['comment'])) ?></p>
+                    <?php endif; ?>
+                </div>
+                <?php endwhile; ?>
+                <?php else: ?>
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-star" style="font-size:2.5rem;opacity:.3"></i>
+                    <p class="mt-2">No reviews yet. Be the first to review this product!</p>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    <?php if ($related && $related->num_rows > 0): ?>    <div class="mt-5">
         <div class="section-title mb-1">Related <span>Products</span></div>
         <div class="section-divider"></div>
         <div class="row g-3 mt-2">
@@ -127,6 +262,12 @@ function changeQty(d) {
     const i = document.getElementById('qty');
     const v = parseInt(i.value) + d;
     if (v >= 1 && v <= <?= $p['stock'] ?>) i.value = v;
+}
+function setRating(val) {
+    document.getElementById('ratingInput').value = val;
+    document.querySelectorAll('#starSelect i').forEach((s,i) => {
+        s.className = 'bi bi-star' + (i < val ? '-fill' : '');
+    });
 }
 </script>
 

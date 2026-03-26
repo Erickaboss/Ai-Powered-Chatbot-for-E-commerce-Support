@@ -141,6 +141,18 @@ $active_cat = (int)($_GET['category'] ?? 0);
                         <div class="card-body d-flex flex-column">
                             <span class="cat-badge"><?= htmlspecialchars($p['cat_name'] ?? '') ?></span>
                             <h6 class="card-title"><?= htmlspecialchars($p['name']) ?></h6>
+                            <?php
+                            $rv = $conn->query("SELECT AVG(rating) as avg, COUNT(*) as cnt FROM reviews WHERE product_id={$p['id']}")->fetch_assoc();
+                            if ($rv['cnt'] > 0):
+                                $avg = round($rv['avg'], 1);
+                            ?>
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <?php for ($s=1;$s<=5;$s++): ?>
+                                <i class="bi bi-star<?= $s<=$avg?'-fill':'' ?>" style="color:#f5a623;font-size:.7rem"></i>
+                                <?php endfor; ?>
+                                <span style="font-size:.72rem;color:#888">(<?= $rv['cnt'] ?>)</span>
+                            </div>
+                            <?php endif; ?>
                             <div class="d-flex align-items-center justify-content-between mt-auto mb-2">
                                 <span class="price-tag">RWF <?= number_format($p['price']) ?></span>
                                 <?php if ($p['stock'] > 0): ?>

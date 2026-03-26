@@ -7,6 +7,21 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 $current       = basename($_SERVER['PHP_SELF']);
 $pending_count = $conn->query("SELECT COUNT(*) as c FROM orders WHERE status='pending'")->fetch_assoc()['c'];
 $ticket_count  = $conn->query("SELECT COUNT(*) as c FROM support_tickets WHERE status='open'")->fetch_assoc()['c'];
+$lowStock = $conn->query("SELECT id, name, stock FROM products WHERE stock > 0 AND stock <= 5 ORDER BY stock ASC LIMIT 10");
+$lowStockItems = $lowStock ? $lowStock->fetch_all(MYSQLI_ASSOC) : [];
+// Send low stock email once per day per product
+if (!empty($lowStockItems)) {
+    $today = date('Y-m-d');
+    $lastAlert = $_SESSION['low_stock_alert_date'] ?? '';
+    if ($lastAlert !== $today) {
+        $_SESSION['low_stock_alert_date'] = $today;
+        require_once __DIR__ . '/../../includes/mailer.php';
+        $itemList = implode('', array_map(fn($i) => "<li><strong>{$i['name']}</strong> — only <strong>{$i['stock']}</strong> left</li>", $lowStockItems));
+        sendMail(ADMIN_EMAIL, ADMIN_NAME, '[' . SITE_NAME . '] ⚠️ Low Stock Alert — ' . count($lowStockItems) . ' products',
+            emailWrap('⚠️ Low Stock Alert', "<h2 style='color:#dc3545'>⚠️ Low Stock Warning</h2><p>The following products are running low (5 or fewer units):</p><ul style='line-height:2'>$itemList</ul><p><a href='" . SITE_URL . "/admin/products.php' style='background:#0f3460;color:#fff;padding:10px 22px;border-radius:6px;text-decoration:none;font-weight:600'>Manage Products →</a></p>")
+        );
+    }
+}
 $nav = [
     'index.php'        => ['bi-speedometer2', 'Dashboard'],
     'products.php'     => ['bi-box-seam',     'Products'],
