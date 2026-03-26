@@ -6,15 +6,18 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 }
 $current       = basename($_SERVER['PHP_SELF']);
 $pending_count = $conn->query("SELECT COUNT(*) as c FROM orders WHERE status='pending'")->fetch_assoc()['c'];
+$ticket_count  = $conn->query("SELECT COUNT(*) as c FROM support_tickets WHERE status='open'")->fetch_assoc()['c'];
 $nav = [
     'index.php'        => ['bi-speedometer2', 'Dashboard'],
     'products.php'     => ['bi-box-seam',     'Products'],
     'categories.php'   => ['bi-tags',         'Categories'],
     'orders.php'       => ['bi-bag',          'Orders'],
     'users.php'        => ['bi-people',       'Customers'],
-    'chatbot_logs.php'   => ['bi-chat-dots',    'Chatbot Logs'],
-    'product_images.php' => ['bi-images',        'Product Images'],
-    'store.php'          => ['bi-shop',           'View Store'],
+    'chatbot_logs.php'     => ['bi-chat-dots',    'Chatbot Logs'],
+    'chatbot_analytics.php'=> ['bi-bar-chart-line','Analytics'],
+    'support_tickets.php'  => ['bi-headset',       'Support Tickets'],
+    'product_images.php'   => ['bi-images',        'Product Images'],
+    'store.php'            => ['bi-shop',           'View Store'],
 ];
 ?>
 <!DOCTYPE html>
@@ -45,6 +48,9 @@ $nav = [
             <?= $label ?>
             <?php if ($file==='orders.php' && $pending_count > 0): ?>
             <span class="badge bg-danger ms-auto" style="font-size:.65rem"><?= $pending_count ?></span>
+            <?php endif; ?>
+            <?php if ($file==='support_tickets.php' && $ticket_count > 0): ?>
+            <span class="badge bg-danger ms-auto" style="font-size:.65rem"><?= $ticket_count ?></span>
             <?php endif; ?>
         </a>
         <?php endforeach; ?>

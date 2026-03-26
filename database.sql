@@ -112,6 +112,41 @@ CREATE TABLE reviews (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE chatbot_ratings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    log_id INT NOT NULL,
+    user_id INT DEFAULT NULL,
+    session_id VARCHAR(64) DEFAULT NULL,
+    rating TINYINT NOT NULL COMMENT '1=thumbs up, 0=thumbs down',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_log (log_id),
+    INDEX idx_rating (rating)
+);
+
+CREATE TABLE support_tickets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT DEFAULT NULL,
+    session_id VARCHAR(64) DEFAULT NULL,
+    customer_name VARCHAR(100),
+    customer_email VARCHAR(150),
+    message TEXT NOT NULL,
+    admin_reply TEXT DEFAULT NULL,
+    replied_at TIMESTAMP NULL DEFAULT NULL,
+    status ENUM('open','replied','closed') DEFAULT 'open',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_status (status)
+);
+
+CREATE TABLE stock_notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    name VARCHAR(100),
+    notified TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_notify (product_id, email)
+);
+
 -- ============================================================
 -- SEED DATA
 -- ============================================================

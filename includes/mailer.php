@@ -368,3 +368,47 @@ function emailSupportAutoReply(string $customerName): string {
         </a>
     ");
 }
+
+// ── Admin reply to support ticket ────────────────────────────
+function emailAdminReply(string $customerName, string $originalMessage, string $adminReply): string {
+    return emailWrap("Re: Your Support Request — " . SITE_NAME, "
+        <h2 style='color:#0f3460;margin-top:0'>💬 Reply from Our Support Team</h2>
+        <p>Hi <strong>" . htmlspecialchars($customerName) . "</strong>,</p>
+        <p>Thank you for contacting us. Here is our response to your message:</p>
+
+        <div style='background:#f8f9fa;border-left:4px solid #6c757d;border-radius:6px;padding:14px 18px;margin:16px 0'>
+            <small style='color:#888;display:block;margin-bottom:6px'>Your original message:</small>
+            <p style='margin:0;color:#555;font-style:italic'>" . nl2br(htmlspecialchars($originalMessage)) . "</p>
+        </div>
+
+        <div style='background:#e8f5e9;border-left:4px solid #28a745;border-radius:6px;padding:14px 18px;margin:16px 0'>
+            <small style='color:#888;display:block;margin-bottom:6px'>Our reply:</small>
+            <p style='margin:0;color:#333;font-size:15px;line-height:1.7'>" . nl2br(htmlspecialchars($adminReply)) . "</p>
+        </div>
+
+        <p>If you have further questions, feel free to reply to this email or contact us:</p>
+        <ul style='line-height:2'>
+            <li>📧 <a href='mailto:" . ADMIN_EMAIL . "' style='color:#0f3460'>" . ADMIN_EMAIL . "</a></li>
+            <li>📱 <a href='tel:" . ADMIN_PHONE . "' style='color:#0f3460'>" . ADMIN_PHONE . "</a></li>
+        </ul>
+        <a href='" . SITE_URL . "'
+           style='background:#0f3460;color:#fff;padding:10px 22px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block;margin-top:8px'>
+            Visit Our Store →
+        </a>
+    ");
+}
+
+// ── Stock back-in-stock notification ─────────────────────────
+function emailStockNotification(string $customerName, string $productName, int $productId): string {
+    return emailWrap("🔔 " . $productName . " is back in stock!", "
+        <h2 style='color:#0f3460;margin-top:0'>🔔 Good News, " . htmlspecialchars($customerName) . "!</h2>
+        <p><strong>" . htmlspecialchars($productName) . "</strong> is now back in stock and available for purchase.</p>
+        <p style='text-align:center;margin:24px 0'>
+            <a href='" . SITE_URL . "/product.php?id=" . $productId . "'
+               style='background:#e94560;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1rem'>
+                🛒 Buy Now →
+            </a>
+        </p>
+        <p style='color:#888;font-size:13px'>Hurry — stock is limited! This notification was sent because you requested it via our chatbot.</p>
+    ");
+}

@@ -101,7 +101,7 @@ function quickReply(text) {
     sendMessage();
 }
 
-function appendMessage(text, type, quickReplies) {
+function appendMessage(text, type, quickReplies, logId = null) {
     const messages = document.getElementById('chat-messages');
     const div = document.createElement('div');
     div.className = type === 'user' ? 'user-msg' : 'bot-msg';
@@ -120,6 +120,17 @@ function appendMessage(text, type, quickReplies) {
             qrDiv.appendChild(btn);
         });
         div.appendChild(qrDiv);
+    }
+
+    // ── Rating buttons (only for bot messages) ──
+    if (type === 'bot' && logId) {
+        const rateDiv = document.createElement('div');
+        rateDiv.className = 'chat-rating';
+        rateDiv.style.cssText = 'margin-top:4px;font-size:.72rem;color:rgba(255,255,255,.5)';
+        rateDiv.innerHTML = `<span style="margin-right:4px">Was this helpful?</span>
+            <button onclick="rateResponse(${logId}, 1, this.parentElement)" style="background:none;border:none;cursor:pointer;font-size:.9rem;padding:0 3px" title="Yes">👍</button>
+            <button onclick="rateResponse(${logId}, 0, this.parentElement)" style="background:none;border:none;cursor:pointer;font-size:.9rem;padding:0 3px" title="No">👎</button>`;
+        div.appendChild(rateDiv);
     }
 
     messages.appendChild(div);
@@ -176,7 +187,8 @@ async function sendMessage() {
         appendMessage(
             data.response || 'Sorry, I could not process that.',
             'bot',
-            data.quick_replies || []
+            data.quick_replies || [],
+            data.log_id || null
         );
     } catch (err) {
         removeTyping();
@@ -190,3 +202,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Small delay so the widget renders first
     setTimeout(loadChatHistory, 300);
 });
+
+// ── Rate a chatbot response ──
+async function rateResponse(logId, rating, el) {
+    try {
+        await fetch(CHATBOT_API_URL + '?action=rate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ log_id: logId, rating: rating, session_id: CHAT_SESSION_ID })
+        });
+        el.innerHTML = rating === 1
+            ? '<span style="color:#4caf50">👍 Thanks for your feedback!</span>'
+            : '<span style="color:#e94560">👎 Thanks! We\'ll improve.</span>';
+    } catch(e) {}
+}

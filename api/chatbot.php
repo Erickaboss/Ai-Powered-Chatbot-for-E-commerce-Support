@@ -55,11 +55,41 @@ if (($_GET['action'] ?? '') === 'history') {
     exit;
 }
 
+// ── Rate endpoint ──
+if (($_GET['action'] ?? '') === 'rate') {
+    header('Content-Type: application/json');
+    $logId  = (int)($input['log_id'] ?? 0);
+    $rating = (int)($input['rating'] ?? -1);
+    $uid2   = $_SESSION['user_id'] ?? null;
+    $sid2   = $conn->real_escape_string(preg_replace('/[^a-f0-9]/i','', $input['session_id'] ?? ''));
+    if ($logId && in_array($rating, [0,1])) {
+        $ui2 = $uid2 ? (int)$uid2 : 'NULL';
+        $conn->query("INSERT IGNORE INTO chatbot_ratings (log_id, user_id, session_id, rating) VALUES ($logId, $ui2, '$sid2', $rating)");
+    }
+    echo json_encode(['ok' => true]);
+    exit;
+}
+
+// ── Stock notification endpoint ──
+if (($_GET['action'] ?? '') === 'stock_notify') {
+    header('Content-Type: application/json');
+    $pid   = (int)($input['product_id'] ?? 0);
+    $email = trim($input['email'] ?? '');
+    $name  = $conn->real_escape_string(trim($input['name'] ?? 'Customer'));
+    if ($pid && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $safeEmail = $conn->real_escape_string($email);
+        $conn->query("INSERT IGNORE INTO stock_notifications (product_id, email, name) VALUES ($pid, '$safeEmail', '$name')");
+        echo json_encode(['ok' => true]);
+    } else {
+        echo json_encode(['error' => 'Invalid data']);
+    }
+    exit;
+}
+
 if (empty($message)) {
     echo json_encode(['response' => 'Please type a message.', 'quick_replies' => []]);
     exit;
 }
-
 try {
     if ($user_id) {
         $chk = $conn->query("SELECT id FROM users WHERE id=" . (int)$user_id . " LIMIT 1");
@@ -101,9 +131,9 @@ try {
     if (!$saved) {
         error_log("chatbot_logs INSERT failed: " . $conn->error . " | uid=$ui sid=$sid");
     }
+    $log_id = (int)$conn->insert_id;
 
-    echo json_encode(['response' => $response, 'quick_replies' => $qr, 'session_id' => $session_id]);
-} catch (Throwable $e) {
+    echo json_encode(['response' => $response, 'quick_replies' => $qr, 'session_id' => $session_id, 'log_id' => $log_id]);} catch (Throwable $e) {
     echo json_encode(['response' => 'Something went wrong. Please try again.', 'quick_replies' => ['Show me products', 'Contact support']]);
 }
 exit;
@@ -288,6 +318,14 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
             $u = $conn->query("SELECT name, email FROM users WHERE id=$uid")->fetch_assoc();
             if ($u) { $customerName = $u['name']; $customerEmail = $u['email']; }
         }
+        // ── Save to support_tickets table ──
+        $safeName    = $conn->real_escape_string($customerName);
+        $safeEmail   = $conn->real_escape_string($customerEmail);
+        $safeMsg     = $conn->real_escape_string($supportMsg);
+        $safeSid     = $conn->real_escape_string($session_id);
+        $ui          = $uid ? (int)$uid : 'NULL';
+        $conn->query("INSERT INTO support_tickets (user_id, session_id, customer_name, customer_email, message) VALUES ($ui, '$safeSid', '$safeName', '$safeEmail', '$safeMsg')");
+
         require_once __DIR__ . '/../includes/mailer.php';
         $adminSent = sendMail(ADMIN_EMAIL, ADMIN_NAME,
             "📩 Support Request from $customerName",
@@ -593,6 +631,36 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         return reply(orderHistory($uid, $conn), ['Track an order', 'Cancel an order']);
     }
 
+    // ── 6b. INVOICE DOWNLOAD ──
+    if (preg_match('/\b(invoice|download invoice|get invoice|print invoice|receipt)\b/i', $ml)) {
+        if (!$uid) return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> to access your invoices.");
+        if (preg_match('/#?0*(\d+)\b/', $msg, $m)) {
+            $oid = (int)$m[1];
+            $chk = $conn->query("SELECT id FROM orders WHERE id=$oid AND user_id=$uid LIMIT 1")->fetch_assoc();
+            if ($chk) {
+                return reply(
+                    "🧾 <strong>Invoice for Order #" . str_pad($oid,6,'0',STR_PAD_LEFT) . "</strong><br><br>" .
+                    "<a href='" . SITE_URL . "/invoice.php?id=$oid' target='_blank'><strong>📄 Download / Print Invoice →</strong></a>",
+                    ['My orders', 'Track my order']
+                );
+            }
+            return reply("❌ Order #$oid not found under your account.", ['My orders']);
+        }
+        // No order number — show list
+        $res = $conn->query("SELECT id FROM orders WHERE user_id=$uid ORDER BY created_at DESC LIMIT 5");
+        $links = '';
+        while ($o = $res->fetch_assoc()) {
+            $num = str_pad($o['id'],6,'0',STR_PAD_LEFT);
+            $links .= "• <a href='" . SITE_URL . "/invoice.php?id={$o['id']}' target='_blank'>Invoice #$num →</a><br>";
+        }
+        return reply(
+            $links
+                ? "🧾 <strong>Your Recent Invoices:</strong><br><br>$links"
+                : "You have no orders yet.",
+            ['My orders', 'Track my order']
+        );
+    }
+
     // ── 7. DELIVERY TIME ──
     if (preg_match('/\b(delivery time|how long|when will|shipping time|estimated delivery|dispatch|how many days|livraison|delivery day)\b/i', $ml)) {
         return reply(
@@ -726,14 +794,49 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         $rows = dbProductSearch($msg, $conn);
         if (!empty($rows)) {
             $p = $rows[0];
+            if ($p['stock'] > 0) {
+                return reply(
+                    "✅ <strong>" . htmlspecialchars($p['name']) . "</strong> is in stock — <strong>" . $p['stock'] . " units</strong> available.<br><a href='" . SITE_URL . "/product.php?id={$p['id']}'>View product →</a>",
+                    ['Show similar products', 'Browse all products']
+                );
+            } else {
+                // Out of stock — offer notification
+                $notifyBtn = $uid
+                    ? "notify_stock:{$p['id']}"
+                    : "notify_stock_guest:{$p['id']}";
+                return reply(
+                    "❌ <strong>" . htmlspecialchars($p['name']) . "</strong> is currently <strong>out of stock</strong>.<br><br>" .
+                    "🔔 Would you like to be notified by email when it's back in stock?",
+                    ['🔔 Notify me when available', 'Show similar products', 'Browse all products']
+                );
+            }
+        }
+        return reply("Which product would you like to check? Type the product name, e.g. <em>is Samsung A54 in stock?</em>");
+    }
+
+    // ── Handle stock notification request ──
+    if (preg_match('/\bnotify me when available\b|🔔 Notify me/i', $ml)) {
+        if (!$uid) {
             return reply(
-                $p['stock'] > 0
-                    ? "✅ <strong>" . htmlspecialchars($p['name']) . "</strong> is in stock — <strong>" . $p['stock'] . " units</strong> available.<br><a href='" . SITE_URL . "/product.php?id={$p['id']}'>View product →</a>"
-                    : "❌ <strong>" . htmlspecialchars($p['name']) . "</strong> is currently out of stock. Would you like a similar product?",
+                "🔒 Please <a href='" . SITE_URL . "/login.php'><strong>login</strong></a> or provide your email to get notified.<br>" .
+                "Type your email address and I'll save it:",
+                ['Login', 'Register free']
+            );
+        }
+        $u = $conn->query("SELECT email, name FROM users WHERE id=$uid LIMIT 1")->fetch_assoc();
+        // Find last out-of-stock product from context
+        if (!empty($ctx['last_products'])) {
+            $p = $ctx['last_products'][0];
+            $pid = (int)$p['id'];
+            $safeEmail = $conn->real_escape_string($u['email']);
+            $safeName  = $conn->real_escape_string($u['name']);
+            $conn->query("INSERT IGNORE INTO stock_notifications (product_id, email, name) VALUES ($pid, '$safeEmail', '$safeName')");
+            return reply(
+                "🔔 Done! We'll email <strong>" . htmlspecialchars($u['email']) . "</strong> as soon as <strong>" . htmlspecialchars($p['name']) . "</strong> is back in stock.",
                 ['Show similar products', 'Browse all products']
             );
         }
-        return reply("Which product would you like to check? Type the product name, e.g. <em>is Samsung A54 in stock?</em>");
+        return reply("Please tell me which product you'd like to be notified about.", ['Show me products']);
     }
 
     // ── 18. RECOMMENDATION ──
