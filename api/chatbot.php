@@ -483,24 +483,44 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
 
     // ── 1. GREETING ──
     if (preg_match('/\b(hi|hello|hey|good morning|good afternoon|good evening|bonjour|salut|muraho|mwaramutse|mwiriwe|howdy|hie|sup|yo)\b/i', $ml)) {
-        $name = $uid ? getFirstName($uid, $conn) : 'there';
-        return reply(
-            "👋 Hello, <strong>$name</strong>! Welcome to <strong>" . SITE_NAME . "</strong>.<br>" .
-            "I can help you with:<br>" .
-            "• 🛍️ Find products & check prices<br>" .
-            "• 📦 Track or cancel orders<br>" .
-            "• 🚚 Delivery info & shipping fees<br>" .
-            "• 💳 Payment methods<br>" .
-            "• ↩️ Returns & refunds<br>" .
-            "What do you need today?",
-            ['Show me products', 'Track my order', 'Delivery info', 'Payment methods']
-        );
+        if ($uid) {
+            // ── Registered customer ──
+            $u      = $conn->query("SELECT name FROM users WHERE id=$uid LIMIT 1")->fetch_assoc();
+            $name   = $u ? explode(' ', trim($u['name']))[0] : 'there';
+            $oCount = $conn->query("SELECT COUNT(*) as c FROM orders WHERE user_id=$uid")->fetch_assoc()['c'];
+            $latest = $conn->query("SELECT id, status FROM orders WHERE user_id=$uid ORDER BY created_at DESC LIMIT 1")->fetch_assoc();
+            $orderLine = '';
+            if ($latest) {
+                $emoji = ['pending'=>'⏳','processing'=>'⚙️','shipped'=>'🚚','delivered'=>'✅','cancelled'=>'❌'][$latest['status']] ?? '📦';
+                $orderLine = "<br>📦 Your latest order <strong>#" . $latest['id'] . "</strong> is $emoji <strong>" . ucfirst($latest['status']) . "</strong>.";
+            }
+            return reply(
+                "👋 Welcome back, <strong>$name</strong>! Great to see you at <strong>" . SITE_NAME . "</strong>.<br>" .
+                "You have <strong>$oCount order" . ($oCount != 1 ? 's' : '') . "</strong> with us." . $orderLine . "<br><br>" .
+                "How can I help you today?",
+                ['Show me products', 'Track my order', 'My orders', 'Contact support']
+            );
+        } else {
+            // ── Guest ──
+            return reply(
+                "👋 Hello! Welcome to <strong>" . SITE_NAME . "</strong>.<br><br>" .
+                "I'm your AI shopping assistant. I can help you:<br>" .
+                "• 🛍️ Browse & find products<br>" .
+                "• 💰 Check prices<br>" .
+                "• 🚚 Delivery & payment info<br>" .
+                "• ↩️ Return policy<br><br>" .
+                "💡 <strong>Tip:</strong> <a href='" . SITE_URL . "/register.php'><strong>Create a free account</strong></a> to place orders, track deliveries, and get order updates!",
+                ['Show me products', 'Register free', 'Login', 'Delivery info']
+            );
+        }
     }
 
     // ── 2. GOODBYE / THANKS ──
     if (preg_match('/\b(bye|goodbye|see you|take care|later|thank you|thanks|merci|murakoze|au revoir|ciao)\b/i', $ml)) {
-        return reply("😊 Thank you for visiting <strong>" . SITE_NAME . "</strong>! Have a great day. I'm here 24/7 whenever you need help! 🌟",
-            ['Browse products', 'Contact support']);
+        $closing = $uid
+            ? "😊 Thank you, <strong>" . getFirstName($uid, $conn) . "</strong>! Have a great day. Come back anytime! 🌟"
+            : "😊 Thank you for visiting <strong>" . SITE_NAME . "</strong>! <a href='" . SITE_URL . "/register.php'>Create an account</a> to enjoy full shopping features. Have a great day! 🌟";
+        return reply($closing, ['Browse products', 'Contact support']);
     }
 
     // ── 3. SMALL TALK ──
@@ -513,17 +533,33 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
             ['Show me products', 'What can you do?']);
     }
     if (preg_match('/what can you do|how can you help|help me/i', $ml)) {
-        return reply("Here's what I can do for you:<br>" .
-            "• 🛍️ <em>Show me phones under 200k</em><br>" .
-            "• 💰 <em>Price of Samsung Galaxy A54</em><br>" .
-            "• 📦 <em>Track order 5</em><br>" .
-            "• ❌ <em>Cancel order 3</em><br>" .
-            "• 🚚 <em>Delivery time to Kigali</em><br>" .
-            "• 💳 <em>Payment methods</em><br>" .
-            "• ↩️ <em>Return policy</em><br>" .
-            "• 🛡️ <em>Warranty info</em><br>" .
-            "Just type naturally — I understand English, French & Kinyarwanda!",
-            ['Show me products', 'Track my order', 'Delivery info']);
+        if ($uid) {
+            $name = getFirstName($uid, $conn);
+            return reply(
+                "Here's what I can do for you, <strong>$name</strong>:<br>" .
+                "• 🛍️ <em>Show me phones under 200k</em><br>" .
+                "• 💰 <em>Price of Samsung Galaxy A54</em><br>" .
+                "• 📦 <em>Track order 5</em> or <em>#000005</em><br>" .
+                "• ❌ <em>Cancel order 3</em><br>" .
+                "• 🛒 <em>I want Nokia G21</em> — place order via chat<br>" .
+                "• 🚚 <em>Delivery time to Kigali</em><br>" .
+                "• 💳 <em>Payment methods</em><br>" .
+                "• ↩️ <em>Return policy</em><br>" .
+                "Just type naturally — I understand English, French & Kinyarwanda!",
+                ['Show me products', 'Track my order', 'My orders', 'Delivery info']
+            );
+        } else {
+            return reply(
+                "Here's what I can help you with:<br>" .
+                "• 🛍️ <em>Show me phones under 200k</em><br>" .
+                "• 💰 <em>Price of Samsung Galaxy A54</em><br>" .
+                "• 🚚 <em>Delivery time to Kigali</em><br>" .
+                "• 💳 <em>Payment methods</em><br>" .
+                "• ↩️ <em>Return policy</em><br><br>" .
+                "🔒 To place orders & track deliveries, <a href='" . SITE_URL . "/register.php'><strong>create a free account</strong></a> or <a href='" . SITE_URL . "/login.php'><strong>login</strong></a>.",
+                ['Show me products', 'Register free', 'Login', 'Delivery info']
+            );
+        }
     }
 
     // ── 4. ORDER TRACKING ──
@@ -646,7 +682,7 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
     }
 
     // ── 14. ACCOUNT HELP ──
-    if (preg_match('/\b(my account|forgot password|reset password|change password|register|sign up|create account|login help|sign in)\b/i', $ml)) {
+    if (preg_match('/\b(my account|forgot password|reset password|change password|register|sign up|create account|login help|sign in|register free)\b/i', $ml)) {
         if (preg_match('/forgot|reset|change password/i', $ml))
             return reply("🔑 To reset your password, visit your <a href='" . SITE_URL . "/profile.php'>Profile page</a> or email <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a>.", ['Login', 'Contact support']);
         if (preg_match('/register|sign up|create/i', $ml))
