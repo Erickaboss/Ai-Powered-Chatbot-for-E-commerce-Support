@@ -60,7 +60,8 @@ $orders = $conn->query("SELECT * FROM orders WHERE user_id=$uid ORDER BY created
                     <td><strong>RWF <?= number_format($o['total_price']) ?></strong></td>
                     <td style="font-size:.82rem;color:#666;text-transform:uppercase"><?= htmlspecialchars($o['payment_method'] ?? 'COD') ?></td>
                     <td><span class="status-<?= $o['status'] ?>"><?= ucfirst($o['status']) ?></span></td>
-                    <td><a href="order_detail.php?id=<?= $o['id'] ?>" class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:.78rem">View Details</a></td>
+                    <td><a href="order_detail.php?id=<?= $o['id'] ?>" class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:.78rem">View Details</a>
+                    <a href="invoice.php?id=<?= $o['id'] ?>" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;font-size:.78rem" target="_blank"><i class="bi bi-file-earmark-text me-1"></i>Invoice</a></td>
                 </tr>
                 <?php endwhile; ?>
                 </tbody>

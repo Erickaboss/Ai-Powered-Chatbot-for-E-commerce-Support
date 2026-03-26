@@ -7,10 +7,10 @@
 1. DATASET SUMMARY
 -----------------------------------------------------------------
    Source         : Custom E-commerce Intents (intents.json)
-   Total Patterns : 2074
-   Total Intents  : 21
-   Train Samples  : 1659
-   Test  Samples  : 415
+   Total Patterns : 2213
+   Total Intents  : 26
+   Train Samples  : 1770
+   Test  Samples  : 443
    Split Ratio    : 80% Train / 20% Test (Stratified)
 
 2. MODELS SELECTED
@@ -25,23 +25,23 @@
 -----------------------------------------------------------------
    Model                          Accuracy  Precision     Recall   F1 Score
    ------------------------------------------------------------
-   Logistic Regression              87.95%     88.85%     87.95%     87.99%
-   Random Forest                    81.45%     83.33%     81.45%     81.46%
-   SVM (RBF Kernel)                 86.27%     87.62%     86.27%     86.38%
-   MLP Neural Network               87.47%     89.00%     87.47%     87.62%
+   Logistic Regression              86.46%     87.22%     86.46%     86.57%
+   Random Forest                    81.72%     82.61%     81.72%     81.40%
+   SVM (RBF Kernel)                 84.65%     85.78%     84.65%     84.65%
+   MLP Neural Network               86.23%     88.13%     86.23%     86.67%
 
 4. CROSS-VALIDATION (5-Fold)
 -----------------------------------------------------------------
-   Logistic Regression          Mean: 81.82%  Std: ±1.70%
-   Random Forest                Mean: 73.29%  Std: ±2.71%
-   SVM (RBF Kernel)             Mean: 79.65%  Std: ±1.80%
-   MLP Neural Network           Mean: 77.34%  Std: ±4.04%
+   Logistic Regression          Mean: 78.40%  Std: ±1.81%
+   Random Forest                Mean: 70.90%  Std: ±4.13%
+   SVM (RBF Kernel)             Mean: 75.92%  Std: ±1.61%
+   MLP Neural Network           Mean: 74.43%  Std: ±2.67%
 
 5. BEST MODEL
 -----------------------------------------------------------------
    Selected Model : Logistic Regression
-   Accuracy       : 87.95%
-   F1 Score       : 87.99%
+   Accuracy       : 86.46%
+   F1 Score       : 86.57%
 
 6. SYSTEM ARCHITECTURE
 -----------------------------------------------------------------

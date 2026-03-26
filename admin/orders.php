@@ -76,15 +76,20 @@ $statuses = ['pending','processing','shipped','delivered','cancelled'];
         </table>
         <div class="d-flex justify-content-between align-items-center">
             <strong>Total: RWF <?= number_format($view_order['total_price'], 2) ?></strong>
-            <form method="POST" class="d-flex gap-2">
-                <input type="hidden" name="order_id" value="<?= $view_order['id'] ?>">
-                <select name="status" class="form-select form-select-sm">
-                    <?php foreach ($statuses as $s): ?>
-                    <option value="<?= $s ?>" <?= $view_order['status'] === $s ? 'selected' : '' ?>><?= ucfirst($s) ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <button class="btn btn-sm btn-dark">Update Status</button>
-            </form>
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+                <a href="<?= SITE_URL ?>/invoice.php?id=<?= $view_order['id'] ?>" class="btn btn-sm btn-outline-secondary" target="_blank">
+                    <i class="bi bi-file-earmark-text me-1"></i>View Invoice
+                </a>
+                <form method="POST" class="d-flex gap-2">
+                    <input type="hidden" name="order_id" value="<?= $view_order['id'] ?>">
+                    <select name="status" class="form-select form-select-sm">
+                        <?php foreach ($statuses as $s): ?>
+                        <option value="<?= $s ?>" <?= $view_order['status'] === $s ? 'selected' : '' ?>><?= ucfirst($s) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button class="btn btn-sm btn-dark">Update Status</button>
+                </form>
+            </div>
         </div>
     </div>
     <?php endif; ?>
@@ -106,6 +111,10 @@ $statuses = ['pending','processing','shipped','delivered','cancelled'];
                     <!-- View button -->
                     <a href="?view=<?= $o['id'] ?>" class="btn btn-sm btn-outline-dark">
                         <i class="bi bi-eye"></i> View
+                    </a>
+                    <!-- Invoice button -->
+                    <a href="<?= SITE_URL ?>/invoice.php?id=<?= $o['id'] ?>" class="btn btn-sm btn-outline-secondary" target="_blank">
+                        <i class="bi bi-file-earmark-text"></i> Invoice
                     </a>
 
                     <!-- Quick approve: only show if pending -->

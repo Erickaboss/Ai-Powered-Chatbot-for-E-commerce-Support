@@ -1136,6 +1136,100 @@
         "I'm an AI chatbot powered by Machine Learning and Google Gemini. I help with shopping!",
         "I'm your 24/7 AI assistant. I can find products, track orders, and answer questions!"
       ]
+    },
+    {
+      "tag": "invoice",
+      "patterns": [
+        "invoice", "download invoice", "get invoice", "print invoice", "my invoice",
+        "invoice for order", "show invoice", "receipt", "get receipt", "download receipt",
+        "print receipt", "order receipt", "billing", "bill", "get bill",
+        "invoice order 5", "download invoice for order 5", "invoice number",
+        "show my receipt", "i need invoice", "i want invoice", "give me invoice",
+        "where is my invoice", "how to get invoice", "can i get invoice",
+        "invoice please", "receipt please", "billing document", "proof of purchase",
+        "purchase receipt", "order confirmation document", "tax invoice",
+        "invoice download", "receipt download", "get my bill"
+      ],
+      "responses": [
+        "To download your invoice, go to My Orders and click the Invoice button next to your order.",
+        "You can download your invoice from the My Orders page or by typing 'invoice for order [number]'.",
+        "Your invoice is available on the order detail page. Visit My Orders to find it.",
+        "Type 'invoice for order 5' and I'll give you a direct download link!"
+      ]
+    },
+    {
+      "tag": "chatbot_rating",
+      "patterns": [
+        "rate this response", "thumbs up", "thumbs down", "good answer", "bad answer",
+        "helpful", "not helpful", "great response", "poor response", "rate the bot",
+        "feedback", "give feedback", "rate chatbot", "was this helpful",
+        "this was helpful", "this was not helpful", "good job", "bad job",
+        "excellent answer", "wrong answer", "correct answer", "rate your answer",
+        "i like this", "i don't like this", "satisfied", "not satisfied",
+        "happy with answer", "unhappy with answer", "great help", "no help"
+      ],
+      "responses": [
+        "Thank you for your feedback! It helps us improve.",
+        "We appreciate your rating! Your feedback makes our AI better.",
+        "Thanks for letting us know! We'll keep improving.",
+        "Your feedback is valuable to us. Thank you!"
+      ]
+    },
+    {
+      "tag": "stock_notification",
+      "patterns": [
+        "notify me when available", "notify me when back in stock", "out of stock notification",
+        "alert me when available", "email me when back", "stock alert",
+        "let me know when available", "inform me when in stock", "back in stock alert",
+        "notify when restocked", "stock notification", "availability alert",
+        "tell me when available", "send me alert when in stock", "restock notification",
+        "when will it be available", "when will it be back", "when is it back in stock",
+        "is it coming back", "will it be restocked", "restock date",
+        "notify me for out of stock product", "i want to be notified",
+        "set up stock alert", "create stock alert", "stock reminder"
+      ],
+      "responses": [
+        "I can notify you when a product is back in stock! Just ask about the product and I'll set up an alert.",
+        "Sure! Tell me which product you want to be notified about and I'll email you when it's available.",
+        "Stock notifications are available! Ask about any out-of-stock product and I'll set up an email alert for you.",
+        "I'll send you an email as soon as the product is back in stock. Which product interests you?"
+      ]
+    },
+    {
+      "tag": "support_ticket",
+      "patterns": [
+        "support ticket", "open ticket", "create ticket", "submit ticket",
+        "report issue", "report problem", "file complaint", "lodge complaint",
+        "i have a problem", "i have an issue", "something is wrong",
+        "i need help with my order", "order problem", "delivery problem",
+        "payment problem", "wrong item received", "item not delivered",
+        "contact support", "talk to support", "reach support team",
+        "human support", "speak to agent", "live support", "customer care",
+        "help me with issue", "i want to report", "report a problem",
+        "escalate issue", "urgent help", "need urgent assistance",
+        "my order is wrong", "i received wrong item", "damaged product",
+        "missing item in order", "order not arrived", "late delivery"
+      ],
+      "responses": [
+        "I'll connect you with our support team right away. Please type your message and we'll respond within 24 hours.",
+        "Our support team is here to help! Type your issue and we'll email you a response.",
+        "I'm creating a support ticket for you. Please describe your issue in detail.",
+        "Let me help you reach our support team. Type your message and we'll get back to you soon!"
+      ]
+    },
+    {
+      "tag": "analytics",
+      "patterns": [
+        "chatbot analytics", "chatbot statistics", "chatbot performance",
+        "how many users", "chatbot usage", "conversation stats",
+        "satisfaction rate", "chatbot rating", "how is chatbot performing",
+        "chatbot report", "usage report", "conversation report"
+      ],
+      "responses": [
+        "Chatbot analytics are available in the admin dashboard under Analytics.",
+        "The admin can view detailed chatbot statistics including satisfaction rates and top questions.",
+        "Analytics data is available to administrators in the admin panel."
+      ]
     }
   ]
 }

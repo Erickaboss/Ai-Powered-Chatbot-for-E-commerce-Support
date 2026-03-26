@@ -127,9 +127,12 @@ $step_labels = ['Order Placed','Processing','Shipped','Delivered'];
         </div>
     </div>
 
-    <div class="mt-4">
+    <div class="mt-4 d-flex gap-2 flex-wrap">
         <a href="orders.php" class="btn btn-outline-secondary" style="border-radius:10px">
             <i class="bi bi-arrow-left me-2"></i>Back to Orders
+        </a>
+        <a href="invoice.php?id=<?= $oid ?>" class="btn btn-dark" style="border-radius:10px" target="_blank">
+            <i class="bi bi-file-earmark-text me-2"></i>Download Invoice
         </a>
     </div>
 </div>
