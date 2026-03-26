@@ -13,20 +13,30 @@ function sendMail(string $toEmail, string $toName, string $subject, string $html
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
-        $mail->Host       = SMTP_HOST;
-        $mail->SMTPAuth   = true;
-        $mail->Username   = SMTP_USER;
-        $mail->Password   = SMTP_PASS;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = SMTP_PORT;
+        $mail->Host        = SMTP_HOST;
+        $mail->SMTPAuth    = true;
+        $mail->Username    = SMTP_USER;
+        $mail->Password    = SMTP_PASS;
+        $mail->SMTPSecure  = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port        = SMTP_PORT;
+        $mail->Timeout     = 30;
 
-        $mail->setFrom(ADMIN_EMAIL, SMTP_FROM_NAME);
+        // ── Anti-spam headers ──
+        $mail->setFrom(SMTP_USER, SMTP_FROM_NAME);   // From must match SMTP login
+        $mail->addReplyTo(SMTP_USER, SMTP_FROM_NAME);
         $mail->addAddress($toEmail, $toName);
         $mail->isHTML(true);
-        $mail->CharSet = 'UTF-8';
-        $mail->Subject = $subject;
-        $mail->Body    = $htmlBody;
-        $mail->AltBody = strip_tags(str_replace(['<br>','<br/>','</p>','</li>'], "\n", $htmlBody));
+        $mail->CharSet   = 'UTF-8';
+        $mail->Encoding  = 'base64';
+        $mail->Subject   = $subject;
+        $mail->Body      = $htmlBody;
+        $mail->AltBody   = strip_tags(str_replace(['<br>','<br/>','</p>','</li>'], "\n", $htmlBody));
+
+        // ── Extra headers to reduce spam score ──
+        $mail->addCustomHeader('X-Mailer', 'PHP/' . phpversion());
+        $mail->addCustomHeader('X-Priority', '3');
+        $mail->addCustomHeader('Precedence', 'bulk');
+        $mail->addCustomHeader('List-Unsubscribe', '<mailto:' . SMTP_USER . '?subject=unsubscribe>');
 
         $mail->send();
         return true;

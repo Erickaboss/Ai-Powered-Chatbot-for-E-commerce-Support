@@ -25,7 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param("ssss", $name, $email, $hash, $phone);
             $stmt->execute();
             require_once 'includes/mailer.php';
-            sendMail($email, $name, 'Welcome to '.SITE_NAME.'!', emailWelcome($name));
+            $mailSent = sendMail($email, $name, '[' . SITE_NAME . '] Welcome to your new account!', emailWelcome($name));
+            if (!$mailSent) {
+                error_log("Welcome email failed for: $email");
+            }
             $success = 'Account created! <a href="login.php" class="fw-600">Login here →</a>';
         }
     }
