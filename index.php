@@ -14,7 +14,7 @@ $cat_icons  = ['bi-phone','bi-laptop','bi-tv','bi-house-door','bi-person','bi-ba
                 <h1 class="mb-3">Shop Smarter with <span style="color:#f5a623">AI Support</span> 24/7</h1>
                 <p class="mb-4">Discover 1,000+ products across 15 categories. Our AI assistant helps you find, buy, and track orders — all in one conversation.</p>
                 <div class="d-flex flex-wrap gap-3 mb-4">
-                    <a href="products.php" class="btn btn-lg px-4"
+                    <a href="<?= SITE_URL ?>/products.php" class="btn btn-lg px-4"
                        style="background:linear-gradient(135deg,#e94560,#f5a623);color:#fff;border-radius:12px;font-weight:700;border:none">
                         <i class="bi bi-grid me-2"></i>Shop Now
                     </a>
