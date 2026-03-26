@@ -22,8 +22,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'search') {
     $ch = curl_init($url);
     curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10]);
     $resp = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     $data  = json_decode($resp, true);
+    if ($httpCode !== 200) {
+        $errMsg = $data['error']['message'] ?? $resp;
+        echo json_encode(['error' => "API Error ($httpCode): $errMsg"]);
+        exit;
+    }
     $items = $data['items'] ?? [];
     $results = array_map(fn($i) => [
         'url'   => $i['link'],
@@ -172,7 +178,7 @@ async function searchImages(id) {
             box.appendChild(img);
         });
     } catch(e) {
-        box.innerHTML = '<span class="text-danger" style="font-size:.75rem">Search failed. Check API key.</span>';
+        box.innerHTML = '<span class="text-danger" style="font-size:.75rem">Search failed: ' + e.message + '</span>';
     }
 }
 
