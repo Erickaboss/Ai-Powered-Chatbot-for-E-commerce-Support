@@ -75,15 +75,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'status'         => 'pending',
                 'created_at'     => date('Y-m-d H:i:s'),
             ];
+            // Normalize items for email
+            $emailItems = array_map(fn($r) => ['name'=>$r['name'],'price'=>$r['price'],'quantity'=>$r['quantity']], $rows);
             sendMail(
                 $user['email'], $user['name'],
                 'Order Confirmed — #' . str_pad($order_id, 6, '0', STR_PAD_LEFT) . ' | ' . SITE_NAME,
-                emailOrderConfirmation($orderData, $rows)
+                emailOrderConfirmation($orderData, $emailItems)
             );
             // ── Notify admin of new order ──
             sendMail(ADMIN_EMAIL, ADMIN_NAME,
                 '[' . SITE_NAME . '] 🛒 New Order #' . str_pad($order_id, 6, '0', STR_PAD_LEFT) . ' from ' . $user['name'],
-                emailNewOrderAdmin($orderData, $rows)
+                emailNewOrderAdmin($orderData, $emailItems)
             );
             header("Location: order_detail.php?id=$order_id&new=1"); exit;
         }

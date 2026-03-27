@@ -2,11 +2,20 @@
 require_once 'includes/header.php';
 if (!isset($_SESSION['user_id'])) { header('Location: login.php'); exit; }
 $uid  = $_SESSION['user_id'];
+$role = $_SESSION['user_role'] ?? 'customer';
 $oid  = (int)($_GET['id'] ?? 0);
-$stmt = $conn->prepare("SELECT * FROM orders WHERE id=? AND user_id=?");
-$stmt->bind_param("ii", $oid, $uid); $stmt->execute();
+
+// Admin can view any order; customers only their own
+if ($role === 'admin') {
+    $stmt = $conn->prepare("SELECT * FROM orders WHERE id=?");
+    $stmt->bind_param("i", $oid);
+} else {
+    $stmt = $conn->prepare("SELECT * FROM orders WHERE id=? AND user_id=?");
+    $stmt->bind_param("ii", $oid, $uid);
+}
+$stmt->execute();
 $order = $stmt->get_result()->fetch_assoc();
-if (!$order) { header('Location: orders.php'); exit; }
+if (!$order) { header('Location: ' . ($role==='admin' ? 'admin/orders.php' : 'orders.php')); exit; }
 $items = $conn->query("SELECT oi.*, p.name, p.image FROM order_items oi JOIN products p ON oi.product_id=p.id WHERE oi.order_id=$oid");
 
 $steps    = ['pending','processing','shipped','delivered'];
