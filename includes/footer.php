@@ -84,7 +84,7 @@
         </div>
         <div class="footer-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
             <span>&copy; <?= date('Y') ?> <?= SITE_NAME ?>. All rights reserved.</span>
-            <span>Powered by <strong style="color:#f5a623">Gemini AI</strong> &middot; Built with PHP &amp; MySQL</span>
+            <span>Built with PHP &amp; MySQL</span>
         </div>
     </div>
 </footer>
