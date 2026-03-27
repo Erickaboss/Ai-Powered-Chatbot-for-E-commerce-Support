@@ -188,21 +188,21 @@ function extractPriceRange(string $ml): array {
 // ================================================================
 function detectCategory(string $ml): ?int {
     $map = [
-        1  => 'phone|phones|mobile|smartphone|smartphones|iphone|samsung|tecno|infinix|xiaomi|oppo|vivo|nokia|redmi|tablet|android',
-        2  => 'laptop|laptops|computer|computers|pc|macbook|dell|hp|lenovo|acer|asus|notebook|chromebook',
-        3  => 'tv|television|televisions|speaker|speakers|headphone|headphones|audio|sound|earphone|earphones|subwoofer|home theater|soundbar',
-        4  => 'fridge|fridges|washing machine|microwave|appliance|appliances|cooker|kettle|blender|iron|vacuum|oven|dishwasher',
-        5  => 'men shirt|men trouser|men suit|men shoe|men fashion|men cloth|men wear|men jacket|men clothing|menswear|fashion for men|clothes for men|men style|men outfit|men collection|for men|men only|male fashion|male clothing|male wear|gents|gentlemen',
-        6  => 'women dress|handbag|handbags|heels|ladies|women fashion|women cloth|skirt|blouse|women shoe|women clothing|womenswear|fashion|clothing|clothes|dress|fashion for women|clothes for women|female fashion|ladies fashion|for women|women only',
-        7  => 'food|grocery|groceries|rice|milk|coffee|tea|sugar|flour|cooking oil|cereal|juice|snack|snacks',
-        8  => 'beauty|skincare|lotion|shampoo|perfume|cream|makeup|deodorant|hair|cosmetic|moisturizer|cosmetics',
-        9  => 'sport|sports|gym|fitness|football|running|yoga|exercise|dumbbell|treadmill|bicycle|jersey',
-        10 => 'baby|kids|child|children|toy|toys|diaper|stroller|crib|nursery|infant|toddler',
-        11 => 'furniture|sofa|bed|table|chair|wardrobe|shelf|decor|lamp|mirror|ottoman|mattress|curtain',
-        12 => 'car|cars|vehicle|vehicles|tyre|tyres|auto|driving|motor|spare part|car accessory|car accessories',
-        13 => 'book|books|pen|pens|notebook|stationery|school|pencil|ruler|eraser|calculator',
-        14 => 'watch|watches|jewelry|jewellery|ring|necklace|bracelet|earring|gold|silver|pendant|accessories',
-        15 => 'game|games|gaming|playstation|xbox|console|controller|nintendo|ps4|ps5',
+        1  => 'phone|phones|mobile|smartphone|smartphones|iphone|samsung|tecno|infinix|xiaomi|oppo|vivo|nokia|redmi|tablet|android|ipad|galaxy|camon|spark|note|pro max',
+        2  => 'laptop|laptops|computer|computers|pc|macbook|dell|hp|lenovo|acer|asus|notebook|chromebook|desktop|monitor|keyboard|mouse|ram|processor|hard drive|ssd',
+        3  => 'smart tv|television|televisions|speaker|speakers|headphone|headphones|audio|sound|earphone|earphones|subwoofer|home theater|soundbar|home cinema|bluetooth speaker|wireless speaker|woofer|amplifier|projector',
+        4  => 'fridge|fridges|washing machine|microwave|appliance|appliances|cooker|kettle|blender|iron|vacuum|oven|dishwasher|air conditioner|fan|heater|juicer|toaster|freezer|water dispenser',
+        5  => 'men shirt|men trouser|men suit|men shoe|men fashion|men cloth|men wear|men jacket|men clothing|menswear|fashion for men|clothes for men|men style|men outfit|men collection|for men|men only|male fashion|male clothing|male wear|gents|gentlemen|men belt|men hoodie|men jeans|men polo|men sneakers',
+        6  => 'women dress|handbag|handbags|heels|ladies|women fashion|women cloth|skirt|blouse|women shoe|women clothing|womenswear|fashion for women|clothes for women|female fashion|ladies fashion|for women|women only|ankara|leggings|women blazer|women jeans|women perfume|crossbody',
+        7  => 'food|grocery|groceries|rice|milk|coffee|tea|sugar|flour|cooking oil|cereal|juice|snack|snacks|noodles|ketchup|detergent|soap|toothpaste|beverage|drinks|indomie|inyange|akabanga',
+        8  => 'beauty|skincare|lotion|shampoo|perfume|cream|makeup|deodorant|hair|cosmetic|moisturizer|cosmetics|serum|face wash|lipstick|sanitizer|vitamin|multivitamin|razor|electric toothbrush',
+        9  => 'sport|sports|gym|fitness|football|running|yoga|exercise|dumbbell|treadmill|bicycle|jersey|protein|whey|resistance band|jump rope|cycling|sneakers sport|water bottle gym',
+        10 => 'baby|kids|child|children|toy|toys|diaper|stroller|crib|nursery|infant|toddler|pampers|baby lotion|feeding bottle|kids backpack|lego|puzzle|kids bicycle|baby monitor',
+        11 => 'furniture|sofa|bed|table|chair|wardrobe|shelf|decor|lamp|mirror|ottoman|mattress|curtain|home decor|living room|bedroom|office chair|bookshelf|cabinet',
+        12 => 'car accessory|car accessories|vehicle accessory|tyre|tyres|auto part|spare part|car seat|car charger|car mat|dashboard|steering wheel cover',
+        13 => 'book|books|pen|pens|stationery|school supply|pencil|ruler|eraser|calculator|notebook school|office supply|marker|highlighter|stapler|file folder',
+        14 => 'watch|watches|jewelry|jewellery|ring|necklace|bracelet|earring|gold|silver|pendant|wrist watch|engagement ring|wedding ring|chain|bangle',
+        15 => 'game|games|gaming|playstation|xbox|console|controller|nintendo|ps4|ps5|gaming headset|gaming chair|gaming mouse|gaming keyboard|joystick|vr headset',
     ];
     foreach ($map as $id => $pattern) {
         if (preg_match("/\b($pattern)\b/i", $ml)) return $id;
@@ -1096,11 +1096,23 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
     }
     if (preg_match('/^show me (cars?|vehicles?|auto|car accessories)$/i', trim($ml))) {
         $rows = dbProductSearch('', $conn, 12);
-        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Cars & Auto'); return reply($fp['text'], array_merge($fp['qr'], ['Show me products'])); }
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Car Accessories'); return reply($fp['text'], array_merge($fp['qr'], ['Show me products'])); }
     }
     if (preg_match('/^show me (games?|gaming|playstation|xbox|consoles?)$/i', trim($ml))) {
         $rows = dbProductSearch('', $conn, 15);
-        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Gaming'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me products'])); }
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Gaming & Electronics'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me products'])); }
+    }
+    if (preg_match('/\b(show me books?|show me stationery|books and stationery|school supplies|office supplies)\b/i', $ml)) {
+        $rows = dbProductSearch('', $conn, 13);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Books & Stationery'); return reply($fp['text'], array_merge($fp['qr'], ['Show me products'])); }
+    }
+    if (preg_match('/\b(show me jewelry|show me watches|jewelry and watches|show me accessories)\b/i', $ml)) {
+        $rows = dbProductSearch('', $conn, 14);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Jewelry & Watches'); return reply($fp['text'], array_merge($fp['qr'], ['Show me fashion', 'Show me products'])); }
+    }
+    if (preg_match('/\b(show me groceries|show me food|groceries|food items|show me snacks)\b/i', $ml)) {
+        $rows = dbProductSearch('', $conn, 7);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Groceries & Food'); return reply($fp['text'], array_merge($fp['qr'], ['Show me products'])); }
     }
 
     // ── 19b. "I WANT [product]" — find product and start cart flow directly ──
