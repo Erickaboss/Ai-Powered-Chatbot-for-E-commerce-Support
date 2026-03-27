@@ -255,19 +255,59 @@ function dbProductSearch(string $msg, $conn, ?int $forceCatId = null): array {
     return $rows;
 }
 
-function formatProducts(array $rows, string $label = ''): array {
+function formatProducts(array $rows, string $label = '', bool $showDesc = false): array {
     if (empty($rows)) return ['text' => '', 'qr' => []];
     $out = $label ? "🛍️ <strong>$label</strong><br>" : "🛍️ <strong>Here's what we have:</strong><br>";
     $qr  = [];
     foreach ($rows as $p) {
-        $out .= "• <a href='" . SITE_URL . "/product.php?id={$p['id']}'>" . htmlspecialchars($p['name']) . "</a>"
+        $out .= "• <a href='" . SITE_URL . "/product.php?id={$p['id']}'><strong>" . htmlspecialchars($p['name']) . "</strong></a>"
               . ($p['brand'] ? " <em>({$p['brand']})</em>" : '')
               . " — <strong>RWF " . number_format($p['price']) . "</strong>"
-              . " ({$p['stock']} in stock)<br>";
+              . " | " . $p['stock'] . " in stock";
+        if ($showDesc && !empty($p['description'])) {
+            $desc = mb_substr(strip_tags($p['description']), 0, 80);
+            $out .= "<br><small style='color:rgba(255,255,255,.6)'>📝 $desc...</small>";
+        }
+        $out .= "<br>";
         $qr[] = "🛒 Add: add_to_cart:{$p['id']}";
     }
     $out .= "<a href='" . SITE_URL . "/products.php'>Browse all products →</a>";
     return ['text' => $out, 'qr' => array_slice($qr, 0, 4)];
+}
+
+// ── Full detail for a single product ──
+function formatProductDetail(array $p): string {
+    $stars = '';
+    $out  = "🛍️ <strong><a href='" . SITE_URL . "/product.php?id={$p['id']}'>" . htmlspecialchars($p['name']) . "</a></strong><br>";
+    if (!empty($p['brand']))   $out .= "🏷️ Brand: <strong>" . htmlspecialchars($p['brand']) . "</strong><br>";
+    if (!empty($p['cat']))     $out .= "📂 Category: " . htmlspecialchars($p['cat']) . "<br>";
+    $out .= "💰 Price: <strong>RWF " . number_format($p['price']) . "</strong><br>";
+    $out .= "📦 Stock: <strong>" . $p['stock'] . " units available</strong><br>";
+    if (!empty($p['description'])) {
+        $desc = mb_substr(strip_tags($p['description']), 0, 200);
+        $out .= "📝 <em>" . htmlspecialchars($desc) . (strlen($p['description']) > 200 ? '...' : '') . "</em><br>";
+    }
+    $out .= "<a href='" . SITE_URL . "/product.php?id={$p['id']}'>View full details →</a>";
+    return $out;
+}
+
+// ── Category summary from DB ──
+function getCategorySummary($conn): string {
+    $res = $conn->query("SELECT c.name, COUNT(p.id) as total, MIN(p.price) as mn, MAX(p.price) as mx
+        FROM categories c LEFT JOIN products p ON p.category_id=c.id AND p.stock>0
+        GROUP BY c.id ORDER BY total DESC");
+    $out = "🏪 <strong>Our Store — Products by Category:</strong><br>";
+    $grandTotal = 0;
+    while ($r = $res->fetch_assoc()) {
+        if ($r['total'] > 0) {
+            $out .= "• <strong>" . htmlspecialchars($r['name']) . "</strong>: {$r['total']} products"
+                  . " (RWF " . number_format($r['mn']) . " – RWF " . number_format($r['mx']) . ")<br>";
+            $grandTotal += $r['total'];
+        }
+    }
+    $out .= "<br>📊 <strong>Total: $grandTotal products in stock</strong><br>";
+    $out .= "<a href='" . SITE_URL . "/products.php'>Browse all →</a>";
+    return $out;
 }
 
 // ================================================================
@@ -774,10 +814,100 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         return reply($r, ['Return policy', 'Contact support', 'Track my order']);
     }
 
+    // ── 15b. CATEGORY COUNT / HOW MANY PRODUCTS ──
+    if (preg_match('/\b(how many products|how many items|total products|number of products|what categories|list categories|all categories|what do you sell|what products do you have|what do you have)\b/i', $ml)) {
+        return reply(getCategorySummary($conn),
+            ['Show me phones', 'Show me laptops', 'Show me fashion', 'Show me products']);
+    }
+
+    // ── 15c. SINGLE PRODUCT FULL DETAIL ──
+    // Triggered when customer asks about a specific product by name with detail keywords
+    if (preg_match('/\b(tell me about|describe|details of|more about|info about|information about|specs of|specification|features of|what is|about the)\b/i', $ml)) {
+        $rows = dbProductSearch($msg, $conn);
+        if (!empty($rows)) {
+            $p = $rows[0];
+            return reply(
+                formatProductDetail($p),
+                ['🛒 Add: add_to_cart:' . $p['id'], 'Show similar products', 'Check price']
+            );
+        }
+    }
+
+    // ── 15d. BUDGET-BASED SEARCH ──
+    // "I have 50000 RWF" / "my budget is 200k" / "I want to spend 100k"
+    if (preg_match('/\b(i have|my budget|i want to spend|i can spend|i only have|with|budget of|afford|i got)\b/i', $ml)
+        && preg_match('/\d/', $ml)) {
+        [$minP, $maxP] = extractPriceRange($ml);
+        // If no range found, try to extract a plain number as max budget
+        if (!$maxP && !$minP) {
+            if (preg_match('/(\d+)\s*(k|m)?/i', $ml, $bm)) {
+                $n = (int)$bm[1];
+                $mult = !empty($bm[2]) && strtolower($bm[2])==='m' ? 1000000 : (!empty($bm[2]) || $n <= 9999 ? 1000 : 1);
+                $maxP = $n * $mult;
+            }
+        }
+        if ($maxP) {
+            $catId = detectCategory($ml);
+            // Search within budget
+            $conds = ["p.stock > 0", "p.price <= $maxP"];
+            if ($catId) $conds[] = "p.category_id = $catId";
+            $res = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
+                FROM products p LEFT JOIN categories c ON p.category_id=c.id
+                WHERE " . implode(' AND ', $conds) . " ORDER BY p.price DESC LIMIT 8");
+            $rows = [];
+            if ($res) while ($r = $res->fetch_assoc()) $rows[] = $r;
+
+            if (!empty($rows)) {
+                $label = "Products within your budget of RWF " . number_format($maxP);
+                if ($catId) $label .= " (" . ($rows[0]['cat'] ?? '') . ")";
+                $fp = formatProducts($rows, $label, true);
+                return reply($fp['text'], array_merge($fp['qr'], ['Show me more', 'Different category']));
+            }
+
+            // Nothing found — recommend closest products above budget
+            $res2 = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
+                FROM products p LEFT JOIN categories c ON p.category_id=c.id
+                WHERE p.stock > 0 AND p.price > $maxP
+                " . ($catId ? "AND p.category_id=$catId" : "") . "
+                ORDER BY p.price ASC LIMIT 5");
+            $alt = [];
+            if ($res2) while ($r = $res2->fetch_assoc()) $alt[] = $r;
+
+            if (!empty($alt)) {
+                $fp = formatProducts($alt, "No products found under RWF " . number_format($maxP) . " — but here are the closest options:", true);
+                return reply(
+                    "😔 We don't have products within <strong>RWF " . number_format($maxP) . "</strong>" .
+                    ($catId ? " in that category" : "") . " right now.<br><br>" .
+                    "💡 Here are our most affordable options close to your budget:<br>" . $fp['text'],
+                    array_merge($fp['qr'], ['Show me cheaper options', 'Show me products'])
+                );
+            }
+
+            return reply(
+                "😔 No products found within <strong>RWF " . number_format($maxP) . "</strong>.<br>" .
+                "Our most affordable products start from <strong>RWF " .
+                number_format($conn->query("SELECT MIN(price) as m FROM products WHERE stock>0")->fetch_assoc()['m']) .
+                "</strong>.<br>Would you like to see them?",
+                ['Show me cheapest products', 'Show me products']
+            );
+        }
+    }
+
     // ── 16. PRODUCT PRICE QUERY ──
     if (preg_match('/\b(price of|how much is|cost of|how much does|what is the price|price for|how much.*cost|combien)\b/i', $ml)) {
         $rows = dbProductSearch($msg, $conn);
         if (!empty($rows)) {
+            // Single product — show full detail
+            if (count($rows) === 1 || preg_match('/\b(price of|how much is|cost of)\b/i', $ml)) {
+                $p = $rows[0];
+                $out = "💰 <strong><a href='" . SITE_URL . "/product.php?id={$p['id']}'>" . htmlspecialchars($p['name']) . "</a></strong><br>";
+                if ($p['brand']) $out .= "🏷️ Brand: {$p['brand']}<br>";
+                $out .= "💰 Price: <strong>RWF " . number_format($p['price']) . "</strong><br>";
+                $out .= "📦 Stock: {$p['stock']} units<br>";
+                if (!empty($p['description'])) $out .= "📝 <em>" . mb_substr(strip_tags($p['description']),0,120) . "...</em><br>";
+                $out .= "<a href='" . SITE_URL . "/product.php?id={$p['id']}'>View full details →</a>";
+                return reply($out, ["🛒 Add: add_to_cart:{$p['id']}", 'Show similar products', 'Check stock']);
+            }
             $out = "💰 <strong>Prices:</strong><br>";
             foreach ($rows as $p) {
                 $out .= "• <a href='" . SITE_URL . "/product.php?id={$p['id']}'>" . htmlspecialchars($p['name']) . "</a>"
@@ -1337,8 +1467,10 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
         . "CRITICAL RULES:\n"
         . "- ONLY recommend products listed in the PRODUCTS FROM DATABASE section below. Never invent products, names, or prices.\n"
         . "- Always show prices in RWF exactly as listed.\n"
-        . "- When showing products, always include the product name and price from the database.\n"
-        . "- Be friendly, helpful, and concise (max 250 words).\n"
+        . "- When showing products, always include the product name, price, and a brief description from the database.\n"
+        . "- When a customer asks about a specific product, give FULL details: name, brand, price, stock, description.\n"
+        . "- When a customer mentions a budget (e.g. 'I have 50000 RWF'), show ALL products within that budget. If none exist, recommend the closest affordable alternatives.\n"
+        . "- Be friendly, helpful, and concise (max 300 words).\n"
         . "- Respond in the SAME language the customer uses (English, French, or Kinyarwanda).\n"
         . "- For product links, format as: [Product Name](" . SITE_URL . "/product.php?id=ID)\n"
         . "- NEVER place orders, add items to cart, confirm orders, or collect delivery/payment details. "
