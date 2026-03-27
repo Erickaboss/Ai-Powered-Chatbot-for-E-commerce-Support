@@ -1,7 +1,10 @@
 <?php
 require_once 'config/db.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
-if (isset($_SESSION['user_id'])) { header('Location: index.php'); exit; }
+if (isset($_SESSION['user_id'])) {
+    header('Location: ' . ($_SESSION['user_role'] === 'admin' ? 'admin/index.php' : 'index.php'));
+    exit;
+}
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
