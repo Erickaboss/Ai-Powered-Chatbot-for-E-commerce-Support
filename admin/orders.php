@@ -51,7 +51,12 @@ $orders = $conn->query("SELECT o.*, u.name as customer FROM orders o JOIN users 
 $statuses = ['pending','processing','shipped','delivered','cancelled'];
 ?>
 <div class="admin-content">
-    <h4 class="mb-4">Manage Orders</h4>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h4>Manage Orders</h4>
+        <a href="export_orders.php" class="btn btn-success btn-sm">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i>Export CSV
+        </a>
+    </div>
     <?= $msg ?>
 
     <?php if ($view_order): ?>

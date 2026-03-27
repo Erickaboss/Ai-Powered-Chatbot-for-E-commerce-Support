@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="bi bi-eye"></i>
                     </button>
                 </div>
+                <div class="text-end mt-1"><a href="forgot_password.php" class="small text-muted">Forgot password?</a></div>
             </div>
             <button type="submit" class="btn-auth btn mb-3">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Sign In

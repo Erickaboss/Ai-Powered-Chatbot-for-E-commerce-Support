@@ -517,3 +517,15 @@ a:hover { color: var(--accent); }
     .chatbot-banner { padding: 32px 24px; }
     .feature-item { border-right: none; border-bottom: 1px solid #f0f0f0; }
 }
+
+/* ── Chatbot typing suggestions ── */
+.chat-suggestion-item {
+    padding: 8px 14px;
+    font-size: .8rem;
+    color: rgba(255,255,255,.8);
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    transition: background .15s;
+}
+.chat-suggestion-item:hover { background: rgba(255,255,255,.08); }
+.chat-suggestion-item:last-child { border-bottom: none; }

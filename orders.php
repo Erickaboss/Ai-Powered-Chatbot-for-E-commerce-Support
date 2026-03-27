@@ -1,7 +1,21 @@
 ﻿<?php
 require_once 'includes/header.php';
 if (!isset($_SESSION['user_id'])) { header('Location: login.php'); exit; }
-$uid    = $_SESSION['user_id'];
+$uid = $_SESSION['user_id'];
+
+// ── Customer cancel order ──
+$cancel_msg = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order_id'])) {
+    $oid = (int)$_POST['cancel_order_id'];
+    $o = $conn->query("SELECT id, status FROM orders WHERE id=$oid AND user_id=$uid LIMIT 1")->fetch_assoc();
+    if ($o && $o['status'] === 'pending') {
+        $conn->query("UPDATE orders SET status='cancelled' WHERE id=$oid AND user_id=$uid");
+        $cancel_msg = '<div class="alert alert-warning mt-3"><i class="bi bi-x-circle me-2"></i>Order #' . str_pad($oid,6,'0',STR_PAD_LEFT) . ' has been cancelled.</div>';
+    } else {
+        $cancel_msg = '<div class="alert alert-danger mt-3">Only pending orders can be cancelled.</div>';
+    }
+}
+
 $orders = $conn->query("SELECT * FROM orders WHERE user_id=$uid ORDER BY created_at DESC");
 ?>
 
@@ -13,6 +27,8 @@ $orders = $conn->query("SELECT * FROM orders WHERE user_id=$uid ORDER BY created
 </div>
 
 <div class="container pb-5">
+
+    <?= $cancel_msg ?>
 
     <?php if (!empty($_GET['new']) && !empty($_GET['id'])): ?>
     <div class="alert border-0 mb-4 p-4" style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border-radius:16px">
@@ -61,7 +77,13 @@ $orders = $conn->query("SELECT * FROM orders WHERE user_id=$uid ORDER BY created
                     <td style="font-size:.82rem;color:#666;text-transform:uppercase"><?= htmlspecialchars($o['payment_method'] ?? 'COD') ?></td>
                     <td><span class="status-<?= $o['status'] ?>"><?= ucfirst($o['status']) ?></span></td>
                     <td><a href="order_detail.php?id=<?= $o['id'] ?>" class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:.78rem">View Details</a>
-                    <a href="invoice.php?id=<?= $o['id'] ?>" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;font-size:.78rem" target="_blank"><i class="bi bi-file-earmark-text me-1"></i>Invoice</a></td>
+                    <a href="invoice.php?id=<?= $o['id'] ?>" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;font-size:.78rem" target="_blank"><i class="bi bi-file-earmark-text me-1"></i>Invoice</a>
+                    <?php if ($o['status'] === 'pending'): ?>
+                    <form method="POST" class="d-inline" onsubmit="return confirm('Cancel this order?')">
+                        <input type="hidden" name="cancel_order_id" value="<?= $o['id'] ?>">
+                        <button class="btn btn-sm btn-outline-danger" style="border-radius:8px;font-size:.78rem"><i class="bi bi-x-circle me-1"></i>Cancel</button>
+                    </form>
+                    <?php endif; ?></td>
                 </tr>
                 <?php endwhile; ?>
                 </tbody>

@@ -54,6 +54,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <i class="bi bi-bag me-1"></i>My Orders
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= $current_page==='wishlist.php'?'active':'' ?>" href="<?= SITE_URL ?>/wishlist.php">
+                        <i class="bi bi-heart me-1"></i>Wishlist
+                    </a>
+                </li>
                 <?php endif; ?>
             </ul>
 
@@ -97,6 +102,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <li><div class="px-3 py-2 border-bottom"><div class="fw-semibold small"><?= htmlspecialchars($_SESSION['user_name']) ?></div></div></li>
                         <li><a class="dropdown-item py-2" href="<?= SITE_URL ?>/profile.php"><i class="bi bi-person me-2 text-primary"></i>My Profile</a></li>
                         <li><a class="dropdown-item py-2" href="<?= SITE_URL ?>/orders.php"><i class="bi bi-bag me-2 text-success"></i>My Orders</a></li>
+                        <li><a class="dropdown-item py-2" href="<?= SITE_URL ?>/wishlist.php"><i class="bi bi-heart me-2 text-danger"></i>Wishlist</a></li>
                         <li><hr class="dropdown-divider my-1"></li>
                         <li><a class="dropdown-item py-2 text-danger" href="<?= SITE_URL ?>/logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                     </ul>

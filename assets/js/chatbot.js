@@ -89,6 +89,41 @@ function toggleChat() {
 
 function handleKey(e) {
     if (e.key === 'Enter') sendMessage();
+    else showSuggestions(e.target.value);
+}
+
+const chatSuggestions = [
+    'Show me phones under 200k',
+    'Show me laptops',
+    'Track my order',
+    'My orders',
+    'Delivery info',
+    'Payment methods',
+    'Return policy',
+    'I have 50000 RWF',
+    'Price of Samsung Galaxy',
+    'Show me products',
+    'Contact support',
+    'Invoice for my order',
+];
+
+function showSuggestions(val) {
+    const box = document.getElementById('chat-suggestions');
+    if (!box) return;
+    if (!val || val.length < 2) { box.style.display = 'none'; return; }
+    const matches = chatSuggestions.filter(s => s.toLowerCase().includes(val.toLowerCase())).slice(0, 4);
+    if (!matches.length) { box.style.display = 'none'; return; }
+    box.innerHTML = matches.map(s =>
+        `<div class="chat-suggestion-item" onclick="selectSuggestion('${s.replace(/'/g,"\\'")}')">💬 ${s}</div>`
+    ).join('');
+    box.style.display = 'block';
+}
+
+function selectSuggestion(text) {
+    document.getElementById('chat-input').value = text;
+    const box = document.getElementById('chat-suggestions');
+    if (box) box.style.display = 'none';
+    sendMessage();
 }
 
 function quickReply(text) {

@@ -127,6 +127,19 @@ if (isset($_SESSION['user_id'])) {
                     <i class="bi bi-cart-plus me-2"></i>Add to Cart
                 </button>
             </form>
+            <?php if (isset($_SESSION['user_id'])): ?>
+            <form method="POST" action="wishlist.php" class="mt-2">
+                <input type="hidden" name="product_id" value="<?= $p['id'] ?>">
+                <?php
+                $inWish = $conn->query("SELECT id FROM wishlists WHERE user_id={$_SESSION['user_id']} AND product_id=$id")->num_rows > 0;
+                ?>
+                <input type="hidden" name="action" value="<?= $inWish ? 'remove' : 'add' ?>">
+                <button class="btn btn-outline-secondary w-100" style="border-radius:12px;font-size:.88rem">
+                    <i class="bi bi-heart<?= $inWish ? '-fill text-danger' : '' ?> me-2"></i>
+                    <?= $inWish ? 'Remove from Wishlist' : 'Save to Wishlist' ?>
+                </button>
+            </form>
+            <?php endif; ?>
             <?php elseif (!isset($_SESSION['user_id'])): ?>
             <a href="login.php" class="btn btn-lg w-100" style="background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border-radius:12px;font-weight:700">
                 <i class="bi bi-lock me-2"></i>Login to Buy

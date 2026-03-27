@@ -820,6 +820,43 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
             ['Show me phones', 'Show me laptops', 'Show me fashion', 'Show me products']);
     }
 
+    // ── 15b2. PRODUCT COMPARISON ──
+    if (preg_match('/\b(compare|vs|versus|difference between|which is better|which one is better)\b/i', $ml)) {
+        // Extract two product names — split on "and", "vs", "versus", "or"
+        $parts = preg_split('/\b(and|vs\.?|versus|or)\b/i', $ml, 2);
+        if (count($parts) === 2) {
+            $rows1 = dbProductSearch(trim($parts[0]), $conn);
+            $rows2 = dbProductSearch(trim($parts[1]), $conn);
+            if (!empty($rows1) && !empty($rows2)) {
+                $p1 = $rows1[0]; $p2 = $rows2[0];
+                $out = "⚖️ <strong>Product Comparison:</strong><br><br>";
+                $out .= "<table style='width:100%;font-size:.82rem;border-collapse:collapse'>";
+                $out .= "<tr style='background:rgba(255,255,255,.1)'><th style='padding:6px;text-align:left'>Feature</th><th style='padding:6px;text-align:center'>" . htmlspecialchars($p1['name']) . "</th><th style='padding:6px;text-align:center'>" . htmlspecialchars($p2['name']) . "</th></tr>";
+                $fields = [
+                    'Brand'    => ['brand','brand'],
+                    'Price'    => ['price','price'],
+                    'Stock'    => ['stock','stock'],
+                    'Category' => ['cat','cat'],
+                ];
+                foreach ($fields as $label => [$f1,$f2]) {
+                    $v1 = $f1==='price' ? 'RWF '.number_format($p1[$f1]) : htmlspecialchars($p1[$f1] ?? 'N/A');
+                    $v2 = $f2==='price' ? 'RWF '.number_format($p2[$f2]) : htmlspecialchars($p2[$f2] ?? 'N/A');
+                    // Highlight cheaper price
+                    if ($f1==='price') {
+                        if ($p1['price'] < $p2['price']) $v1 = "<strong style='color:#4caf50'>$v1 ✓</strong>";
+                        elseif ($p2['price'] < $p1['price']) $v2 = "<strong style='color:#4caf50'>$v2 ✓</strong>";
+                    }
+                    $out .= "<tr style='border-bottom:1px solid rgba(255,255,255,.08)'><td style='padding:6px;color:rgba(255,255,255,.6)'>$label</td><td style='padding:6px;text-align:center'>$v1</td><td style='padding:6px;text-align:center'>$v2</td></tr>";
+                }
+                $out .= "</table><br>";
+                $out .= "<a href='" . SITE_URL . "/product.php?id={$p1['id']}'>View {$p1['name']} →</a> | ";
+                $out .= "<a href='" . SITE_URL . "/product.php?id={$p2['id']}'>View {$p2['name']} →</a>";
+                return reply($out, ["🛒 Add: add_to_cart:{$p1['id']}", "🛒 Add: add_to_cart:{$p2['id']}"]);
+            }
+        }
+        return reply("To compare products, type: <em>compare iPhone 14 and Samsung S23</em>", ['Show me products']);
+    }
+
     // ── 15c. SINGLE PRODUCT FULL DETAIL ──
     // Triggered when customer asks about a specific product by name with detail keywords
     if (preg_match('/\b(tell me about|describe|details of|more about|info about|information about|specs of|specification|features of|what is|about the)\b/i', $ml)) {

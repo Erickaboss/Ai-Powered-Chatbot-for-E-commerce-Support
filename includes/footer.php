@@ -23,8 +23,9 @@
                 </div>
             </div>
         </div>
-        <div id="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKey(event)">
+        <div id="chat-input-area" style="position:relative">
+            <div id="chat-suggestions" style="display:none;position:absolute;bottom:100%;left:0;right:0;background:#1a1a2e;border:1px solid rgba(255,255,255,.1);border-radius:10px;margin-bottom:4px;z-index:999;overflow:hidden"></div>
+            <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKey(event)" oninput="showSuggestions(this.value)">
             <button onclick="sendMessage()" title="Send"><i class="bi bi-send-fill"></i></button>
         </div>
     </div>
