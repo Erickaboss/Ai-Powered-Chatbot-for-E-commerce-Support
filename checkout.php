@@ -80,6 +80,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Order Confirmed — #' . str_pad($order_id, 6, '0', STR_PAD_LEFT) . ' | ' . SITE_NAME,
                 emailOrderConfirmation($orderData, $rows)
             );
+            // ── Notify admin of new order ──
+            sendMail(ADMIN_EMAIL, ADMIN_NAME,
+                '[' . SITE_NAME . '] 🛒 New Order #' . str_pad($order_id, 6, '0', STR_PAD_LEFT) . ' from ' . $user['name'],
+                emailNewOrderAdmin($orderData, $rows)
+            );
             header("Location: order_detail.php?id=$order_id&new=1"); exit;
         }
     }

@@ -571,11 +571,26 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
                 $emoji = ['pending'=>'⏳','processing'=>'⚙️','shipped'=>'🚚','delivered'=>'✅','cancelled'=>'❌'][$latest['status']] ?? '📦';
                 $orderLine = "<br>📦 Your latest order <strong>#" . $latest['id'] . "</strong> is $emoji <strong>" . ucfirst($latest['status']) . "</strong>.";
             }
+            // ── Remember last interest from chat history ──
+            $lastInterest = '';
+            $lastMsg = $conn->query("SELECT message FROM chatbot_logs WHERE user_id=$uid ORDER BY created_at DESC LIMIT 5");
+            if ($lastMsg) {
+                while ($lm = $lastMsg->fetch_assoc()) {
+                    $catId = detectCategory(strtolower($lm['message']));
+                    if ($catId) {
+                        $catName = $conn->query("SELECT name FROM categories WHERE id=$catId")->fetch_assoc()['name'] ?? '';
+                        if ($catName) { $lastInterest = $catName; break; }
+                    }
+                }
+            }
+            $interestLine = $lastInterest ? "<br>💡 Last time you were browsing <strong>$lastInterest</strong> — want to continue?" : '';
             return reply(
                 "👋 Welcome back, <strong>$name</strong>! Great to see you at <strong>" . SITE_NAME . "</strong>.<br>" .
-                "You have <strong>$oCount order" . ($oCount != 1 ? 's' : '') . "</strong> with us." . $orderLine . "<br><br>" .
+                "You have <strong>$oCount order" . ($oCount != 1 ? 's' : '') . "</strong> with us." . $orderLine . $interestLine . "<br><br>" .
                 "How can I help you today?",
-                ['Show me products', 'Track my order', 'My orders', 'Contact support']
+                $lastInterest
+                    ? ['Show me ' . strtolower($lastInterest), 'Track my order', 'My orders', 'Contact support']
+                    : ['Show me products', 'Track my order', 'My orders', 'Contact support']
             );
         } else {
             // ── Guest ──
@@ -1026,6 +1041,21 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
     }
 
     // ── 19. PRODUCT SEARCH (show me / i want / do you have / looking for / find me) ──
+    // ── Brand search: "show me all Samsung products" / "Nike products" ──
+    if (preg_match('/\b(all|show me|find|search)\b.*\b(\w+)\s+(products?|items?|phones?|laptops?|shoes?|clothes?)\b/i', $ml, $bm)
+        || preg_match('/\b(samsung|apple|nokia|tecno|infinix|xiaomi|oppo|vivo|hp|dell|lenovo|asus|acer|lg|sony|jbl|nike|adidas|huawei|bose|philips|panasonic|dyson|kenwood|casio|fossil|lego|pampers|nivea|dove|garnier|colgate|gillette|maybelline|nescafe|lipton|heinz|coca.cola|indomie)\b/i', $ml, $bm)) {
+        $brand = $conn->real_escape_string(trim($bm[count($bm)-1]));
+        $res = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
+            FROM products p LEFT JOIN categories c ON p.category_id=c.id
+            WHERE p.stock>0 AND p.brand LIKE '%$brand%' ORDER BY p.price ASC LIMIT 10");
+        $rows = [];
+        if ($res) while ($r = $res->fetch_assoc()) $rows[] = $r;
+        if (!empty($rows)) {
+            $ctx['last_products'] = $rows;
+            $fp = formatProducts($rows, ucfirst($brand) . ' Products (' . count($rows) . ' found)', true);
+            return reply($fp['text'], array_merge($fp['qr'], ['Show me products', 'Show me more']));
+        }
+    }
     // "Show me products" / "all products" / "browse" → show random selection from all categories
     if (preg_match('/^(show me products|all products|browse products|browse|show products|view products|see products)$/i', trim($ml))) {
         $res  = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.image,c.name as cat_name FROM products p LEFT JOIN categories c ON p.category_id=c.id WHERE p.stock>0 ORDER BY RAND() LIMIT 8");
@@ -1233,7 +1263,18 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         if (preg_match('/retour/i', $ml))   return reply("↩️ <strong>Politique de retour:</strong> 7 jours après livraison. Email: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a>", ['Contact support']);
     }
 
-    // ── 23. FINAL FALLBACK ──
+    // ── 23. FINAL FALLBACK — with escalation after 3 failed attempts ──
+    $ctx['fallback_count'] = ($ctx['fallback_count'] ?? 0) + 1;
+    if ($ctx['fallback_count'] >= 3) {
+        $ctx['fallback_count'] = 0;
+        $ctx['awaiting'] = 'support_message';
+        return reply(
+            "😔 I've had trouble understanding your last few messages. Let me connect you with our support team.<br><br>" .
+            "💬 <strong>Type your message below</strong> and a human agent will respond within 24 hours.<br>" .
+            "📱 Or call us directly: <a href='tel:" . ADMIN_PHONE . "'><strong>" . ADMIN_PHONE . "</strong></a>",
+            ['Contact support', 'Show me products']
+        );
+    }
     return reply(
         "😊 I'm not sure I understood that. Here's what I can help with:<br>" .
         "• 🛍️ <em>Show me phones / laptops / fashion</em><br>" .
@@ -1340,6 +1381,11 @@ function placeChatOrder(int $uid, array &$ctx, $conn): array {
                 $user['email'], $user['name'],
                 'Order Confirmed — #' . str_pad($order_id, 6, '0', STR_PAD_LEFT) . ' | ' . SITE_NAME,
                 emailOrderConfirmation($orderData, $emailItems)
+            );
+            // ── Notify admin ──
+            sendMail(ADMIN_EMAIL, ADMIN_NAME,
+                '[' . SITE_NAME . '] 🛒 New Order #' . str_pad($order_id, 6, '0', STR_PAD_LEFT) . ' from ' . $user['name'],
+                emailNewOrderAdmin($orderData, $emailItems)
             );
         }
     } catch (Throwable $e) {

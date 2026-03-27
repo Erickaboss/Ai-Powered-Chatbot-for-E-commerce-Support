@@ -56,10 +56,10 @@
                 <a href="<?= SITE_URL ?>/products.php?category=1">Smartphones</a>
                 <a href="<?= SITE_URL ?>/products.php?category=2">Laptops</a>
                 <a href="<?= SITE_URL ?>/products.php?category=8">Health & Beauty</a>
-                <a href="<?= SITE_URL ?>/products.php?category=11">Furniture</a>
-            </div>
+                <a href="<?= SITE_URL ?>/products.php?category=11">Furniture</a>            </div>
             <div class="col-lg-2 col-md-3 col-6">
-                <h6>Account</h6>
+                <h6>Help</h6>
+                <a href="<?= SITE_URL ?>/faq.php">FAQ</a>
                 <a href="<?= SITE_URL ?>/login.php">Login</a>
                 <a href="<?= SITE_URL ?>/register.php">Register</a>
                 <a href="<?= SITE_URL ?>/orders.php">My Orders</a>

@@ -19,12 +19,15 @@ while ($r = $status_res->fetch_assoc()) {
 // ── Revenue last 7 days ───────────────────────────────────────
 $revenue_labels = [];
 $revenue_data   = [];
+$customers_data = [];
 for ($i = 6; $i >= 0; $i--) {
     $date = date('Y-m-d', strtotime("-$i days"));
     $label = date('M d', strtotime("-$i days"));
     $revenue_labels[] = $label;
     $res = $conn->query("SELECT COALESCE(SUM(total_price),0) as s FROM orders WHERE DATE(created_at)='$date' AND status != 'cancelled'");
     $revenue_data[] = (float)$res->fetch_assoc()['s'];
+    $cres = $conn->query("SELECT COUNT(*) as c FROM users WHERE DATE(created_at)='$date' AND role='customer'");
+    $customers_data[] = (int)$cres->fetch_assoc()['c'];
 }
 
 // ── Chatbot stats ─────────────────────────────────────────────
@@ -120,13 +123,19 @@ $recent_orders = $conn->query("SELECT o.*, u.name as uname FROM orders o JOIN us
 
     <!-- ── Revenue Chart + Order Status ── -->
     <div class="row g-3 mb-4">
-        <div class="col-md-8">
+        <div class="col-md-5">
             <div class="card p-4 h-100">
                 <h6 class="mb-3 fw-semibold"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Revenue — Last 7 Days</h6>
-                <canvas id="revenueChart" height="100"></canvas>
+                <canvas id="revenueChart" height="120"></canvas>
             </div>
         </div>
         <div class="col-md-4">
+            <div class="card p-4 h-100">
+                <h6 class="mb-3 fw-semibold"><i class="bi bi-people me-2 text-success"></i>New Customers — Last 7 Days</h6>
+                <canvas id="customersChart" height="120"></canvas>
+            </div>
+        </div>
+        <div class="col-md-3">
             <div class="card p-4 h-100">
                 <h6 class="mb-3 fw-semibold"><i class="bi bi-pie-chart me-2 text-success"></i>Order Status</h6>
                 <canvas id="statusChart" height="180"></canvas>
@@ -253,6 +262,29 @@ new Chart(document.getElementById('revenueChart'), {
                 }
             }
         }
+    }
+});
+
+// New customers line chart
+new Chart(document.getElementById('customersChart'), {
+    type: 'line',
+    data: {
+        labels: <?= json_encode($revenue_labels) ?>,
+        datasets: [{
+            label: 'New Customers',
+            data: <?= json_encode($customers_data) ?>,
+            borderColor: '#198754',
+            backgroundColor: 'rgba(25,135,84,.1)',
+            fill: true,
+            tension: .4,
+            pointRadius: 4,
+            pointBackgroundColor: '#198754'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
     }
 });
 

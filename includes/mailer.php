@@ -422,3 +422,43 @@ function emailStockNotification(string $customerName, string $productName, int $
         <p style='color:#888;font-size:13px'>Hurry — stock is limited! This notification was sent because you requested it via our chatbot.</p>
     ");
 }
+
+// ── Admin notification for new order ─────────────────────────
+function emailNewOrderAdmin(array $order, array $items): string {
+    $rows = ''; $total = 0;
+    foreach ($items as $item) {
+        $sub = $item['price'] * $item['quantity'];
+        $total += $sub;
+        $rows .= "<tr><td style='padding:8px;border-bottom:1px solid #eee'>" . htmlspecialchars($item['name']) . "</td>
+            <td style='padding:8px;border-bottom:1px solid #eee;text-align:center'>" . $item['quantity'] . "</td>
+            <td style='padding:8px;border-bottom:1px solid #eee;text-align:right'>RWF " . number_format($sub) . "</td></tr>";
+    }
+    $orderNum = '#' . str_pad($order['id'], 6, '0', STR_PAD_LEFT);
+    return emailWrap("🛒 New Order $orderNum", "
+        <h2 style='color:#0f3460'>🛒 New Order Received!</h2>
+        <p>A new order has been placed on <strong>" . SITE_NAME . "</strong>.</p>
+        <div style='background:#f8f9fa;border-radius:8px;padding:16px;margin:16px 0'>
+            <table style='width:100%;font-size:14px;border-collapse:collapse'>
+                <tr><td style='padding:5px 0;width:140px'><strong>Order:</strong></td><td><strong style='color:#e63946'>$orderNum</strong></td></tr>
+                <tr><td style='padding:5px 0'><strong>Customer:</strong></td><td>" . htmlspecialchars($order['customer_name']) . "</td></tr>
+                <tr><td style='padding:5px 0'><strong>Address:</strong></td><td>" . nl2br(htmlspecialchars($order['address'])) . "</td></tr>
+                <tr><td style='padding:5px 0'><strong>Payment:</strong></td><td>" . strtoupper($order['payment_method']) . "</td></tr>
+                <tr><td style='padding:5px 0'><strong>Total:</strong></td><td><strong style='color:#e63946'>RWF " . number_format($total) . "</strong></td></tr>
+            </table>
+        </div>
+        <table style='width:100%;border-collapse:collapse;font-size:14px'>
+            <thead><tr style='background:#0f3460;color:#fff'>
+                <th style='padding:10px;text-align:left'>Product</th>
+                <th style='padding:10px;text-align:center'>Qty</th>
+                <th style='padding:10px;text-align:right'>Subtotal</th>
+            </tr></thead>
+            <tbody>$rows</tbody>
+        </table>
+        <p style='text-align:center;margin-top:24px'>
+            <a href='" . SITE_URL . "/admin/orders.php?view=" . $order['id'] . "'
+               style='background:#0f3460;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold'>
+               Manage Order →
+            </a>
+        </p>
+    ");
+}
