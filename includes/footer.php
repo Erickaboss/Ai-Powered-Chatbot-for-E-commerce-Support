@@ -1,3 +1,8 @@
+<?php
+// Hide chatbot widget for admin users and on invoice print page
+$hideChat = (($_SESSION['user_role'] ?? '') === 'admin') || basename($_SERVER['PHP_SELF']) === 'invoice.php';
+if (!$hideChat):
+?>
 <!-- ── Chatbot Widget ── -->
 <div id="chatbot-widget">
     <div id="chat-header" onclick="toggleChat()">
@@ -30,6 +35,7 @@
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <!-- ── Footer ── -->
 <footer class="site-footer mt-5">
@@ -91,8 +97,10 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<?php if (!$hideChat): ?>
 <script>const CHATBOT_API_URL = '<?= SITE_URL ?>/api/chatbot.php';</script>
 <script src="<?= SITE_URL ?>/assets/js/chatbot.js?v=<?= filemtime(__DIR__ . '/../assets/js/chatbot.js') ?>"></script>
+<?php endif; ?>
 </body>
 </html>
 <?php ob_end_flush(); ?>
