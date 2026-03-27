@@ -2,14 +2,22 @@
 require_once 'includes/header.php';
 if (!isset($_SESSION['user_id'])) { header('Location: login.php'); exit; }
 
-$uid = $_SESSION['user_id'];
-$oid = (int)($_GET['id'] ?? 0);
+$uid  = $_SESSION['user_id'];
+$role = $_SESSION['user_role'] ?? 'customer';
+$oid  = (int)($_GET['id'] ?? 0);
 
-$order = $conn->query("SELECT o.*, u.name as customer_name, u.email, u.phone, u.address as user_address
-    FROM orders o JOIN users u ON o.user_id=u.id
-    WHERE o.id=$oid AND o.user_id=$uid")->fetch_assoc();
-
-if (!$order) { header('Location: orders.php'); exit; }
+// Admin can view any invoice; customers can only view their own
+if ($role === 'admin') {
+    $order = $conn->query("SELECT o.*, u.name as customer_name, u.email, u.phone, u.address as user_address
+        FROM orders o JOIN users u ON o.user_id=u.id
+        WHERE o.id=$oid")->fetch_assoc();
+    if (!$order) { header('Location: admin/orders.php'); exit; }
+} else {
+    $order = $conn->query("SELECT o.*, u.name as customer_name, u.email, u.phone, u.address as user_address
+        FROM orders o JOIN users u ON o.user_id=u.id
+        WHERE o.id=$oid AND o.user_id=$uid")->fetch_assoc();
+    if (!$order) { header('Location: orders.php'); exit; }
+}
 
 $items = $conn->query("SELECT oi.*, p.name as product_name, p.image
     FROM order_items oi JOIN products p ON oi.product_id=p.id
@@ -17,7 +25,7 @@ $items = $conn->query("SELECT oi.*, p.name as product_name, p.image
 ?>
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3 d-print-none">
-        <a href="orders.php" class="btn btn-outline-secondary btn-sm">
+        <a href="<?= $role === 'admin' ? 'admin/orders.php' : 'orders.php' ?>" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-arrow-left me-1"></i>Back to Orders
         </a>
         <button onclick="window.print()" class="btn btn-dark btn-sm">
