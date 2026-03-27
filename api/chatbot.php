@@ -192,8 +192,8 @@ function detectCategory(string $ml): ?int {
         2  => 'laptop|laptops|computer|computers|pc|macbook|dell|hp|lenovo|acer|asus|notebook|chromebook',
         3  => 'tv|television|televisions|speaker|speakers|headphone|headphones|audio|sound|earphone|earphones|subwoofer|home theater|soundbar',
         4  => 'fridge|fridges|washing machine|microwave|appliance|appliances|cooker|kettle|blender|iron|vacuum|oven|dishwasher',
-        5  => 'men shirt|men trouser|men suit|men shoe|men fashion|men cloth|men wear|men jacket|men clothing|menswear',
-        6  => 'women dress|handbag|handbags|heels|ladies|women fashion|women cloth|skirt|blouse|women shoe|women clothing|womenswear|fashion|clothing|clothes|dress',
+        5  => 'men shirt|men trouser|men suit|men shoe|men fashion|men cloth|men wear|men jacket|men clothing|menswear|fashion for men|clothes for men|men style|men outfit|men collection|for men|men only|male fashion|male clothing|male wear|gents|gentlemen',
+        6  => 'women dress|handbag|handbags|heels|ladies|women fashion|women cloth|skirt|blouse|women shoe|women clothing|womenswear|fashion|clothing|clothes|dress|fashion for women|clothes for women|female fashion|ladies fashion|for women|women only',
         7  => 'food|grocery|groceries|rice|milk|coffee|tea|sugar|flour|cooking oil|cereal|juice|snack|snacks',
         8  => 'beauty|skincare|lotion|shampoo|perfume|cream|makeup|deodorant|hair|cosmetic|moisturizer|cosmetics',
         9  => 'sport|sports|gym|fitness|football|running|yoga|exercise|dumbbell|treadmill|bicycle|jersey',
@@ -337,7 +337,6 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         'place.*order|order.*place)\b/i',
         $ml
     );
-
     if (!$inMultiStep && !$isCartCmd && !$isOrderIntent) {
         $gemini = askGemini($msg, $uid, $conn, $session_id);
         if ($gemini) {
@@ -1051,9 +1050,21 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Laptops & Computers'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me TVs', 'Show me products'])); }
     }
     if (preg_match('/^show me (fashion|clothes|clothing|dresses?|women|men)$/i', trim($ml))) {
-        $catId = preg_match('/men/i', $ml) ? 5 : 6;
+        $catId = preg_match('/\bmen\b/i', $ml) ? 5 : 6;
         $rows = dbProductSearch('', $conn, $catId);
-        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Fashion & Clothing'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me laptops', 'Show me products'])); }
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, $catId===5 ? 'Fashion — Men' : 'Fashion — Women'); return reply($fp['text'], array_merge($fp['qr'], ['Show me phones', 'Show me laptops', 'Show me products'])); }
+    }
+
+    // ── Men's fashion — broader match ──
+    if (preg_match('/\b(fashion for men|men fashion|men clothes|men clothing|men wear|men style|men outfit|men collection|clothes for men|male fashion|male clothing|gents|gentlemen|men only|for men)\b/i', $ml)) {
+        $rows = dbProductSearch('', $conn, 5);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Fashion — Men', true); return reply($fp['text'], array_merge($fp['qr'], ['Show me women fashion', 'Show me products'])); }
+    }
+
+    // ── Women's fashion — broader match ──
+    if (preg_match('/\b(fashion for women|women fashion|ladies fashion|women clothes|women clothing|female fashion|clothes for women|for women|women only|ladies only)\b/i', $ml)) {
+        $rows = dbProductSearch('', $conn, 6);
+        if (!empty($rows)) { $ctx['last_products'] = $rows; $fp = formatProducts($rows, 'Fashion — Women', true); return reply($fp['text'], array_merge($fp['qr'], ['Show me men fashion', 'Show me products'])); }
     }
     if (preg_match('/^show me (tvs?|televisions?|electronics?|speakers?|audio)$/i', trim($ml))) {
         $rows = dbProductSearch('', $conn, 3);
