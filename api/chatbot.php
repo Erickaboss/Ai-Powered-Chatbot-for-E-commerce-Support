@@ -1,7 +1,7 @@
 <?php
 /**
- * AI Chatbot — Full intent engine + Gemini polish
- * Works 100% from DB even when Gemini quota is exhausted
+ * AI Chatbot — PHP/DB intents first, ML (Flask) second, Google Gemini last (complex / FR / RW / ML-missed only)
+ * Works from DB when Gemini quota is exhausted or the gate skips the API
  */
 
 // Suppress warnings from polluting JSON output
@@ -26,10 +26,257 @@ set_error_handler(function($errno, $errstr) {
 session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/chatbot_gemini_gate.php';
+
+// ================================================================
+// CONTEXT AWARENESS & SENTIMENT ANALYSIS FUNCTIONS
+// ================================================================
+
+/**
+ * Save conversation context for session persistence
+ */
+function saveContext(string $sessionId, ?int $userId, string $key, string $value, int $expiryHours = 24): void {
+    global $conn;
+    $expiresAt = date('Y-m-d H:i:s', strtotime("+{$expiryHours} hours"));
+    $stmt = $conn->prepare("INSERT INTO chatbot_context 
+                           (session_id, user_id, context_key, context_value, expires_at) 
+                           VALUES (?, ?, ?, ?, ?)
+                           ON DUPLICATE KEY UPDATE context_value=?, expires_at=?");
+    if ($stmt) {
+        $stmt->bind_param("sisssss", $sessionId, $userId, $key, $value, $expiresAt, $value, $expiresAt);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
+
+/**
+ * Retrieve conversation context
+ */
+function getContext(string $sessionId, string $key): ?string {
+    global $conn;
+    $stmt = $conn->prepare("SELECT context_value FROM chatbot_context 
+                           WHERE session_id=? AND context_key=? AND expires_at > NOW()");
+    if ($stmt) {
+        $stmt->bind_param("ss", $sessionId, $key);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $stmt->close();
+            return $row['context_value'];
+        }
+        $stmt->close();
+    }
+    return null;
+}
+
+/**
+ * Analyze sentiment of user message (Rule-based approach)
+ */
+function analyzeSentiment(string $text): array {
+    // Negative indicators (multiple languages)
+    $negativeWords = [
+        // English
+        'angry', 'frustrated', 'terrible', 'worst', 'hate', 'disappointed',
+        'useless', 'waste', 'broken', 'defective', 'horrible', 'awful',
+        'complaint', 'problem', 'issue', 'wrong', 'bad', 'poor', 'fail',
+        // French
+        'fâché', 'énervé', 'terrible', 'déçu', 'inutile', 'cassé',
+        'problème', 'mauvais', 'nul', 'horrible', 'affreux',
+        // Kinyarwanda
+        'arakara', 'birababaje', 'ntibikora', 'ikibazo', 'mubi'
+    ];
+    
+    // Positive indicators (multiple languages)
+    $positiveWords = [
+        // English
+        'great', 'excellent', 'happy', 'love', 'amazing', 'thank', 'thanks',
+        'perfect', 'awesome', 'good', 'best', 'helpful', 'satisfied',
+        'wonderful', 'fantastic', 'beautiful', 'nice',
+        // French
+        'super', 'excellent', 'heureux', 'amour', 'merci', 'parfait',
+        'génial', 'bon', 'formidable', 'beau', 'content',
+        // Kinyarwanda
+        'neza', 'murakoze', 'byiza', 'ndashima', 'mwiza'
+    ];
+    
+    // Intensifiers (multiply sentiment)
+    $intensifiers = ['very', 'really', 'extremely', 'absolutely', 'totally', 'très', 'cyane', 'beaucoup'];
+    
+    $score = 0.0;
+    $textLower = strtolower($text);
+    $words = preg_split('/\s+/', $textLower);
+    
+    foreach ($words as $index => $word) {
+        // Check if previous word is intensifier
+        $isIntensified = ($index > 0 && in_array($words[$index - 1], $intensifiers));
+        $multiplier = $isIntensified ? 1.5 : 1.0;
+        
+        if (in_array($word, $negativeWords)) {
+            $score -= 0.2 * $multiplier;
+        } elseif (in_array($word, $positiveWords)) {
+            $score += 0.2 * $multiplier;
+        }
+    }
+    
+    // Normalize score to -1 to 1 range
+    $score = max(-1.0, min(1.0, $score));
+    
+    // Determine label
+    $label = 'neutral';
+    if ($score < -0.3) $label = 'negative';
+    elseif ($score > 0.3) $label = 'positive';
+    
+    // Detect urgency/escalation triggers
+    $escalateTriggers = ['sue', 'lawyer', 'refund now', 'manager', 'cancel order', 'unacceptable', 'avocat', 'remboursement', 'mwishyura'];
+    $shouldEscalate = false;
+    foreach ($escalateTriggers as $trigger) {
+        if (strpos($textLower, $trigger) !== false) {
+            $shouldEscalate = true;
+            break;
+        }
+    }
+    
+    // Auto-escalate if very negative or has escalation triggers
+    if ($score < -0.5 || $shouldEscalate) {
+        $shouldEscalate = true;
+    }
+    
+    return [
+        'score' => round($score, 2),
+        'label' => $label,
+        'escalate' => $shouldEscalate
+    ];
+}
+
+/**
+ * Get response in detected language
+ */
+function getLocalizedResponse(array $responses, string $lang): string {
+    // If responses are already in the right language, return as-is
+    return $responses[array_rand($responses)];
+}
+
+/**
+ * Log sentiment analysis results
+ */
+function logSentiment(int $logId, float $score, string $label, bool $escalated): void {
+    global $conn;
+    $stmt = $conn->prepare("UPDATE chatbot_logs SET sentiment_score=?, sentiment_label=?, escalated=? WHERE id=?");
+    if ($stmt) {
+        $escalatedInt = $escalated ? 1 : 0;
+        $stmt->bind_param("dsii", $score, $label, $escalatedInt, $logId);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
+
+/**
+ * Create support ticket for escalated chats
+ */
+function createSupportTicket(?int $userId, string $sessionId, string $message, string $sentiment): void {
+    global $conn;
+    
+    $safeMessage = $conn->real_escape_string($message);
+    $safeSession = $conn->real_escape_string($sessionId);
+    
+    // Get user info if logged in
+    $userInfo = '';
+    if ($userId) {
+        $userResult = $conn->query("SELECT name, email FROM users WHERE id=$userId");
+        if ($userResult && $row = $userResult->fetch_assoc()) {
+            $userInfo = "User: {$row['name']} ({$row['email']})\n";
+        }
+    }
+    
+    $ticketMessage = "ESCALATED CHATBOT CONVERSATION\n\n{$userInfo}Session: {$sessionId}\n\nCustomer said:\n{$safeMessage}\n\nSentiment: {$sentiment}";
+    
+    $stmt = $conn->prepare("INSERT INTO support_tickets (user_id, session_id, customer_name, message, status) VALUES (?, ?, 'Chatbot User', ?, 'open')");
+    if ($stmt) {
+        $stmt->bind_param("iss", $userId, $sessionId, $ticketMessage);
+        $stmt->execute();
+        $stmt->close();
+        
+        // Notify admin via email (if configured)
+        if (defined('ADMIN_EMAIL')) {
+            $subject = "🚨 Urgent: Escalated Chatbot Conversation";
+            mail(ADMIN_EMAIL, $subject, $ticketMessage, "From: chatbot@shopai.rw\r\n");
+        }
+    }
+}
 
 $input   = json_decode(file_get_contents('php://input'), true);
 $message = trim($input['message'] ?? '');
 $user_id = $_SESSION['user_id'] ?? null;
+$image   = $input['image'] ?? null;
+$imageAnalysis = $input['image_analysis'] ?? null;
+
+// Detect language from user message
+$detectedLang = detectLanguage($message);
+
+// Process image if uploaded
+if ($image) {
+    // Save image to uploads directory
+    require_once __DIR__ . '/../config/db.php';
+    
+    // Remove data:image prefix if present
+    if (preg_match('/^data:image\/(\w+);base64,/', $image, $type)) {
+        $image = substr($image, strpos($image, ',') + 1);
+        $type = strtolower($type[1]); // jpg, png, gif, etc.
+    } else {
+        $type = 'jpg';
+    }
+    
+    // Decode base64
+    $imageData = base64_decode($image);
+    
+    if ($imageData !== false) {
+        // Generate unique filename
+        $filename = 'chat_' . time() . '_' . bin2hex(random_bytes(8)) . '.' . $type;
+        $uploadPath = __DIR__ . '/../assets/images/chat_uploads/' . $filename;
+        
+        // Create directory if not exists
+        if (!is_dir(dirname($uploadPath))) {
+            mkdir(dirname($uploadPath), 0755, true);
+        }
+        
+        // Save image
+        file_put_contents($uploadPath, $imageData);
+        
+        // Store image path for processing
+        $imagePath = 'assets/images/chat_uploads/' . $filename;
+        $imageUrl = SITE_URL . '/' . $imagePath;
+        
+        // If we have AI image analysis from TensorFlow.js
+        if ($imageAnalysis && isset($imageAnalysis['topMatch'])) {
+            // Use the analysis to enhance response
+            $detectedObject = $imageAnalysis['topMatch'];
+            $confidence = round(($imageAnalysis['confidence'] ?? 0) * 100);
+            $labels = $imageAnalysis['labels'] ?? [];
+            
+            // Log the analysis
+            error_log("Image Analysis: $detectedObject ({$confidence}% confidence)");
+            
+            // If no text message, create one based on analysis
+            if (empty($message)) {
+                $message = "Tell me about $detectedObject";
+            }
+            
+            // Store analysis in session for context
+            $_SESSION['last_image_analysis'] = [
+                'object' => $detectedObject,
+                'confidence' => $confidence,
+                'labels' => $labels,
+                'image_url' => $imageUrl
+            ];
+        }
+        
+        // If no text message, default to question about image
+        if (empty($message)) {
+            $message = "What is in this image?";
+        }
+    }
+}
 
 // ── History endpoint: POST /api/chatbot.php?action=history ──
 if (($_GET['action'] ?? '') === 'history') {
@@ -90,6 +337,38 @@ if (empty($message)) {
     echo json_encode(['response' => 'Please type a message.', 'quick_replies' => []]);
     exit;
 }
+
+// ================================================================
+// IMAGE ANALYSIS HANDLING - REMOVED (feature disabled)
+// ================================================================
+// Image upload feature has been removed to improve performance and speed.
+// All image-related processing code has been disabled.
+
+/* DISABLED CODE - Image upload feature removed:
+if ($imageAnalysis && isset($imageAnalysis['topMatch'])) {
+    $detectedObject = $imageAnalysis['topMatch'];
+    $confidence = round(($imageAnalysis['confidence'] ?? 0) * 100);
+    $labels = $imageAnalysis['labels'] ?? [];
+    
+    // Log for debugging
+    error_log("🔍 Image Analysis received: $detectedObject ({$confidence}% confidence)");
+    
+    // If user didn't provide text, auto-generate based on detection
+    if (trim($message) === '' || strtolower(trim($message)) === 'what is in this image?') {
+        // Search for products using detected object keywords
+        $searchResults = dbProductSearch($detectedObject, $conn);
+        
+        // ... rest of image handling code ...
+    }
+    
+    // Store in session for context
+    $_SESSION['last_image_analysis'] = [
+        'object' => $detectedObject,
+        'confidence' => $confidence,
+        'labels' => $labels
+    ];
+}
+*/
 try {
     if ($user_id) {
         $chk = $conn->query("SELECT id FROM users WHERE id=" . (int)$user_id . " LIMIT 1");
@@ -122,18 +401,47 @@ try {
     $response = $result['response'];
     $qr       = $result['quick_replies'] ?? [];
 
+    // ================================================================
+    // SENTIMENT ANALYSIS - Analyze user emotion
+    // ================================================================
+    $sentiment = analyzeSentiment($message);
+    
     $sm  = $conn->real_escape_string($message);
     $sr  = $conn->real_escape_string($response);
     $ui  = $user_id ? (int)$user_id : 'NULL';
     $sid = $conn->real_escape_string($session_id);
     $guest = $user_id ? 0 : 1;
-    $saved = $conn->query("INSERT INTO chatbot_logs (user_id, session_id, is_guest, message, response) VALUES ($ui, '$sid', $guest, '$sm', '$sr')");
+    $saved = $conn->query("INSERT INTO chatbot_logs (user_id, session_id, is_guest, message, response, sentiment_score, sentiment_label, escalated) 
+                          VALUES ($ui, '$sid', $guest, '$sm', '$sr', {$sentiment['score']}, '{$sentiment['label']}', " . ($sentiment['escalate'] ? 1 : 0) . ")");
     if (!$saved) {
         error_log("chatbot_logs INSERT failed: " . $conn->error . " | uid=$ui sid=$sid");
     }
     $log_id = (int)$conn->insert_id;
+    
+    // Handle escalation if sentiment is very negative
+    if ($sentiment['escalate']) {
+        createSupportTicket($user_id, $session_id, $message, $sentiment['label']);
+        // Add empathetic response
+        $response = "I'm really sorry to hear you're experiencing issues. I've escalated this to our support team and a human agent will contact you shortly. In the meantime, is there anything else I can help you with?";
+        $qr[] = 'Speak to human agent';
+        $qr[] = 'File complaint';
+    }
 
-    echo json_encode(['response' => $response, 'quick_replies' => $qr, 'session_id' => $session_id, 'log_id' => $log_id]);} catch (Throwable $e) {
+    // ================================================================
+    // CONTEXT AWARENESS - Save conversation context
+    // ================================================================
+    // Track last product viewed/searched
+    if (stripos($message, 'product') !== false || stripos($message, 'item') !== false || stripos($message, 'buy') !== false) {
+        saveContext($session_id, $user_id, 'last_product_query', $message);
+    }
+    
+    // Track order-related queries
+    if (stripos($message, 'order') !== false || stripos($message, 'delivery') !== false || stripos($message, 'tracking') !== false) {
+        saveContext($session_id, $user_id, 'last_order_query', $message);
+    }
+
+    echo json_encode(['response' => $response, 'quick_replies' => $qr, 'session_id' => $session_id, 'log_id' => $log_id]);
+} catch (Throwable $e) {
     echo json_encode(['response' => 'Something went wrong. Please try again.', 'quick_replies' => ['Show me products', 'Contact support']]);
 }
 exit;
@@ -141,6 +449,247 @@ exit;
 // ================================================================
 function reply(string $text, array $qr = []): array {
     return ['response' => $text, 'quick_replies' => $qr];
+}
+
+/**
+ * Fast DB-grounded reply when the local ML service classifies intent with high confidence
+ * but the message did not match earlier regex routes (e.g. unusual phrasing).
+ * Avoids an extra Gemini round-trip for common store topics.
+ */
+function intentMlFastReply(string $intent, string $msg, ?int $uid, $conn, array &$ctx): ?array {
+    $ml = strtolower(trim($msg));
+
+    switch ($intent) {
+        case 'delivery_time':
+            return reply(
+                "🚚 <strong>Delivery Times (Rwanda):</strong><br>" .
+                "• <strong>Kigali:</strong> 1–2 business days<br>" .
+                "• <strong>Other provinces:</strong> 2–4 business days<br>" .
+                "• <strong>Remote areas:</strong> up to 5–7 days<br>" .
+                "You'll receive an SMS/email update once your order is shipped! 📱",
+                ['Shipping fees', 'Track my order', 'Payment methods']
+            );
+
+        case 'shipping_fee':
+            return reply(
+                "📦 <strong>Shipping Fees:</strong><br>" .
+                "• Orders above <strong>RWF 50,000</strong> → <strong>FREE shipping</strong> 🎉<br>" .
+                "• Orders below RWF 50,000 → <strong>RWF 2,000</strong> flat rate<br>" .
+                "• Express delivery (Kigali only) → <strong>RWF 3,500</strong>",
+                ['Delivery time', 'Payment methods', 'Show me products']
+            );
+
+        case 'payment_methods':
+            return reply(
+                "💳 <strong>Payment Methods We Accept:</strong><br>" .
+                "• 💵 Cash on Delivery (COD)<br>" .
+                "• 📱 MTN Mobile Money (MoMo)<br>" .
+                "• 📱 Airtel Money<br>" .
+                "• 🏦 Bank Transfer (BK, Equity, I&M)<br>" .
+                "• 💳 Visa / Mastercard<br>" .
+                "All online payments are <strong>SSL secured</strong> 🔒",
+                ['Delivery info', 'Return policy', 'Show me products']
+            );
+
+        case 'return_policy':
+            return reply(
+                "↩️ <strong>Return & Refund Policy:</strong><br>" .
+                "• Items returnable within <strong>7 days</strong> of delivery<br>" .
+                "• Item must be unused and in original packaging<br>" .
+                "• Damaged or wrong items: full refund or free replacement<br>" .
+                "• Refunds processed within <strong>3–5 business days</strong><br>" .
+                "📧 Start a return: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a>",
+                ['Delivery info', 'Contact support', 'Warranty info']
+            );
+
+        case 'warranty':
+            return reply(
+                "🛡️ <strong>Warranty Information:</strong><br>" .
+                "• 📱 Electronics & Phones: <strong>1 year</strong><br>" .
+                "• 🏠 Home Appliances: <strong>1–2 years</strong><br>" .
+                "• 👗 Clothing & Accessories: <strong>7 days</strong> defect warranty<br>" .
+                "• ⌚ Watches: <strong>6 months</strong><br>" .
+                "📧 Claims: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a> with order number + photos.",
+                ['Return policy', 'Contact support']
+            );
+
+        case 'contact_support':
+        case 'support_ticket':
+            $ctx['awaiting'] = 'support_message';
+            return reply(
+                "📞 <strong>Contact & Support:</strong><br>" .
+                "• 📧 Email: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a><br>" .
+                "• 📱 Phone/WhatsApp: <a href='tel:" . ADMIN_PHONE . "'>" . ADMIN_PHONE . "</a><br>" .
+                "• 🕐 Office Hours: Mon–Sat, 8AM–6PM (Kigali time)<br><br>" .
+                "💬 <strong>Or type your message below and we'll email it to our team right now:</strong>",
+                ['Return policy', 'Delivery info', 'Track my order']
+            );
+
+        case 'discount_promo':
+            return reply(
+                "🏷️ <strong>Current Deals & Promotions:</strong><br>" .
+                "• 🎉 Free shipping on orders above <strong>RWF 50,000</strong><br>" .
+                "• New arrivals added weekly across all categories<br>" .
+                "• 💡 Tip: Add more items to qualify for free shipping!<br>" .
+                "Check our <a href='" . SITE_URL . "/products.php'>Products page</a> for latest prices.",
+                ['Show me products', 'Delivery info']
+            );
+
+        case 'account_help':
+            return reply(
+                "👤 <strong>Account Help:</strong><br>• <a href='" . SITE_URL . "/login.php'>Login</a> | <a href='" . SITE_URL . "/register.php'>Register</a><br>• <a href='" . SITE_URL . "/profile.php'>Edit Profile</a><br>• Password issues: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a>",
+                ['Login', 'Register']
+            );
+
+        case 'complaint':
+            return reply(
+                "😔 I'm really sorry to hear that! We take all issues seriously.<br><br>" .
+                "Please contact us:<br>📧 <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a> | 📱 " . ADMIN_PHONE . "<br>Include your order number for faster help.",
+                ['Return policy', 'Contact support', 'Track my order']
+            );
+
+        case 'bot_identity':
+            return reply(
+                "🤖 I'm the AI shopping assistant for <strong>" . SITE_NAME . "</strong>!<br>I can find products, check prices, track orders, and answer questions about our store — in English, French, or Kinyarwanda.",
+                ['Show me products', 'What can you do?']
+            );
+
+        case 'chatbot_rating':
+            return reply(
+                "⭐ Thanks for your interest in rating us! After each answer you can use 👍 / 👎 under bot messages to give feedback.",
+                ['Show me products', 'Contact support']
+            );
+
+        case 'stock_notification':
+            return reply(
+                "🔔 <strong>Stock alerts:</strong> Open a product page and use the notify option when an item is out of stock — we'll email you when it's back.",
+                ['Show me products', 'Contact support']
+            );
+
+        case 'analytics':
+        case 'category_search':
+            return reply(getCategorySummary($conn), ['Show me phones', 'Show me laptops', 'Show me products']);
+
+        case 'order_track':
+            if (!$uid) {
+                return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> first to track your orders.", ['Login', 'Register']);
+            }
+            if (preg_match('/#?0*(\d+)\b/', $msg, $m)) {
+                return reply(trackOrder((int)$m[1], $uid, $conn), ['View all orders', 'Cancel an order']);
+            }
+            $latest = $conn->query("SELECT id,status FROM orders WHERE user_id=$uid ORDER BY created_at DESC LIMIT 1")->fetch_assoc();
+            if ($latest) {
+                return reply(
+                    "Your latest order is <strong>#" . $latest['id'] . "</strong> — Status: <strong>" . ucfirst($latest['status']) . "</strong>.<br>Type the order number for full details.",
+                    ['Track order ' . $latest['id'], 'View all orders']
+                );
+            }
+            $ctx['awaiting'] = 'order_number';
+            return reply("Please provide your order number. Example: <em>track order 5</em><br>Find it on the <a href='" . SITE_URL . "/orders.php'>My Orders</a> page.");
+
+        case 'order_cancel':
+            if (!$uid) {
+                return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> to manage your orders.");
+            }
+            if (preg_match('/\b(\d+)\b/', $msg, $m)) {
+                return reply(cancelOrder((int)$m[1], $uid, $conn));
+            }
+            return reply("To cancel an order, type: <em>cancel order [number]</em><br>Find your order number on the <a href='" . SITE_URL . "/orders.php'>My Orders</a> page.", ['View my orders']);
+
+        case 'order_history':
+            if (!$uid) {
+                return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> to view your orders.");
+            }
+            return reply(orderHistory($uid, $conn), ['Track an order', 'Cancel an order']);
+
+        case 'invoice':
+            if (!$uid) {
+                return reply("🔒 Please <a href='" . SITE_URL . "/login.php'>login</a> to access your invoices.");
+            }
+            if (preg_match('/#?0*(\d+)\b/', $msg, $m)) {
+                $oid = (int)$m[1];
+                $chk = $conn->query("SELECT id FROM orders WHERE id=$oid AND user_id=$uid LIMIT 1")->fetch_assoc();
+                if ($chk) {
+                    return reply(
+                        "🧾 <strong>Invoice for Order #" . str_pad((string)$oid, 6, '0', STR_PAD_LEFT) . "</strong><br><br>" .
+                        "<a href='" . SITE_URL . "/invoice.php?id=$oid' target='_blank'><strong>📄 Download / Print Invoice →</strong></a>",
+                        ['My orders', 'Track my order']
+                    );
+                }
+                return reply("❌ Order #$oid not found under your account.", ['My orders']);
+            }
+            $res = $conn->query("SELECT id FROM orders WHERE user_id=$uid ORDER BY created_at DESC LIMIT 5");
+            $links = '';
+            if ($res) {
+                while ($o = $res->fetch_assoc()) {
+                    $num = str_pad((string)$o['id'], 6, '0', STR_PAD_LEFT);
+                    $links .= "• <a href='" . SITE_URL . "/invoice.php?id={$o['id']}' target='_blank'>Invoice #$num →</a><br>";
+                }
+            }
+            return reply(
+                $links
+                    ? "🧾 <strong>Your Recent Invoices:</strong><br><br>$links"
+                    : "You have no orders yet.",
+                ['My orders', 'Track my order']
+            );
+
+        case 'place_order':
+            if (!$uid) {
+                return reply(
+                    "🔒 Please <a href='" . SITE_URL . "/login.php'><strong>login</strong></a> first to place an order.",
+                    ['Login', 'Register']
+                );
+            }
+            return reply(
+                "🛒 To buy from chat, tell me <em>which product</em> (e.g. <em>I want Samsung Galaxy A54</em>) or open <a href='" . SITE_URL . "/products.php'>Products</a> and use <strong>Add to cart</strong>.",
+                ['Show me products', 'My cart']
+            );
+
+        case 'product_search':
+        case 'product_price':
+        case 'recommendation':
+        case 'stock_check':
+            $rows = dbProductSearch($msg, $conn);
+            if (!empty($rows)) {
+                $ctx['last_products'] = $rows;
+                [$minP, $maxP] = extractPriceRange($ml);
+                $label = '';
+                if ($minP && $maxP) {
+                    $label = 'Products RWF ' . number_format($minP) . ' – RWF ' . number_format($maxP);
+                } elseif ($maxP) {
+                    $label = 'Products under RWF ' . number_format($maxP);
+                } elseif ($minP) {
+                    $label = 'Products above RWF ' . number_format($minP);
+                }
+                $fp = formatProducts($rows, $label);
+                return reply($fp['text'], array_merge($fp['qr'], ['Show me more', 'Delivery info']));
+            }
+            return null;
+
+        case 'faq':
+            $kws = extractKeywords($msg);
+            if (empty($kws)) {
+                return null;
+            }
+            $conditions = [];
+            foreach (array_slice($kws, 0, 4) as $w) {
+                $w = $conn->real_escape_string($w);
+                $conditions[] = "(LOWER(question) LIKE '%$w%' OR LOWER(answer) LIKE '%$w%')";
+            }
+            $sql = "SELECT question, answer FROM faq WHERE status = 1 AND (" . implode(' OR ', $conditions) . ") LIMIT 3";
+            $fr = @$conn->query($sql);
+            if (!$fr || $fr->num_rows === 0) {
+                return null;
+            }
+            $out = "📋 <strong>From our FAQ:</strong><br><br>";
+            while ($row = $fr->fetch_assoc()) {
+                $out .= "<strong>" . htmlspecialchars($row['question']) . "</strong><br>" . nl2br(htmlspecialchars($row['answer'])) . "<br><br>";
+            }
+            return reply(rtrim($out), ['Show me products', 'Contact support']);
+
+        default:
+            return null;
+    }
 }
 
 // ================================================================
@@ -322,27 +871,7 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         return reply(trackOrder((int)$m[1], $uid, $conn), ['View all orders', 'Cancel an order']);
     }
 
-    // ── GEMINI FIRST — use AI for every message when internet is available ──
-    // Only skip for multi-step flows that need exact PHP state handling
-    $inMultiStep = !empty($ctx['awaiting']) || !empty($ctx['order_step']);
-    $isCartCmd   = preg_match('/^(add_to_cart:\d+$|confirm$|cancel$)/i', trim($msg));
-
-    // Block Gemini from intercepting any order/cart/checkout intent — PHP handles these
-    $isOrderIntent = preg_match(
-        '/\b(add to cart|add_to_cart|place order|checkout|proceed to checkout|buy now|order now|' .
-        'i want to buy|i want to order|confirm order|my cart|view cart|clear cart|' .
-        'track.*order|cancel.*order|order.*cancel|order.*track|my order|order history|' .
-        'order summary|order detail|order status|where is my order|payment method|' .
-        'delivery address|finalize.*order|complete.*order|help.*place.*order|' .
-        'place.*order|order.*place)\b/i',
-        $ml
-    );
-    if (!$inMultiStep && !$isCartCmd && !$isOrderIntent) {
-        $gemini = askGemini($msg, $uid, $conn, $session_id);
-        if ($gemini) {
-            return reply($gemini, ['Show me products', 'Track my order', 'Delivery info', 'Contact support']);
-        }
-    }
+    // ── DB + regex intents first (fast). Gemini runs only as a late fallback below.
 
     // ── Awaiting support message — handle BEFORE anything else ──
     if ($ctx['awaiting'] === 'support_message') {
@@ -583,15 +1112,40 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
                     }
                 }
             }
+            
+            // Prepare common variables
             $interestLine = $lastInterest ? "<br>💡 Last time you were browsing <strong>$lastInterest</strong> — want to continue?" : '';
-            return reply(
-                "👋 Welcome back, <strong>$name</strong>! Great to see you at <strong>" . SITE_NAME . "</strong>.<br>" .
-                "You have <strong>$oCount order" . ($oCount != 1 ? 's' : '') . "</strong> with us." . $orderLine . $interestLine . "<br><br>" .
-                "How can I help you today?",
-                $lastInterest
-                    ? ['Show me ' . strtolower($lastInterest), 'Track my order', 'My orders', 'Contact support']
-                    : ['Show me products', 'Track my order', 'My orders', 'Contact support']
-            );
+            
+            // Detect language from current message
+            $lang = detectLanguage($msg);
+            
+            if ($lang === 'rw') {
+                // Kinyarwanda response
+                return reply(
+                    "🇷🇼 <strong>Muraho $name!</strong> Nezeza kubona!<br>" .
+                    "Ufite konti <strong>$oCount" . ($oCount != 1 ? ' z' : ' y') . "</strong>" . $orderLine . "<br><br>" .
+                    "Nabagufasha iki?",
+                    ['🛍️ Nderagura...', '❓ Kuri konti', '🚚 Delivery']
+                );
+            } elseif ($lang === 'fr') {
+                // French response
+                return reply(
+                    "🇫🇷 <strong>Bonjour $name!</strong> Ravi de vous revoir!<br>" .
+                    "Vous avez <strong>$oCount commande" . ($oCount != 1 ? 's' : '') . "</strong>" . $orderLine . "<br><br>" .
+                    "Comment puis-je vous aider?",
+                    ['🛍️ Voir produits', '❓ Mes commandes', '🚚 Livraison']
+                );
+            } else {
+                // English response (default)
+                return reply(
+                    "👋 Welcome back, <strong>$name</strong>! Great to see you at <strong>" . SITE_NAME . "</strong>.<br>" .
+                    "You have <strong>$oCount order" . ($oCount != 1 ? 's' : '') . "</strong> with us." . $orderLine . $interestLine . "<br><br>" .
+                    "How can I help you today?",
+                    $lastInterest
+                        ? ['Show me ' . strtolower($lastInterest), 'Track my order', 'My orders', 'Contact support']
+                        : ['Show me products', 'Track my order', 'My orders', 'Contact support']
+                );
+            }
         } else {
             // ── Guest ──
             return reply(
@@ -1177,9 +1731,24 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         }
     }
 
-    if (preg_match('/\b(show me|do you have|do you sell|looking for|find me|search for|i need|i want|i am looking|got any|list|display|give me)\b/i', $ml)
-        || detectCategory($ml)
-        || extractPriceRange($ml) !== [null, null]) {
+    // ── 19. PRODUCT SEARCH — show me X, find X, etc. ──
+    // ONLY trigger product search if message contains shopping-related keywords
+    $shoppingKeywords = ['show', 'find', 'buy', 'order', 'price', 'cost', 'stock', 'available', 
+                         'sell', 'have', 'product', 'item', 'shop', 'store', 'catalog', 'browse'];
+    
+    $hasShoppingIntent = false;
+    foreach ($shoppingKeywords as $kw) {
+        if (stripos($ml, $kw) !== false) {
+            $hasShoppingIntent = true;
+            break;
+        }
+    }
+    
+    // Also check for category names or brand names
+    $hasCategoryOrBrand = preg_match('/\b(phone|laptop|tablet|shoe|bag|watch|furniture|electronics|clothing|dress|shirt|pants|Samsung|Apple|iPhone|Nike|Adidas|Sony|LG|HP|Dell|lenovo|huawei|tecno|infinix|itel|Mama|Indomie|Inyange|Coca-Cola|Sprite|Fanta)\b/i', $ml);
+    
+    // Only do product search if message has shopping intent OR category/brand mention
+    if ($hasShoppingIntent || $hasCategoryOrBrand || detectCategory($ml) || extractPriceRange($ml) !== [null, null]) {
 
         $rows = dbProductSearch($msg, $conn);
         if (!empty($rows)) {
@@ -1201,24 +1770,20 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         );
     }
 
-    // ── 20. ML MODEL — Python Flask classifier (if running) ──
+    // ── 20. ML MODEL — Flask classifier (if running): fast intent → DB-grounded reply (no Gemini)
     $mlResult = askMLModel($msg);
     if ($mlResult) {
-        // ML detected an intent with high confidence — log it and let Gemini polish
         $intent     = $mlResult['intent'];
         $confidence = round($mlResult['confidence'] * 100, 1);
         $model_used = $mlResult['model_used'];
-        // Try Gemini with ML intent context for a polished response
-        $gemini = askGemini("[$intent intent detected by $model_used with {$confidence}% confidence] " . $msg, $uid, $conn, $session_id);
-        if ($gemini) return reply($gemini . "<br><small style='color:#aaa;font-size:.7rem'>🤖 ML: $model_used ({$confidence}%)</small>",
-            ['Show me products', 'Track my order', 'Delivery info', 'Contact support']);
+        $fast = intentMlFastReply($intent, $msg, $uid, $conn, $ctx);
+        if ($fast !== null) {
+            $fast['response'] .= "<br><small style='color:#aaa;font-size:.7rem'>🤖 ML: $model_used ({$confidence}%)</small>";
+            return $fast;
+        }
     }
 
-    // ── 21. GEMINI — for anything else (multilingual, complex questions) ──
-    $gemini = askGemini($msg, $uid, $conn, $session_id);
-    if ($gemini) return reply($gemini, ['Show me products', 'Track my order', 'Delivery info', 'Contact support']);
-
-    // ── 22. KINYARWANDA FALLBACK — when Gemini is offline ──
+    // ── 21. KINYARWANDA FALLBACK (PHP) — before any LLM
     // Common Kinyarwanda shopping phrases mapped to actions
     if (preg_match('/\b(nyereka|erekana|mpore|mbwira|ndashaka|nshaka|fungura|reba|soma)\b/i', $ml)) {
         // Product search in Kinyarwanda
@@ -1252,6 +1817,33 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         }
     }
 
+    // ── 22b. PERSONAL INFO QUESTIONS — Handle account/profile/order queries (Kinyarwanda/English) ──
+    // Detect if user is asking about THEIR OWN information (not products)
+    $personalKinya = preg_match('/\b(amakuru|wawe|yawe|konti|yange|yanjye|order yanjye|profile yange|email yange|telephone yange|address yange|password|ibyangombwa)\b/i', $ml);
+    $personalEnglish = preg_match('/\b(my account|my profile|my orders|my information|my details|my email|my password|personal info|account settings)\b/i', $ml);
+    
+    if (($personalKinya || $personalEnglish) && $uid) {
+        // User is logged in and asking about their personal info
+        return reply(
+            "👤 <strong>Your Account Information:</strong><br><br>" .
+            "• To view your profile and personal details, go to <a href='" . SITE_URL . "/profile.php'><strong>Profile Page →</strong></a><br>" .
+            "• To check your orders, visit <a href='" . SITE_URL . "/orders.php'><strong>My Orders →</strong></a><br>" .
+            "• To update email or password, use <a href='" . SITE_URL . "/profile.php'><strong>Settings →</strong></a><br><br>" .
+            "💡 If you have a specific question, please type it and I'll help!",
+            ['My profile', 'My orders', 'Update details', 'Contact support']
+        );
+    } elseif (($personalKinya || $personalEnglish) && !$uid) {
+        // User not logged in
+        return reply(
+            "🔒 <strong>Please login first:</strong><br><br>" .
+            "To access your personal information, you need to be logged in.<br>" .
+            "• <a href='" . SITE_URL . "/login.php'><strong>Login here</strong></a><br>" .
+            "• Or <a href='" . SITE_URL . "/register.php'><strong>Create a free account</strong></a><br><br>" .
+            "This protects your privacy and security! 🔐",
+            ['Login', 'Register', 'Forgot password']
+        );
+    }
+    
     // French fallback
     if (preg_match('/\b(montrez|afficher|cherche|produits|téléphone|livraison|paiement|retour|prix)\b/i', $ml)) {
         if (preg_match('/produits|afficher|montrez/i', $ml)) {
@@ -1261,6 +1853,18 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         if (preg_match('/livraison/i', $ml)) return reply("🚚 <strong>Délais de livraison:</strong><br>• Kigali: 1–2 jours<br>• Autres provinces: 2–4 jours<br>• Livraison gratuite au-dessus de RWF 50,000", ['Show me products', 'Payment methods']);
         if (preg_match('/paiement/i', $ml)) return reply("💳 <strong>Modes de paiement:</strong><br>• MTN MoMo • Airtel Money • Cash • Virement bancaire • Visa/Mastercard", ['Delivery info', 'Show me products']);
         if (preg_match('/retour/i', $ml))   return reply("↩️ <strong>Politique de retour:</strong> 7 jours après livraison. Email: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a>", ['Contact support']);
+    }
+
+    // ── 22c. GOOGLE GEMINI — last resort only (after PHP + ML + local language fallbacks).
+    // Used for: complex questions, substantive Kinyarwanda/French, or longer English when ML missed/offline.
+    if (shouldInvokeGeminiLastResort($msg, $mlResult)) {
+        $gemini = askGemini($msg, $uid, $conn, $session_id);
+        if ($gemini) {
+            return reply(
+                $gemini . "<br><small style='color:#aaa;font-size:.7rem'>✨ AI assist (complex / multilingual)</small>",
+                ['Show me products', 'Track my order', 'Delivery info', 'Contact support']
+            );
+        }
     }
 
     // ── 23. FINAL FALLBACK — with escalation after 3 failed attempts ──
@@ -1466,8 +2070,8 @@ function askMLModel(string $message): ?array {
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => json_encode(['message' => $message, 'model' => 'best']),
         CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
-        CURLOPT_TIMEOUT        => 3,   // fast timeout — fallback to PHP engine if slow
-        CURLOPT_CONNECTTIMEOUT => 2,
+        CURLOPT_TIMEOUT        => 2,
+        CURLOPT_CONNECTTIMEOUT => 1,
     ]);
     $resp = curl_exec($ch);
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1514,7 +2118,7 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
             FROM products p
             LEFT JOIN categories c ON p.category_id = c.id
             WHERE p.stock > 0
-            ORDER BY RAND()
+            ORDER BY p.id DESC
             LIMIT 16
         ");
         if ($sampleRes) while ($r = $sampleRes->fetch_assoc()) $rows[] = $r;
@@ -1570,6 +2174,8 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
 
     // ── 7. System prompt ──
     $system = "You are the AI shopping assistant for \"" . SITE_NAME . "\", an e-commerce store in Rwanda.\n"
+        . "You are only invoked as a LAST RESORT when faster PHP and ML rules could not answer — keep answers focused and efficient.\n"
+        . "Always reply in the SAME language as the customer: English, French, or Kinyarwanda (match their message).\n"
         . "CRITICAL RULES:\n"
         . "- ONLY recommend products listed in the PRODUCTS FROM DATABASE section below. Never invent products, names, or prices.\n"
         . "- Always show prices in RWF exactly as listed.\n"
@@ -1577,7 +2183,6 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
         . "- When a customer asks about a specific product, give FULL details: name, brand, price, stock, description.\n"
         . "- When a customer mentions a budget (e.g. 'I have 50000 RWF'), show ALL products within that budget. If none exist, recommend the closest affordable alternatives.\n"
         . "- Be friendly, helpful, and concise (max 300 words).\n"
-        . "- Respond in the SAME language the customer uses (English, French, or Kinyarwanda).\n"
         . "- For product links, format as: [Product Name](" . SITE_URL . "/product.php?id=ID)\n"
         . "- NEVER place orders, add items to cart, confirm orders, or collect delivery/payment details. "
         . "  If a customer wants to buy or place an order, tell them to click the product link or use the Add to Cart button. "
@@ -1613,7 +2218,7 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
             CURLOPT_POST           => true,
             CURLOPT_POSTFIELDS     => $payload,
             CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
-            CURLOPT_TIMEOUT        => 15,
+            CURLOPT_TIMEOUT        => 10,
         ]);
         $resp = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);

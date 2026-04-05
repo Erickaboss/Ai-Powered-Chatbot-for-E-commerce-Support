@@ -1,8 +1,10 @@
 {
   "best_model": "MLP Neural Network",
   "accuracy": 0.9724371373307543,
+  "cv_score": 0.9724371373307543,
+  "timestamp": "2026-04-05T15:53:18.839036",
   "num_classes": 27,
-  "intents": [
+  "classes": [
     "account_help",
     "analytics",
     "bot_identity",
@@ -30,23 +32,5 @@
     "support_ticket",
     "thanks",
     "warranty"
-  ],
-  "per_model": {
-    "Logistic Regression": {
-      "accuracy": 0.9376208897485493,
-      "cv_mean": 0.9072775747654092
-    },
-    "Random Forest": {
-      "accuracy": 0.9622823984526112,
-      "cv_mean": 0.9494677183154506
-    },
-    "MLP Neural Network": {
-      "accuracy": 0.9724371373307543,
-      "cv_mean": 0.9724371373307543
-    },
-    "SVM (Linear)": {
-      "accuracy": 0.9676015473887815,
-      "cv_mean": 0.9676015473887815
-    }
-  }
+  ]
 }

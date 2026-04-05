@@ -17,8 +17,23 @@ CORS(app)
 # ── Load models & artifacts ──────────────────────────────────
 print("Loading models...")
 
-with open('dataset/intents.json') as f:
-    intents_data = json.load(f)
+def _load_intents_merged():
+    """Merge intents.json + intents_part2.json; first file wins for responses per tag."""
+    seen, ordered = set(), []
+    for path in ('dataset/intents.json', 'dataset/intents_part2.json'):
+        try:
+            with open(path, encoding='utf-8') as f:
+                for intent in json.load(f).get('intents', []):
+                    tag = intent.get('tag')
+                    if tag and tag not in seen:
+                        seen.add(tag)
+                        ordered.append(intent)
+        except OSError:
+            pass
+    return {'intents': ordered}
+
+
+intents_data = _load_intents_merged()
 
 le       = pickle.load(open('models/label_encoder.pkl',      'rb'))
 tfidf    = pickle.load(open('models/tfidf_vectorizer.pkl',   'rb'))
@@ -70,7 +85,7 @@ def predict_best(text: str):
 def health():
     return jsonify({
         'status':     'ok',
-        'models':     ['Logistic Regression', 'Random Forest', 'SVM (RBF Kernel)', 'MLP Neural Network'],
+        'models':     ['Logistic Regression', 'Random Forest', 'SVM (Linear)', 'MLP Neural Network'],
         'best_model': best_model_name,
         'intents':    len(intents_data['intents']),
         'uptime':     'running',
@@ -94,7 +109,7 @@ def predict():
     dispatch = {
         'lr':   (predict_lr,   'Logistic Regression'),
         'rf':   (predict_rf,   'Random Forest'),
-        'svm':  (predict_svm,  'SVM (RBF Kernel)'),
+        'svm':  (predict_svm,  'SVM (Linear)'),
         'mlp':  (predict_mlp,  'MLP Neural Network'),
     }
 
@@ -130,7 +145,7 @@ def predict_all():
         'predictions': {
             'Logistic Regression': {'intent': i_lr,  'confidence': round(c_lr,  4)},
             'Random Forest':       {'intent': i_rf,  'confidence': round(c_rf,  4)},
-            'SVM (RBF Kernel)':    {'intent': i_svm, 'confidence': round(c_svm, 4)},
+            'SVM (Linear)':        {'intent': i_svm, 'confidence': round(c_svm, 4)},
             'MLP Neural Network':  {'intent': i_mlp, 'confidence': round(c_mlp, 4)},
         }
     })
