@@ -2129,7 +2129,12 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
             $ctx['last_products'] = $rows;
             if (!$uid) {
                 // Show ALL matching products for guest with login prompt
-                $fp = formatProducts($rows, 'Smartphones under RWF 100,000', true);
+                [$minP, $maxP] = extractPriceRange($ml);
+                $catId2 = detectCategory($ml);
+                $label = '';
+                if ($maxP) $label = "Products under RWF " . number_format($maxP);
+                elseif ($minP) $label = "Products above RWF " . number_format($minP);
+                $fp = formatProducts($rows, $label, true);
                 return reply(
                     $fp['text'] . "<br><br>🔒 <a href='" . SITE_URL . "/login.php'><strong>Login</strong></a> or <a href='" . SITE_URL . "/register.php'><strong>Register free</strong></a> to add to cart and place an order.",
                     ['Login', 'Register', 'Show me more']
