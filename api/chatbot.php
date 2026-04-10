@@ -2280,16 +2280,14 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         if (preg_match('/retour/i', $ml))   return reply("↩️ <strong>Politique de retour:</strong> 7 jours après livraison. Email: <a href='mailto:" . ADMIN_EMAIL . "'>" . ADMIN_EMAIL . "</a>", ['Contact support']);
     }
 
-    // ── 22c. GOOGLE GEMINI — last resort only (after PHP + ML + local language fallbacks).
-    // Used for: complex questions, substantive Kinyarwanda/French, or longer English when ML missed/offline.
-    if (shouldInvokeGeminiLastResort($msg, $mlResult)) {
-        $gemini = askGemini($msg, $uid, $conn, $session_id);
-        if ($gemini) {
-            return reply(
-                $gemini . "<br><small style='color:#aaa;font-size:.7rem'>✨ AI assist (complex / multilingual)</small>",
-                ['Show me products', 'Track my order', 'Delivery info', 'Contact support']
-            );
-        }
+    // ── 22c. GOOGLE GEMINI — handles complex, multilingual and unmatched queries
+    // Gemini is called for: Kinyarwanda, French, complex English, or anything PHP+ML couldn't answer
+    $gemini = askGemini($msg, $uid, $conn, $session_id);
+    if ($gemini) {
+        return reply(
+            $gemini,
+            ['Show me products', 'Track my order', 'Delivery info', 'Contact support']
+        );
     }
 
     // ── 23. FINAL FALLBACK — with escalation after 3 failed attempts ──
