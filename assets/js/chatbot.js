@@ -578,3 +578,81 @@ document.addEventListener('DOMContentLoaded', () => {
         createVoiceInputButton();
     }, 500);
 });
+
+// ── File/Image upload handler ──
+let pendingFile = null;
+
+function handleChatFileUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    pendingFile = file;
+
+    const preview = document.getElementById('chat-file-preview');
+    const isImage = file.type.startsWith('image/');
+    preview.style.display = 'flex';
+
+    if (isImage) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.innerHTML = `<img src="${e.target.result}" style="height:40px;border-radius:6px;object-fit:cover">
+                <span>📷 ${file.name}</span>
+                <button onclick="clearFileUpload()" style="background:none;border:none;color:#e94560;cursor:pointer;margin-left:auto">✕</button>`;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = `<i class="bi bi-file-earmark-text" style="font-size:1.2rem"></i>
+            <span>📄 ${file.name}</span>
+            <button onclick="clearFileUpload()" style="background:none;border:none;color:#e94560;cursor:pointer;margin-left:auto">✕</button>`;
+    }
+
+    // Auto-fill input with context
+    const input2 = document.getElementById('chat-input');
+    if (!input2.value) {
+        input2.value = isImage ? 'I uploaded an image, do you have this product?' : 'I uploaded a document about a product.';
+    }
+}
+
+function clearFileUpload() {
+    pendingFile = null;
+    document.getElementById('chat-file-upload').value = '';
+    const preview = document.getElementById('chat-file-preview');
+    preview.style.display = 'none';
+    preview.innerHTML = '';
+}
+
+// Override sendMessage to handle file uploads
+const _originalSendMessage = sendMessage;
+sendMessage = async function() {
+    if (!pendingFile) {
+        return _originalSendMessage();
+    }
+
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim() || (pendingFile.type.startsWith('image/') ? 'I uploaded an image, do you have this product?' : 'I uploaded a document.');
+
+    appendMessage(msg + ' 📎 ' + pendingFile.name, 'user');
+    input.value = '';
+    showTyping();
+
+    try {
+        const formData = new FormData();
+        formData.append('message', msg);
+        formData.append('session_id', localStorage.getItem('chat_session_id') || CHAT_SESSION_ID);
+        formData.append('file', pendingFile);
+
+        const res = await fetch(CHATBOT_API_URL + '?action=upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await res.json();
+        removeTyping();
+        if (data.session_id) localStorage.setItem('chat_session_id', data.session_id);
+        appendMessage(data.response || 'Sorry, I could not process that file.', 'bot', data.quick_replies || [], data.log_id || null);
+        clearFileUpload();
+    } catch(e) {
+        removeTyping();
+        appendMessage('Sorry, I could not process the file. Please try again.', 'bot', ['Show me products']);
+        clearFileUpload();
+    }
+};

@@ -30,9 +30,13 @@ if (!$hideChat):
         </div>
         <div id="chat-input-area" style="position:relative">
             <div id="chat-suggestions" style="display:none;position:absolute;bottom:100%;left:0;right:0;background:#1a1a2e;border:1px solid rgba(255,255,255,.1);border-radius:10px;margin-bottom:4px;z-index:999;overflow:hidden"></div>
-            
-            <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKey(event)" oninput="showSuggestions(this.value)" 
-                   class="form-control">
+            <!-- File upload button -->
+            <label for="chat-file-upload" title="Upload image or document" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(255,255,255,.5);font-size:1.1rem;z-index:10">
+                <i class="bi bi-paperclip"></i>
+            </label>
+            <input type="file" id="chat-file-upload" accept="image/*,.pdf,.doc,.docx,.txt" style="display:none" onchange="handleChatFileUpload(this)">
+            <input type="text" id="chat-input" placeholder="Type a message or upload a file..." onkeypress="handleKey(event)" oninput="showSuggestions(this.value)" 
+                   class="form-control" style="padding-left:36px">
             <button id="chat-send-btn" onclick="sendMessage()" title="Send" 
                     style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:linear-gradient(135deg,#e94560,#f5a623);border:none;color:white;cursor:pointer;padding:10px 14px;border-radius:8px;z-index:10;transition:all 0.3s ease;box-shadow:0 2px 8px rgba(245,166,35,0.3);" 
                     onmouseover="this.style.transform='translateY(-50%) scale(1.05)'" 
@@ -40,6 +44,7 @@ if (!$hideChat):
                 <i class="bi bi-send-fill" style="font-size:1rem"></i>
             </button>
         </div>
+        <div id="chat-file-preview" style="display:none;padding:6px 12px;background:rgba(255,255,255,.05);border-top:1px solid rgba(255,255,255,.08);font-size:.75rem;color:rgba(255,255,255,.7);align-items:center;gap:8px"></div>
     </div>
 </div>
 <?php endif; ?>

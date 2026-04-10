@@ -332,8 +332,10 @@ async function loadMLStatus() {
                 <td><strong>${model.model_name}</strong></td>
                 <td><span class="badge" style="background:#0f3460">${fmtPct(model.accuracy)}</span></td>
                 <td><span class="badge" style="background:#e94560">${fmtPct(model.f1_score)}</span></td>
+                <td><span class="badge" style="background:#6f42c1">${fmtPct(model.precision)}</span></td>
+                <td><span class="badge" style="background:#fd7e14">${fmtPct(model.recall)}</span></td>
                 <td><span class="badge" style="background:#1f8a70">${fmtPct(model.cv_mean)}</span></td>
-                <td>${model.model_name === summary.best_model ? '<span class="badge bg-success">Best</span>' : ''}</td>
+                <td>${model.model_name === summary.best_model ? '<span class="badge bg-success">⭐ Best</span>' : ''}</td>
             </tr>`
         ).join('');
 
@@ -351,27 +353,35 @@ async function loadMLStatus() {
             </div>
             <p class="text-muted small mb-3">${data.message}</p>
             <div class="row g-3 mb-3">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="small text-muted">Best Accuracy</div>
                     <div class="fw-bold">${fmtPct(summary.accuracy)}</div>
                 </div>
-                <div class="col-md-3">
-                    <div class="small text-muted">Average Accuracy</div>
+                <div class="col-md-2">
+                    <div class="small text-muted">Avg Accuracy</div>
                     <div class="fw-bold">${fmtPct(summary.average_accuracy)}</div>
                 </div>
-                <div class="col-md-3">
-                    <div class="small text-muted">Train / Test Rows</div>
+                <div class="col-md-2">
+                    <div class="small text-muted">Train / Test</div>
                     <div class="fw-bold">${summary.training_samples || 0} / ${summary.test_samples || 0}</div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    <div class="small text-muted">Intents</div>
+                    <div class="fw-bold">${summary.num_classes || 0}</div>
+                </div>
+                <div class="col-md-2">
+                    <div class="small text-muted">Target</div>
+                    <div class="fw-bold" style="color:${summary.all_models_above_target ? '#28a745' : '#dc3545'}">${summary.all_models_above_target ? '✅ All ≥85%' : '⚠️ Below 85%'}</div>
+                </div>
+                <div class="col-md-2">
                     <div class="small text-muted">DB Augmentation</div>
-                    <div class="fw-bold">${augmentation.product_search_samples || 0} product + ${augmentation.faq_samples || 0} FAQ</div>
+                    <div class="fw-bold">${augmentation.product_search_samples || 0} samples</div>
                 </div>
             </div>
             ${models.length ? `<div class="table-responsive">
-                <table class="table table-sm"><thead><tr><th>Model</th><th>Accuracy</th><th>F1 Score</th><th>CV Mean</th><th></th></tr></thead>
+                <table class="table table-sm"><thead><tr><th>Model</th><th>Accuracy</th><th>F1 Score</th><th>Precision</th><th>Recall</th><th>CV Mean</th><th></th></tr></thead>
                 <tbody>${modelRows}</tbody></table></div>
-                <canvas id="mlArtifactChart" height="60"></canvas>` : '<p class="text-muted small mb-0">No per-model artifact rows available yet.</p>'}
+                <canvas id="mlArtifactChart" height="80"></canvas>` : '<p class="text-muted small mb-0">No per-model artifact rows available yet.</p>'}
             ${reportLinks ? `<div class="mt-3 small"><strong>Reports:</strong> ${reportLinks}</div>` : ''}`;
 
         if (models.length) {
@@ -383,9 +393,11 @@ async function loadMLStatus() {
                 data: {
                     labels: models.map((model) => model.model_name),
                     datasets: [
-                        { label: 'Accuracy (%)', data: models.map((model) => Number(model.accuracy || 0) * 100), backgroundColor:'#0f3460', borderRadius:6 },
-                        { label: 'F1 Score (%)', data: models.map((model) => Number(model.f1_score || 0) * 100), backgroundColor:'#e94560', borderRadius:6 },
-                        { label: 'CV Mean (%)', data: models.map((model) => Number(model.cv_mean || 0) * 100), backgroundColor:'#1f8a70', borderRadius:6 },
+                        { label: 'Accuracy (%)',  data: models.map((model) => Number(model.accuracy  || 0) * 100), backgroundColor:'#0f3460', borderRadius:6 },
+                        { label: 'F1 Score (%)',  data: models.map((model) => Number(model.f1_score  || 0) * 100), backgroundColor:'#e94560', borderRadius:6 },
+                        { label: 'Precision (%)', data: models.map((model) => Number(model.precision || 0) * 100), backgroundColor:'#6f42c1', borderRadius:6 },
+                        { label: 'Recall (%)',    data: models.map((model) => Number(model.recall    || 0) * 100), backgroundColor:'#fd7e14', borderRadius:6 },
+                        { label: 'CV Mean (%)',   data: models.map((model) => Number(model.cv_mean   || 0) * 100), backgroundColor:'#1f8a70', borderRadius:6 },
                     ]
                 },
                 options: {

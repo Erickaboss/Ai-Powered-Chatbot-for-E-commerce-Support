@@ -1275,6 +1275,25 @@
       ]
     },
     {
+      "tag": "image_upload",
+      "patterns": [
+        "i have a picture of a product", "i want to upload an image", "i have a photo",
+        "can i upload a picture", "i have a screenshot", "i took a photo of a product",
+        "i have an image of what i want", "upload photo", "send picture",
+        "i have a document about a product", "i have a pdf", "i have a file",
+        "here is a picture", "look at this image", "check this photo",
+        "i found this product online", "i saw this product", "i have a screenshot of a product",
+        "nfite ifoto", "nshaka kohereza ifoto", "nfite ikirangantego cy'igicuruzwa",
+        "j'ai une photo", "j'ai une image", "je veux envoyer une photo",
+        "voici une image", "regardez cette photo", "j'ai un document"
+      ],
+      "responses": [
+        "You can upload an image or document using the 📎 paperclip button in the chat! I'll identify the product and search our store for it.",
+        "Click the 📎 icon to upload your image or document. I'll check if we have that product in our store!",
+        "Upload your photo using the attachment button and I'll search our 1,161+ products to find a match for you."
+      ]
+    },
+    {
       "tag": "guest_order_guide",
       "patterns": [
         "how do i order as a guest", "can i order without account", "how to place order",
