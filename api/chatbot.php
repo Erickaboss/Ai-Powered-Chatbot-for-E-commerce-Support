@@ -1023,8 +1023,7 @@ function getStoreOverviewText($conn, string $lang = 'en'): string {
         "• Coverage: <strong>" . number_format($snapshot['categories']) . "</strong> categories and <strong>" . number_format($snapshot['brands']) . "</strong> brands<br>" .
         "• Price range: <strong>RWF " . number_format($snapshot['min_price']) . " - RWF " . number_format($snapshot['max_price']) . "</strong><br>" .
         "• Top categories: " . $topCategoriesText . "<br><br>" .
-        "I can answer product, price, stock, delivery, payment, return, order-tracking and support questions directly from the platform data.<br>" .
-        "For complex English, French, or Kinyarwanda questions, I can also use Gemini with store-aware context.";
+        "I can answer product, price, stock, delivery, payment, return, order-tracking and support questions directly from the platform data.";
 }
 
 function getOrderGuideText(?int $uid, string $lang = 'en'): string {
@@ -1106,8 +1105,7 @@ function getCapabilityShowcaseText($conn, ?int $uid, string $lang = 'en'): strin
             "• trouver des produits, prix, stocks et catégories<br>" .
             "• recommander selon votre budget<br>" .
             "• expliquer livraison, paiement, retours et support<br>" .
-            "• répondre en anglais, français ou kinyarwanda<br>" .
-            "• utiliser Gemini pour les questions complexes tout en restant ancré dans les données de la plateforme<br><br>" .
+            "• répondre en anglais, français ou kinyarwanda<br><br>" .
             $guestLineFr;
     }
 
@@ -1118,8 +1116,7 @@ function getCapabilityShowcaseText($conn, ?int $uid, string $lang = 'en'): strin
             "• kukwereka ibicuruzwa, ibiciro, stock n'ibyiciro<br>" .
             "• kukugenera products zishingiye kuri budget yawe<br>" .
             "• gusobanura delivery, payment, returns na support<br>" .
-            "• kuvugana nawe mu Cyongereza, Igifaransa no mu Kinyarwanda<br>" .
-            "• gukoresha Gemini ku bibazo bikomeye ariko nkiri ku makuru y'urubuga<br><br>" .
+            "• kuvugana nawe mu Cyongereza, Igifaransa no mu Kinyarwanda<br><br>" .
             $guestLineRw;
     }
 
@@ -1129,8 +1126,7 @@ function getCapabilityShowcaseText($conn, ?int $uid, string $lang = 'en'): strin
         "• search products, prices, stock, and categories<br>" .
         "• recommend products based on budget<br>" .
         "• explain delivery, payment, returns, and support policies<br>" .
-        "• answer in English, French, or Kinyarwanda<br>" .
-        "• use Gemini for complex questions while staying grounded in platform data<br><br>" .
+        "• answer in English, French, or Kinyarwanda<br><br>" .
         $guestLineEn;
 }
 
@@ -2200,7 +2196,6 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         $model_used = $mlResult['model_used'];
         $fast = intentMlFastReply($intent, $msg, $uid, $conn, $ctx);
         if ($fast !== null) {
-            $fast['response'] .= "<br><small style='color:#aaa;font-size:.7rem'>🤖 ML: $model_used ({$confidence}%)</small>";
             return $fast;
         }
     }
