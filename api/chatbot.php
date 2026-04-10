@@ -836,7 +836,7 @@ function dbProductSearch(string $msg, $conn, ?int $forceCatId = null): array {
 
     $conditions = ['p.stock > 0'];
     if ($catId)    $conditions[] = "p.category_id = $catId";
-    if ($maxPrice) $conditions[] = "p.price <= $maxPrice";
+    if ($maxPrice) $conditions[] = "p.price < $maxPrice";
     if ($minPrice) $conditions[] = "p.price >= $minPrice";
 
     $kwConds = [];
@@ -860,7 +860,7 @@ function dbProductSearch(string $msg, $conn, ?int $forceCatId = null): array {
     if (empty($rows) && $kwConds && ($catId || $maxPrice || $minPrice)) {
         $conds2 = ['p.stock > 0'];
         if ($catId)    $conds2[] = "p.category_id = $catId";
-        if ($maxPrice) $conds2[] = "p.price <= $maxPrice";
+        if ($maxPrice) $conds2[] = "p.price < $maxPrice";
         if ($minPrice) $conds2[] = "p.price >= $minPrice";
         $res2 = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
             FROM products p LEFT JOIN categories c ON p.category_id=c.id
@@ -1875,7 +1875,7 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
         if ($maxP) {
             $catId = detectCategory($ml);
             // Search within budget
-            $conds = ["p.stock > 0", "p.price <= $maxP"];
+            $conds = ["p.stock > 0", "p.price < $maxP"];
             if ($catId) $conds[] = "p.category_id = $catId";
             $res = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
                 FROM products p LEFT JOIN categories c ON p.category_id=c.id
