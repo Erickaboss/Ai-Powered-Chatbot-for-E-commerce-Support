@@ -856,6 +856,25 @@ function dbProductSearch(string $msg, $conn, ?int $forceCatId = null): array {
     $rows = [];
     if ($res) while ($r = $res->fetch_assoc()) $rows[] = $r;
 
+    // If we have results but first keyword doesn't appear in any name, try name-only search first
+    if (!empty($rows) && $firstKw && $catId && ($maxPrice || $minPrice)) {
+        $nameMatch = array_filter($rows, fn($r) => stripos($r['name'], $firstKw) !== false);
+        if (!empty($nameMatch)) {
+            return array_values($nameMatch);
+        }
+        // No name matches — try name-only search without keyword condition
+        $conds3 = ["p.stock > 0", "p.category_id = $catId",
+                   "(p.name LIKE '%$firstKw%' OR p.brand LIKE '%$firstKw%')"];
+        if ($maxPrice) $conds3[] = "p.price < $maxPrice";
+        if ($minPrice) $conds3[] = "p.price >= $minPrice";
+        $res3 = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
+            FROM products p LEFT JOIN categories c ON p.category_id=c.id
+            WHERE " . implode(' AND ', $conds3) . " ORDER BY p.price ASC LIMIT 8");
+        $nameRows = [];
+        if ($res3) while ($r = $res3->fetch_assoc()) $nameRows[] = $r;
+        if (!empty($nameRows)) return $nameRows;
+    }
+
     // Relax: drop keyword conditions if no results but category/price matched
     if (empty($rows) && $kwConds && ($catId || $maxPrice || $minPrice)) {
         $conds2 = ['p.stock > 0'];
@@ -868,8 +887,7 @@ function dbProductSearch(string $msg, $conn, ?int $forceCatId = null): array {
         if ($res2) while ($r = $res2->fetch_assoc()) $rows[] = $r;
     }
 
-    // If still empty and we have a category + price, check if products exist in category above the budget
-    // and return them so chatbot can say "no laptops under X but here are the closest"
+    // If still empty and we have a category + price, return cheapest in category above budget
     if (empty($rows) && $catId && $maxPrice) {
         $res3 = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
             FROM products p LEFT JOIN categories c ON p.category_id=c.id
