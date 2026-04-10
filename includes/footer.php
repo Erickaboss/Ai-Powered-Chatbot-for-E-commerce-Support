@@ -32,9 +32,9 @@ if (!$hideChat):
             <div id="chat-suggestions" style="display:none;position:absolute;bottom:100%;left:0;right:0;background:#1a1a2e;border:1px solid rgba(255,255,255,.1);border-radius:10px;margin-bottom:4px;z-index:999;overflow:hidden"></div>
             <!-- File upload button — clearly visible -->
             <label for="chat-file-upload" title="Upload image or document"
-                   style="flex-shrink:0;cursor:pointer;width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.8);font-size:1rem;transition:.2s"
-                   onmouseover="this.style.background='rgba(255,255,255,.2)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">
-                <i class="bi bi-paperclip"></i>
+                   style="flex-shrink:0;cursor:pointer;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#0f3460,#1e5fa8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;transition:.2s;box-shadow:0 2px 6px rgba(0,0,0,.3)"
+                   onmouseover="this.style.background='linear-gradient(135deg,#1e5fa8,#0f3460)'" onmouseout="this.style.background='linear-gradient(135deg,#0f3460,#1e5fa8)'">
+                <i class="bi bi-image"></i>
             </label>
             <input type="file" id="chat-file-upload" accept="image/*,.pdf,.doc,.docx,.txt" style="display:none" onchange="handleChatFileUpload(this)">
             <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKey(event)" oninput="showSuggestions(this.value)"
