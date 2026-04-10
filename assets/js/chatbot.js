@@ -605,11 +605,12 @@ function handleChatFileUpload(input) {
             <button onclick="clearFileUpload()" style="background:none;border:none;color:#e94560;cursor:pointer;margin-left:auto">✕</button>`;
     }
 
-    // Auto-fill input with context
+    // Don't auto-fill — let user type their own message
     const input2 = document.getElementById('chat-input');
     if (!input2.value) {
-        input2.value = isImage ? 'I uploaded an image, do you have this product?' : 'I uploaded a document about a product.';
+        input2.placeholder = isImage ? 'Ask about this image...' : 'Ask about this document...';
     }
+    input2.focus();
 }
 
 function clearFileUpload() {
@@ -628,7 +629,7 @@ sendMessage = async function() {
     }
 
     const input = document.getElementById('chat-input');
-    const msg = input.value.trim() || (pendingFile.type.startsWith('image/') ? 'I uploaded an image, do you have this product?' : 'I uploaded a document.');
+    const msg = input.value.trim() || (pendingFile.type.startsWith('image/') ? 'I uploaded an image, do you have this product?' : 'I uploaded a document about a product.');
 
     appendMessage(msg + ' 📎 ' + pendingFile.name, 'user');
     input.value = '';

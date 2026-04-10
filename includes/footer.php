@@ -38,7 +38,8 @@ if (!$hideChat):
             </label>
             <input type="file" id="chat-file-upload" accept="image/*,.pdf,.doc,.docx,.txt" style="display:none" onchange="handleChatFileUpload(this)">
             <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKey(event)" oninput="showSuggestions(this.value)"
-                   style="flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:8px 12px;font-size:.88rem;outline:none">
+                   style="flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;padding:8px 12px;font-size:.88rem;outline:none;caret-color:#fff"
+                   placeholder-color="#aaa">
             <button id="chat-send-btn" onclick="sendMessage()" title="Send"
                     style="flex-shrink:0;width:34px;height:34px;background:linear-gradient(135deg,#e94560,#f5a623);border:none;color:white;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:.2s"
                     onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
