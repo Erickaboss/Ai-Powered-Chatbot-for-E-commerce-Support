@@ -306,7 +306,7 @@ if (($_GET['action'] ?? '') === 'history') {
 if (($_GET['action'] ?? '') === 'upload') {
     header('Content-Type: application/json');
     $uid = $_SESSION['user_id'] ?? null;
-    $msg = trim($_POST['message'] ?? 'I uploaded a file.');
+    $msg = trim($_POST['message'] ?? '');
     $sid = preg_replace('/[^a-f0-9]/i', '', $_POST['session_id'] ?? '');
 
     if (empty($_FILES['file']['tmp_name'])) {
@@ -314,33 +314,58 @@ if (($_GET['action'] ?? '') === 'upload') {
         exit;
     }
 
-    $file     = $_FILES['file'];
-    $ext      = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    $isImage  = in_array($ext, ['jpg','jpeg','png','gif','webp','bmp']);
-    $isDoc    = in_array($ext, ['pdf','doc','docx','txt']);
+    $file    = $_FILES['file'];
+    $ext     = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp','bmp']);
+    $isDoc   = in_array($ext, ['pdf','doc','docx','txt']);
 
     if (!$isImage && !$isDoc) {
-        echo json_encode(['response' => '❌ Unsupported file type. Please upload an image (JPG, PNG, WEBP) or document (PDF, TXT).', 'quick_replies' => ['Show me products']]);
+        echo json_encode(['response' => '❌ Unsupported file. Please upload an image (JPG, PNG, WEBP) or document (PDF, TXT).', 'quick_replies' => ['Show me products']]);
         exit;
     }
 
+    $apiKey = GEMINI_API_KEY ?? '';
+
+    // ── Helper: search DB with multiple keywords ──
+    $searchDB = function(string $query) use ($conn): array {
+        $words = array_filter(explode(' ', preg_replace('/[^a-z0-9\s]/i', '', strtolower($query))), fn($w) => strlen($w) >= 3);
+        $rows = [];
+        foreach (array_slice($words, 0, 5) as $w) {
+            $e = $conn->real_escape_string($w);
+            $res = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
+                FROM products p LEFT JOIN categories c ON p.category_id=c.id
+                WHERE p.stock>0 AND (p.name LIKE '%$e%' OR p.brand LIKE '%$e%' OR p.description LIKE '%$e%')
+                ORDER BY p.price ASC LIMIT 4");
+            if ($res) while ($r = $res->fetch_assoc()) {
+                if (!in_array($r['id'], array_column($rows, 'id'))) $rows[] = $r;
+            }
+            if (count($rows) >= 8) break;
+        }
+        return $rows;
+    };
+
     if ($isImage) {
-        // ── Image: use Gemini Vision to identify product, then search DB ──
-        $imageData   = base64_encode(file_get_contents($file['tmp_name']));
-        $mimeType    = $file['type'] ?: 'image/jpeg';
-        $apiKey      = GEMINI_API_KEY ?? '';
-        $productName = null;
+        // ── IMAGE: Gemini Vision identifies product + searches DB ──
+        $imageData = base64_encode(file_get_contents($file['tmp_name']));
+        $mimeType  = $file['type'] ?: 'image/jpeg';
+        $geminiAnalysis = null;
 
         if ($apiKey && $apiKey !== 'your-gemini-api-key-here') {
-            // Ask Gemini to identify the product in the image
+            // Ask Gemini to analyze the image in detail
+            $prompt = "Analyze this image carefully. "
+                . "1. What product(s) do you see? Give the exact product name, brand if visible, and category (e.g. smartphone, laptop, sofa, dress, etc.). "
+                . "2. Describe key features visible (color, size, model number if visible). "
+                . "3. What search keywords would find this product in an e-commerce store? "
+                . "Reply in this format: PRODUCT: [name] | BRAND: [brand or unknown] | CATEGORY: [category] | KEYWORDS: [keyword1, keyword2, keyword3]";
+
             $visionPayload = json_encode([
                 'contents' => [[
                     'parts' => [
-                        ['text' => 'Look at this image. Identify the product shown. Reply with ONLY the product name (e.g. "Samsung Galaxy A54", "Sofa", "Running Shoes"). If it is not a product, say "not a product".'],
+                        ['text' => $prompt],
                         ['inline_data' => ['mime_type' => $mimeType, 'data' => $imageData]]
                     ]
                 ]],
-                'generationConfig' => ['temperature' => 0.1, 'maxOutputTokens' => 50]
+                'generationConfig' => ['temperature' => 0.1, 'maxOutputTokens' => 200]
             ]);
 
             $models = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
@@ -348,83 +373,157 @@ if (($_GET['action'] ?? '') === 'upload') {
                 $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
                 $ch  = curl_init($url);
                 curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true, CURLOPT_POST=>true,
-                    CURLOPT_POSTFIELDS=>$visionPayload, CURLOPT_HTTPHEADER=>['Content-Type: application/json'], CURLOPT_TIMEOUT=>15]);
+                    CURLOPT_POSTFIELDS=>$visionPayload, CURLOPT_HTTPHEADER=>['Content-Type: application/json'], CURLOPT_TIMEOUT=>20]);
                 $resp = curl_exec($ch);
                 $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
                 if ($code === 200) {
                     $data = json_decode($resp, true);
-                    $productName = trim($data['candidates'][0]['content']['parts'][0]['text'] ?? '');
+                    $geminiAnalysis = trim($data['candidates'][0]['content']['parts'][0]['text'] ?? '');
                     break;
                 }
             }
         }
 
-        if ($productName && strtolower($productName) !== 'not a product' && strlen($productName) > 2) {
-            // Search our DB for this product
-            $safe = $conn->real_escape_string($productName);
-            $res  = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
-                FROM products p LEFT JOIN categories c ON p.category_id=c.id
-                WHERE p.stock>0 AND (p.name LIKE '%$safe%' OR p.brand LIKE '%$safe%' OR p.description LIKE '%$safe%')
-                ORDER BY p.price ASC LIMIT 5");
-            $rows = [];
-            if ($res) while ($r = $res->fetch_assoc()) $rows[] = $r;
+        $rows = [];
+        $productName = '';
+        $brandName   = '';
 
-            if (!empty($rows)) {
-                $out = "📷 I can see <strong>" . htmlspecialchars($productName) . "</strong> in your image!<br><br>✅ We have similar products in our store:<br>";
-                foreach ($rows as $p) {
-                    $out .= "• <a href='" . SITE_URL . "/product.php?id={$p['id']}'><strong>" . htmlspecialchars($p['name']) . "</strong></a>"
-                          . ($p['brand'] ? " ({$p['brand']})" : '')
-                          . " — <strong>RWF " . number_format($p['price']) . "</strong> | {$p['stock']} in stock<br>";
-                }
-                $qr = array_map(fn($p) => "🛒 Add: add_to_cart:{$p['id']}", array_slice($rows, 0, 3));
-                $response = $out;
-                $quickReplies = array_merge($qr, ['Show me more']);
-            } else {
-                $response = "📷 I identified <strong>" . htmlspecialchars($productName) . "</strong> in your image, but unfortunately we don't carry this product in our store right now.<br><br>Would you like to see similar products?";
-                $quickReplies = ['Show me products', 'Show me recommendations', 'Contact support'];
+        if ($geminiAnalysis) {
+            // Parse Gemini response
+            preg_match('/PRODUCT:\s*([^|]+)/i', $geminiAnalysis, $pm);
+            preg_match('/BRAND:\s*([^|]+)/i',   $geminiAnalysis, $bm);
+            preg_match('/KEYWORDS:\s*(.+)/i',   $geminiAnalysis, $km);
+
+            $productName = trim($pm[1] ?? '');
+            $brandName   = trim($bm[1] ?? '');
+            $keywords    = trim($km[1] ?? '');
+
+            // Search by product name first
+            if ($productName && strtolower($productName) !== 'unknown') {
+                $rows = $searchDB($productName);
             }
+            // If not enough results, search by keywords
+            if (count($rows) < 3 && $keywords) {
+                $moreRows = $searchDB($keywords);
+                foreach ($moreRows as $r) {
+                    if (!in_array($r['id'], array_column($rows, 'id'))) $rows[] = $r;
+                }
+            }
+            // Also try brand
+            if (count($rows) < 3 && $brandName && strtolower($brandName) !== 'unknown') {
+                $moreRows = $searchDB($brandName);
+                foreach ($moreRows as $r) {
+                    if (!in_array($r['id'], array_column($rows, 'id'))) $rows[] = $r;
+                }
+            }
+        }
+
+        // Also use customer's typed message as additional search
+        if ($msg && count($rows) < 5) {
+            $moreRows = $searchDB($msg);
+            foreach ($moreRows as $r) {
+                if (!in_array($r['id'], array_column($rows, 'id'))) $rows[] = $r;
+            }
+        }
+
+        $rows = array_slice($rows, 0, 8);
+
+        if (!empty($rows)) {
+            $identified = $productName ? "<strong>" . htmlspecialchars($productName) . "</strong>" . ($brandName && strtolower($brandName) !== 'unknown' ? " by <strong>" . htmlspecialchars($brandName) . "</strong>" : '') : "a product";
+            $out = "📷 I analyzed your image and identified $identified.<br><br>✅ <strong>Here are matching products from our store:</strong><br>";
+            foreach ($rows as $p) {
+                $out .= "• <a href='" . SITE_URL . "/product.php?id={$p['id']}'><strong>" . htmlspecialchars($p['name']) . "</strong></a>"
+                      . ($p['brand'] ? " <em>({$p['brand']})</em>" : '')
+                      . " — <strong>RWF " . number_format($p['price']) . "</strong>"
+                      . " | " . $p['stock'] . " in stock";
+                if (!empty($p['description'])) {
+                    $out .= "<br><small style='color:rgba(255,255,255,.6)'>📝 " . htmlspecialchars(mb_substr(strip_tags($p['description']), 0, 100)) . "...</small>";
+                }
+                $out .= "<br>";
+            }
+            $qr = array_map(fn($p) => "🛒 Add: add_to_cart:{$p['id']}", array_slice($rows, 0, 3));
+            $response     = $out;
+            $quickReplies = array_merge($qr, ['Show me more', 'Show me products']);
         } else {
-            $response = "📷 I received your image! I couldn't identify a specific product in it.<br>Could you tell me what product you're looking for? I'll search our store for you.";
-            $quickReplies = ['Show me products', 'Show me phones', 'Show me furniture'];
+            $notFound = $productName ? "I identified <strong>" . htmlspecialchars($productName) . "</strong> in your image, but we don't currently carry this exact product." : "I couldn't identify a specific product in your image.";
+            $response = "📷 " . $notFound . "<br><br>💡 Try describing what you're looking for and I'll search our 1,161+ products across 15 categories!";
+            $quickReplies = ['Show me products', 'Show me phones', 'Show me furniture', 'Show me fashion'];
         }
 
     } else {
-        // ── Document: extract text and search for products ──
-        $text = '';
+        // ── DOCUMENT: Gemini reads the document + searches DB ──
+        $docText = '';
         if ($ext === 'txt') {
-            $text = file_get_contents($file['tmp_name']);
+            $docText = file_get_contents($file['tmp_name']);
         } elseif ($ext === 'pdf') {
-            // Basic PDF text extraction
             $content = file_get_contents($file['tmp_name']);
-            preg_match_all('/\(([^\)]+)\)/', $content, $matches);
-            $text = implode(' ', $matches[1] ?? []);
-        }
-        $text = substr(strip_tags($text), 0, 500);
-
-        if (!empty($text)) {
-            // Search products based on document content
-            $rows = dbProductSearch($text, $conn);
-            if (!empty($rows)) {
-                $fp = formatProducts($rows, 'Products matching your document');
-                $response = "📄 I read your document and found these matching products in our store:<br><br>" . $fp['text'];
-                $quickReplies = array_merge($fp['qr'], ['Show me more']);
-            } else {
-                $response = "📄 I received your document but couldn't find matching products. Could you describe what you're looking for?";
-                $quickReplies = ['Show me products', 'Contact support'];
+            // Extract readable text from PDF
+            preg_match_all('/\(([^\)]{2,100})\)/', $content, $matches);
+            $docText = implode(' ', $matches[1] ?? []);
+            // Also try stream extraction
+            preg_match_all('/stream(.*?)endstream/s', $content, $streams);
+            foreach ($streams[1] ?? [] as $stream) {
+                $decoded = @gzuncompress($stream);
+                if ($decoded) $docText .= ' ' . preg_replace('/[^\x20-\x7E]/', ' ', $decoded);
             }
+        } elseif (in_array($ext, ['doc','docx'])) {
+            $content = file_get_contents($file['tmp_name']);
+            $docText = preg_replace('/[^\x20-\x7E\n]/', ' ', $content);
+        }
+
+        $docText = substr(strip_tags(preg_replace('/\s+/', ' ', $docText)), 0, 1000);
+
+        // Use Gemini to understand the document if we have API key
+        $geminiSummary = '';
+        if ($apiKey && $apiKey !== 'your-gemini-api-key-here' && strlen($docText) > 20) {
+            $docPayload = json_encode([
+                'contents' => [[
+                    'parts' => [['text' => "This is text from a document a customer uploaded to an e-commerce store. Extract: 1) What product(s) are they looking for? 2) What is their budget if mentioned? 3) Key product features they want. Reply with: PRODUCTS: [list] | BUDGET: [amount or none] | FEATURES: [list]\n\nDocument text: " . $docText]]
+                ]],
+                'generationConfig' => ['temperature' => 0.1, 'maxOutputTokens' => 150]
+            ]);
+            $models = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+            foreach ($models as $model) {
+                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
+                $ch  = curl_init($url);
+                curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true, CURLOPT_POST=>true,
+                    CURLOPT_POSTFIELDS=>$docPayload, CURLOPT_HTTPHEADER=>['Content-Type: application/json'], CURLOPT_TIMEOUT=>15]);
+                $resp = curl_exec($ch);
+                $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+                if ($code === 200) {
+                    $data = json_decode($resp, true);
+                    $geminiSummary = trim($data['candidates'][0]['content']['parts'][0]['text'] ?? '');
+                    break;
+                }
+            }
+        }
+
+        // Build search query from Gemini analysis + document text + customer message
+        $searchQuery = $geminiSummary . ' ' . $docText . ' ' . $msg;
+        $rows = $searchDB($searchQuery);
+
+        if (!empty($rows)) {
+            $fp = formatProducts($rows, 'Products matching your document', true);
+            $response = "📄 I analyzed your document and found these matching products in our store:<br><br>" . $fp['text'];
+            $quickReplies = array_merge($fp['qr'], ['Show me more', 'Show me products']);
+        } elseif (!empty($docText)) {
+            $response = "📄 I read your document but couldn't find exact matches. Could you tell me specifically what product you're looking for? I'll search our 1,161+ products for you.";
+            $quickReplies = ['Show me products', 'Show me phones', 'Show me furniture', 'Contact support'];
         } else {
-            $response = "📄 I received your document! Please also type what product you're looking for and I'll search our store.";
-            $quickReplies = ['Show me products'];
+            $response = "📄 I received your document! Please type what product you're looking for and I'll search our entire store for you.";
+            $quickReplies = ['Show me products', 'Show me phones', 'Show me laptops'];
         }
     }
 
     // Log the interaction
-    $safeMsg = $conn->real_escape_string("📎 [File: {$file['name']}] $msg");
+    $safeMsg  = $conn->real_escape_string("📎 [" . strtoupper($ext) . ": {$file['name']}] " . ($msg ?: 'File uploaded'));
     $safeResp = $conn->real_escape_string($response);
-    $ui = $uid ? (int)$uid : 'NULL';
-    $safeSid = $conn->real_escape_string($sid);
-    $conn->query("INSERT INTO chatbot_logs (user_id, session_id, is_guest, message, response) VALUES ($ui, '$safeSid', " . ($uid?0:1) . ", '$safeMsg', '$safeResp')");
+    $ui       = $uid ? (int)$uid : 'NULL';
+    $safeSid  = $conn->real_escape_string($sid);
+    $guest    = $uid ? 0 : 1;
+    $conn->query("INSERT INTO chatbot_logs (user_id, session_id, is_guest, message, response) VALUES ($ui, '$safeSid', $guest, '$safeMsg', '$safeResp')");
     $logId = (int)$conn->insert_id;
 
     echo json_encode(['response' => $response, 'quick_replies' => $quickReplies, 'log_id' => $logId, 'session_id' => $sid]);
