@@ -2128,12 +2128,12 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
             $p = $rows[0];
             $ctx['last_products'] = $rows;
             if (!$uid) {
-                // Show product but prompt login
-                $out = "🛍️ Found: <a href='" . SITE_URL . "/product.php?id={$p['id']}'><strong>" . htmlspecialchars($p['name']) . "</strong></a>"
-                     . ($p['brand'] ? " <em>({$p['brand']})</em>" : '')
-                     . " — <strong>RWF " . number_format($p['price']) . "</strong> ({$p['stock']} in stock)<br><br>"
-                     . "🔒 Please <a href='" . SITE_URL . "/login.php'><strong>login</strong></a> to add this to your cart and place an order.";
-                return reply($out, ['Login', 'Register', 'Show me more']);
+                // Show ALL matching products for guest with login prompt
+                $fp = formatProducts($rows, 'Smartphones under RWF 100,000', true);
+                return reply(
+                    $fp['text'] . "<br><br>🔒 <a href='" . SITE_URL . "/login.php'><strong>Login</strong></a> or <a href='" . SITE_URL . "/register.php'><strong>Register free</strong></a> to add to cart and place an order.",
+                    ['Login', 'Register', 'Show me more']
+                );
             }
             // Logged in — start cart flow immediately
             $ctx['order_pending_product'] = ['id'=>(int)$p['id'],'name'=>$p['name'],'price'=>(float)$p['price'],'stock'=>(int)$p['stock']];
