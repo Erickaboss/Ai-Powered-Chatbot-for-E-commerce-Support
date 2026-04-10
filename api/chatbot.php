@@ -1120,7 +1120,7 @@ function getCapabilityShowcaseText($conn, ?int $uid, string $lang = 'en'): strin
             $guestLineRw;
     }
 
-    return "🤖 <strong>" . SITE_NAME . " AI shopping assistant</strong><br>" .
+    return "🤖 <strong>AI Shopping Assistant</strong><br>" .
         "I'm connected to live store data: <strong>" . number_format($snapshot['products']) . "</strong> in-stock products, <strong>" . number_format($snapshot['categories']) . "</strong> categories, and <strong>" . number_format($snapshot['brands']) . "</strong> brands.<br><br>" .
         "I can:<br>" .
         "• search products, prices, stock, and categories<br>" .
@@ -1481,6 +1481,11 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
 
     // ── 1. GREETING ──
     if (preg_match('/\b(hi|hello|hey|good morning|good afternoon|good evening|bonjour|salut|muraho|mwaramutse|mwiriwe|howdy|hie|sup|yo)\b/i', $ml)) {
+        // If message also contains a product/service request, skip greeting and let the right handler respond
+        $hasProductRequest = preg_match('/\b(need|want|looking|find|show|search|buy|price|under|budget|smartphone|phone|laptop|tv|product|order|track|delivery|payment|return|invoice|cancel)\b/i', $ml);
+        if ($hasProductRequest) {
+            // Fall through to product search handlers below
+        } else {
         if ($uid) {
             // ── Registered customer ──
             $u      = $conn->query("SELECT name FROM users WHERE id=$uid LIMIT 1")->fetch_assoc();
@@ -1546,6 +1551,7 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
                 getLocalizedPrimaryReplies($lang, null)
             );
         }
+        } // end hasProductRequest check
     }
 
     // ── 2. GOODBYE / THANKS ──
