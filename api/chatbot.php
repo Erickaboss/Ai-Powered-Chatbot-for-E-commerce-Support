@@ -727,10 +727,22 @@ function extractKeywords(string $msg): array {
         'muraho','murakoze','nyereka','erekana','mbwira','ndashaka','nshaka','mfite','nfite','gura','kugura',
         'igiciro','ibicuruzwa','amafaranga','budgeti','uru','iri','iki','ni','nde','he','kuri','yawe','yanjye'
     ]);
+
+    // Normalize plurals to singular for better DB matching
+    $pluralMap = [
+        'laptops'=>'laptop','phones'=>'phone','smartphones'=>'smartphone','tablets'=>'tablet',
+        'computers'=>'computer','televisions'=>'television','fridges'=>'fridge','watches'=>'watch',
+        'shoes'=>'shoe','bags'=>'bag','sofas'=>'sofa','chairs'=>'chair','beds'=>'bed','tables'=>'table',
+        'speakers'=>'speaker','headphones'=>'headphone','earphones'=>'earphone','printers'=>'printer',
+        'cameras'=>'camera','dresses'=>'dress','shirts'=>'shirt','trousers'=>'trouser','jackets'=>'jacket',
+        'books'=>'book','pens'=>'pen','toys'=>'toy','diapers'=>'diaper','bottles'=>'bottle',
+    ];
     $words = array_filter(
         explode(' ', preg_replace('/[^a-z0-9\s]/i', '', strtolower(trim($msg)))),
         fn($w) => strlen($w) >= 3 && !in_array($w, $stop)
     );
+    // Apply plural normalization
+    $words = array_map(fn($w) => $pluralMap[$w] ?? $w, array_values($words));
     return array_values($words);
 }
 
