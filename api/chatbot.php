@@ -867,6 +867,17 @@ function dbProductSearch(string $msg, $conn, ?int $forceCatId = null): array {
             WHERE " . implode(' AND ', $conds2) . " ORDER BY p.price ASC LIMIT 8");
         if ($res2) while ($r = $res2->fetch_assoc()) $rows[] = $r;
     }
+
+    // If still empty and we have a category + price, check if products exist in category above the budget
+    // and return them so chatbot can say "no laptops under X but here are the closest"
+    if (empty($rows) && $catId && $maxPrice) {
+        $res3 = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
+            FROM products p LEFT JOIN categories c ON p.category_id=c.id
+            WHERE p.stock > 0 AND p.category_id = $catId
+            ORDER BY p.price ASC LIMIT 5");
+        if ($res3) while ($r = $res3->fetch_assoc()) $rows[] = $r;
+    }
+
     return $rows;
 }
 
@@ -2131,9 +2142,27 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
                 // Show ALL matching products for guest with login prompt
                 [$minP, $maxP] = extractPriceRange($ml);
                 $catId2 = detectCategory($ml);
-                $label = '';
-                if ($maxP) $label = "Products under RWF " . number_format($maxP);
-                elseif ($minP) $label = "Products above RWF " . number_format($minP);
+                // Check if results actually match what was asked (e.g. "laptops" should show laptops not USB drives)
+                $kws2 = extractKeywords($msg);
+                $mainKw = $kws2[0] ?? '';
+                if ($mainKw && count($rows) > 0) {
+                    $filtered = array_filter($rows, fn($r) =>
+                        stripos($r['name'], $mainKw) !== false ||
+                        stripos($r['brand'] ?? '', $mainKw) !== false ||
+                        stripos($r['description'] ?? '', $mainKw) !== false
+                    );
+                    if (!empty($filtered)) $rows = array_values($filtered);
+                }
+                if (empty($rows)) {
+                    // No exact matches — tell customer and show closest in category
+                    $catName = $catId2 ? $conn->query("SELECT name FROM categories WHERE id=$catId2")->fetch_assoc()['name'] ?? '' : '';
+                    $minInCat = $catId2 ? (int)($conn->query("SELECT MIN(price) as m FROM products WHERE category_id=$catId2 AND stock>0")->fetch_assoc()['m'] ?? 0) : 0;
+                    $msg2 = "😔 No <strong>" . htmlspecialchars($mainKw) . "</strong> found";
+                    if ($maxP) $msg2 .= " under <strong>RWF " . number_format($maxP) . "</strong>";
+                    if ($minInCat) $msg2 .= ".<br>Our cheapest " . htmlspecialchars($catName ?: $mainKw) . " starts at <strong>RWF " . number_format($minInCat) . "</strong>.";
+                    return reply($msg2, ['Show me products', 'Show me phones', 'Show me laptops']);
+                }
+                $label = $maxP ? "Products under RWF " . number_format($maxP) : '';
                 $fp = formatProducts($rows, $label, true);
                 return reply(
                     $fp['text'] . "<br><br>🔒 <a href='" . SITE_URL . "/login.php'><strong>Login</strong></a> or <a href='" . SITE_URL . "/register.php'><strong>Register free</strong></a> to add to cart and place an order.",
