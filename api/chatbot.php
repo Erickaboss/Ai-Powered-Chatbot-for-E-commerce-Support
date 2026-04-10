@@ -1790,7 +1790,7 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
     }
 
     // ── 15b. CATEGORY COUNT / HOW MANY PRODUCTS ──
-    if (preg_match('/\b(how many products|how many items|total products|number of products|what categories|list categories|all categories|what do you sell|what products do you have|what do you have)\b/i', $ml)) {
+    if (preg_match('/\b(how many products|how many items|total products|number of products|what categories|list categories|all categories|what do you sell|what products do you have|what do you have|mufitemo|zingahe|ni zingahe|ibicuruzwa zingahe|ibicuruzwa bingahe|ni bingahe|combien de produits|combien d\'articles|quelles categories|que vendez vous)\b/i', $ml)) {
         return reply(getCategorySummary($conn),
             ['Show me phones', 'Show me laptops', 'Show me fashion', 'Show me products']);
     }
@@ -2207,6 +2207,9 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
 
     // ── 21. KINYARWANDA FALLBACK (PHP) — before any LLM
     // Common Kinyarwanda shopping phrases mapped to actions
+    if (preg_match('/\b(mufitemo|zingahe|bingahe|ni zingahe|ni bingahe|ibicuruzwa zingahe|ibicuruzwa bingahe)\b/i', $ml)) {
+        return reply(getCategorySummary($conn), ['Show me phones', 'Show me laptops', 'Show me fashion', 'Show me products']);
+    }
     if (preg_match('/\b(nyereka|erekana|mpore|mbwira|ndashaka|nshaka|fungura|reba|soma)\b/i', $ml)) {
         // Product search in Kinyarwanda
         if (preg_match('/\b(ibicuruzwa|ibintu|products?|telefoni|laptop|simu|imyenda|inzu|imodoka)\b/i', $ml)) {
