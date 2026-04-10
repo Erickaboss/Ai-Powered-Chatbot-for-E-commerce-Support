@@ -1062,8 +1062,8 @@ function formatProducts(array $rows, string $label = '', bool $showDesc = false,
               . " — <strong>RWF " . number_format($p['price']) . "</strong>"
               . " | " . $p['stock'] . " " . $stockSuffix;
         if ($showDesc && !empty($p['description'])) {
-            $desc = mb_substr(strip_tags($p['description']), 0, 80);
-            $out .= "<br><small style='color:rgba(255,255,255,.6)'>📝 " . $descPrefix . ": " . htmlspecialchars($desc) . "...</small>";
+            $desc = mb_substr(strip_tags($p['description']), 0, 120);
+            $out .= "<br><small style='color:rgba(255,255,255,.6)'>📝 " . htmlspecialchars($desc) . (strlen($p['description']) > 120 ? '...' : '') . "</small>";
         }
         $out .= "<br>";
         $qr[] = "🛒 Add: add_to_cart:{$p['id']}";
@@ -2035,14 +2035,46 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
             // Search within budget
             $conds = ["p.stock > 0", "p.price < $maxP"];
             if ($catId) $conds[] = "p.category_id = $catId";
-            $res = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
-                FROM products p LEFT JOIN categories c ON p.category_id=c.id
-                WHERE " . implode(' AND ', $conds) . " ORDER BY p.price DESC LIMIT 8");
-            $rows = [];
-            if ($res) while ($r = $res->fetch_assoc()) $rows[] = $r;
+
+            // If no specific category — show best products per category (2 per category)
+            if (!$catId) {
+                $res = $conn->query("
+                    SELECT p.id, p.name, p.brand, p.price, p.stock, p.description, c.name AS cat, c.id AS cat_id,
+                           ROW_NUMBER() OVER (PARTITION BY p.category_id ORDER BY p.price DESC) AS rn
+                    FROM products p LEFT JOIN categories c ON p.category_id=c.id
+                    WHERE p.stock > 0 AND p.price < $maxP
+                    ORDER BY c.id, p.price DESC
+                ");
+                $rows = [];
+                $catCounts = [];
+                if ($res) {
+                    while ($r = $res->fetch_assoc()) {
+                        $cid = $r['cat_id'];
+                        if (!isset($catCounts[$cid])) $catCounts[$cid] = 0;
+                        if ($catCounts[$cid] < 2) { // max 2 per category
+                            $rows[] = $r;
+                            $catCounts[$cid]++;
+                        }
+                    }
+                }
+                // Limit total to 16
+                $rows = array_slice($rows, 0, 16);
+            } else {
+                $res = $conn->query("SELECT p.id,p.name,p.brand,p.price,p.stock,p.description,c.name AS cat
+                    FROM products p LEFT JOIN categories c ON p.category_id=c.id
+                    WHERE " . implode(' AND ', $conds) . " ORDER BY p.price DESC LIMIT 8");
+                $rows = [];
+                if ($res) while ($r = $res->fetch_assoc()) $rows[] = $r;
+            }
 
             if (!empty($rows)) {
-                $label = getBudgetLabelText($minP, $maxP, $lang, $catId ? ($rows[0]['cat'] ?? '') : '');
+                $label = $catId
+                    ? getBudgetLabelText($minP, $maxP, $lang, $rows[0]['cat'] ?? '')
+                    : ($lang === 'fr'
+                        ? "Produits dans toutes les catégories sous RWF " . number_format($maxP)
+                        : ($lang === 'rw'
+                            ? "Ibicuruzwa mu byiciro byose biri munsi ya RWF " . number_format($maxP)
+                            : "Products across all 15 categories under RWF " . number_format($maxP)));
                 $fp = formatProducts($rows, $label, true, $lang);
                 return reply($fp['text'], array_merge($fp['qr'], getBudgetQuickReplies($lang)));
             }
