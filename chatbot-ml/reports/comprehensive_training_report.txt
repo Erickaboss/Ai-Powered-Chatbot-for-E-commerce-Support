@@ -1,25 +1,25 @@
 ========================================================================
 COMPREHENSIVE CHATBOT TRAINING REPORT
 ========================================================================
-Generated: 2026-04-05T20:08:47
+Generated: 2026-04-10T20:58:12
 
 PRESENTATION SUMMARY
 ------------------------------------------------------------------------
-Best model: MLP Neural Network
-Best accuracy: 96.65%
-Average accuracy: 96.11%
+Best model: SVM (Linear)
+Best accuracy: 95.68%
+Average accuracy: 95.28%
 Target accuracy: 85%
 All models above target: YES
-Training samples: 9669
-Test samples: 2418
-Number of classes: 28
+Training samples: 9824
+Test samples: 2456
+Number of classes: 35
 Languages: English, French, Kinyarwanda
 
 DATASET & AUGMENTATION
 ------------------------------------------------------------------------
 Merged source files: dataset/intents.json, dataset/intents_part2.json
-Base JSON patterns: 2280
-Merged intents: 27
+Base JSON patterns: 2473
+Merged intents: 34
 Product DB augment samples: 10449
 Category augment samples: 2322
 Recommendation augment samples: 2322
@@ -37,41 +37,48 @@ MODEL COMPARISON
 ------------------------------------------------------------------------
 Model                         Acc     Prec   Recall       F1   CV Mean
 ------------------------------------------------------------------------
-MLP Neural Network         96.65%   96.87%   96.65%   96.62%    96.10%
-SVM (Linear)               96.28%   96.32%   96.28%   96.11%    95.72%
-Random Forest              95.86%   96.15%   95.86%   95.76%    95.21%
-Logistic Regression        95.66%   96.19%   95.66%   95.76%    95.58%
+SVM (Linear)               95.68%   95.51%   95.68%   95.43%    94.58%
+MLP Neural Network         95.52%   95.58%   95.52%   95.38%    94.61%
+Random Forest              95.36%   95.37%   95.36%   95.21%    94.08%
+Logistic Regression        94.54%   95.56%   94.54%   94.82%    93.92%
 
 SUPPORTED INTENTS
 ------------------------------------------------------------------------
 1. account_help
 2. analytics
 3. bot_identity
-4. category_search
-5. chatbot_rating
-6. complaint
-7. contact_support
-8. delivery_time
-9. discount_promo
-10. goodbye
-11. greeting
-12. invoice
-13. order_cancel
-14. order_history
-15. order_track
-16. payment_methods
-17. place_order
-18. platform_info
-19. product_price
-20. product_search
-21. recommendation
-22. return_policy
-23. shipping_fee
-24. stock_check
-25. stock_notification
-26. support_ticket
-27. thanks
-28. warranty
+4. budget_search
+5. category_search
+6. chatbot_rating
+7. complaint
+8. contact_support
+9. delivery_time
+10. discount_promo
+11. goodbye
+12. greeting
+13. guest_order_guide
+14. image_upload
+15. invoice
+16. multilingual_help
+17. order_cancel
+18. order_history
+19. order_status_query
+20. order_track
+21. payment_methods
+22. place_order
+23. platform_info
+24. product_description
+25. product_price
+26. product_search
+27. professional_greeting
+28. recommendation
+29. return_policy
+30. shipping_fee
+31. stock_check
+32. stock_notification
+33. support_ticket
+34. thanks
+35. warranty
 
 PLOTS GENERATED
 ------------------------------------------------------------------------

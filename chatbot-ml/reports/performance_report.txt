@@ -1,65 +1,103 @@
+========================================================================
+COMPREHENSIVE CHATBOT TRAINING REPORT
+========================================================================
+Generated: 2026-04-10T20:58:12
 
-=================================================================
-  AI CHATBOT FOR E-COMMERCE — MODEL PERFORMANCE REPORT
-  AI-Powered Chatbot For E-commerce Support
-=================================================================
+PRESENTATION SUMMARY
+------------------------------------------------------------------------
+Best model: SVM (Linear)
+Best accuracy: 95.68%
+Average accuracy: 95.28%
+Target accuracy: 85%
+All models above target: YES
+Training samples: 9824
+Test samples: 2456
+Number of classes: 35
+Languages: English, French, Kinyarwanda
 
-1. DATASET SUMMARY
------------------------------------------------------------------
-   Source         : Custom E-commerce Intents (intents.json)
-   Total Patterns : 2479
-   Total Intents  : 34
-   Train Samples  : 1983
-   Test  Samples  : 496
-   Split Ratio    : 80% Train / 20% Test (Stratified)
+DATASET & AUGMENTATION
+------------------------------------------------------------------------
+Merged source files: dataset/intents.json, dataset/intents_part2.json
+Base JSON patterns: 2473
+Merged intents: 34
+Product DB augment samples: 10449
+Category augment samples: 2322
+Recommendation augment samples: 2322
+FAQ augment samples: 0
+Deduplicated samples removed: 5286
 
-2. MODELS SELECTED
------------------------------------------------------------------
-   Model 1 : Logistic Regression (TF-IDF + LR)   — ML Baseline
-   Model 2 : Random Forest (TF-IDF + RF)          — ML Ensemble
-   Model 3 : SVM with RBF Kernel                  — ML Kernel Method
-   Model 4 : MLP Neural Network (256-128-64)      — Deep Learning
-   Model 5 : Google Gemini API                    — LLM (multilingual)
+VECTORIZER
+------------------------------------------------------------------------
+Max features: 8000
+N-gram range: (1, 3)
+Vocabulary size: 8000
+Sublinear TF: YES
 
-3. PERFORMANCE METRICS
------------------------------------------------------------------
-   Model                          Accuracy  Precision     Recall   F1 Score
-   ------------------------------------------------------------
-   Logistic Regression              77.82%     77.51%     77.82%     76.82%
-   Random Forest                    73.59%     75.87%     73.59%     73.05%
-   SVM (RBF Kernel)                 76.21%     75.98%     76.21%     74.67%
-   MLP Neural Network               76.21%     77.15%     76.21%     75.78%
+MODEL COMPARISON
+------------------------------------------------------------------------
+Model                         Acc     Prec   Recall       F1   CV Mean
+------------------------------------------------------------------------
+SVM (Linear)               95.68%   95.51%   95.68%   95.43%    94.58%
+MLP Neural Network         95.52%   95.58%   95.52%   95.38%    94.61%
+Random Forest              95.36%   95.37%   95.36%   95.21%    94.08%
+Logistic Regression        94.54%   95.56%   94.54%   94.82%    93.92%
 
-4. CROSS-VALIDATION (5-Fold)
------------------------------------------------------------------
-   Logistic Regression          Mean: 73.05%  Std: ±1.87%
-   Random Forest                Mean: 65.27%  Std: ±3.35%
-   SVM (RBF Kernel)             Mean: 69.18%  Std: ±1.66%
-   MLP Neural Network           Mean: 68.90%  Std: ±1.06%
+SUPPORTED INTENTS
+------------------------------------------------------------------------
+1. account_help
+2. analytics
+3. bot_identity
+4. budget_search
+5. category_search
+6. chatbot_rating
+7. complaint
+8. contact_support
+9. delivery_time
+10. discount_promo
+11. goodbye
+12. greeting
+13. guest_order_guide
+14. image_upload
+15. invoice
+16. multilingual_help
+17. order_cancel
+18. order_history
+19. order_status_query
+20. order_track
+21. payment_methods
+22. place_order
+23. platform_info
+24. product_description
+25. product_price
+26. product_search
+27. professional_greeting
+28. recommendation
+29. return_policy
+30. shipping_fee
+31. stock_check
+32. stock_notification
+33. support_ticket
+34. thanks
+35. warranty
 
-5. BEST MODEL
------------------------------------------------------------------
-   Selected Model : Logistic Regression
-   Accuracy       : 77.82%
-   F1 Score       : 76.82%
+PLOTS GENERATED
+------------------------------------------------------------------------
+plots/cm_logistic_regression.png
+plots/cm_random_forest.png
+plots/cm_mlp_neural_network.png
+plots/cm_svm_linear.png
+plots/all_metrics_comparison.png
+plots/model_comparison_grouped.png
+plots/cross_validation.png
+plots/dataset_distribution.png
 
-6. SYSTEM ARCHITECTURE
------------------------------------------------------------------
-   Frontend  : JavaScript (chatbot widget)
-   Backend   : PHP 8 (intent routing, DB queries)
-   ML API    : Python Flask (intent classification)
-   Database  : MySQL (products, orders, users, logs)
-   AI Layer  : Google Gemini API (multilingual polish)
-   Email     : PHPMailer + Gmail SMTP
+MODEL ARTIFACTS
+------------------------------------------------------------------------
+models/tfidf_vectorizer.pkl
+models/label_encoder.pkl
+models/logistic_regression.pkl
+models/random_forest.pkl
+models/mlp_neural_network.pkl
+models/svm.pkl
 
-7. PLOTS GENERATED
------------------------------------------------------------------
-   plots/all_metrics_comparison.png
-   plots/model_comparison_grouped.png
-   plots/dataset_distribution.png
-   plots/cross_validation.png
-   plots/cm_logistic_regression.png
-   plots/cm_random_forest.png
-   plots/cm_svm_rbf_kernel.png
-   plots/cm_mlp_neural_network.png
-=================================================================
+========================================================================

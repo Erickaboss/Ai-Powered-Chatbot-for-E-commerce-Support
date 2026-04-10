@@ -1,37 +1,214 @@
 {
-  "results": {
-    "Logistic Regression": {
-      "accuracy": 0.7782258064516129,
-      "precision": 0.7751319669156482,
-      "recall": 0.7782258064516129,
-      "f1": 0.7682390755179918
+  "summary": {
+    "best_model": "SVM (Linear)",
+    "best_accuracy": 0.9568403908794788,
+    "average_accuracy": 0.9527687296416938,
+    "target_accuracy": 0.85,
+    "all_models_above_target": true,
+    "trained_at": "2026-04-10T20:58:12",
+    "model_version": "2026.04.10",
+    "total_patterns": 12280,
+    "training_samples": 9824,
+    "test_samples": 2456,
+    "num_classes": 35,
+    "languages": [
+      "English",
+      "French",
+      "Kinyarwanda"
+    ]
+  },
+  "dataset": {
+    "source_files": [
+      {
+        "path": "dataset/intents.json",
+        "label": "intents.json",
+        "kind": "dataset_source",
+        "exists": true,
+        "size_bytes": 83792,
+        "modified_at": "2026-04-10T20:07:06",
+        "intent_count": 35,
+        "pattern_count": 2479
+      },
+      {
+        "path": "dataset/intents_part2.json",
+        "label": "intents_part2.json",
+        "kind": "dataset_source",
+        "exists": true,
+        "size_bytes": 24622,
+        "modified_at": "2026-03-21T17:31:41",
+        "intent_count": 16,
+        "pattern_count": 792
+      }
+    ],
+    "merged_intent_count": 34,
+    "base_pattern_count": 2473,
+    "database_augmentation": {
+      "products_loaded": 1161,
+      "faqs_loaded": 0,
+      "product_search_samples": 10449,
+      "category_search_samples": 2322,
+      "recommendation_samples": 2322,
+      "faq_samples": 0
     },
-    "Random Forest": {
-      "accuracy": 0.7358870967741935,
-      "precision": 0.7586687906318119,
-      "recall": 0.7358870967741935,
-      "f1": 0.7304829536784877
-    },
-    "SVM (RBF Kernel)": {
-      "accuracy": 0.7620967741935484,
-      "precision": 0.7598245266017041,
-      "recall": 0.7620967741935484,
-      "f1": 0.7466766324119826
-    },
-    "MLP Neural Network": {
-      "accuracy": 0.7620967741935484,
-      "precision": 0.771538951185477,
-      "recall": 0.7620967741935484,
-      "f1": 0.7577829598526763
+    "pre_dedup_samples": 17566,
+    "deduped_samples_removed": 5286,
+    "total_samples": 12280,
+    "unique_intents": 35,
+    "label_distribution": {
+      "product_search": 9844,
+      "recommendation": 143,
+      "place_order": 128,
+      "discount_promo": 124,
+      "account_help": 113,
+      "complaint": 112,
+      "bot_identity": 110,
+      "warranty": 109,
+      "return_policy": 106,
+      "stock_check": 99,
+      "greeting": 97,
+      "contact_support": 96,
+      "product_price": 96,
+      "payment_methods": 94,
+      "delivery_time": 91,
+      "goodbye": 90,
+      "order_history": 90,
+      "shipping_fee": 88,
+      "order_cancel": 85,
+      "order_track": 83,
+      "thanks": 82,
+      "platform_info": 58,
+      "support_ticket": 36,
+      "invoice": 35,
+      "budget_search": 34,
+      "category_search": 30,
+      "chatbot_rating": 30,
+      "guest_order_guide": 29,
+      "image_upload": 27,
+      "product_description": 27,
+      "stock_notification": 26,
+      "order_status_query": 21,
+      "professional_greeting": 18,
+      "multilingual_help": 17,
+      "analytics": 12
     }
   },
-  "best_model": "Logistic Regression",
-  "num_classes": 34,
+  "vectorizer": {
+    "type": "tfidf",
+    "max_features": 8000,
+    "ngram_range": [
+      1,
+      3
+    ],
+    "min_df": 1,
+    "max_df": 0.98,
+    "sublinear_tf": true,
+    "vocabulary_size": 8000
+  },
+  "split": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "strategy": "stratified"
+  },
+  "models": [
+    {
+      "model_name": "SVM (Linear)",
+      "accuracy": 0.9568403908794788,
+      "precision": 0.9551357479405075,
+      "recall": 0.9568403908794788,
+      "f1_score": 0.9542803537223344,
+      "macro_precision": 0.7808710438862525,
+      "macro_recall": 0.7144591015865196,
+      "macro_f1": 0.7274769070591399,
+      "cv_mean": 0.9458466660760001,
+      "cv_std": 0.0035325627847093044,
+      "cv_scores": [
+        0.9508396946564885,
+        0.943206106870229,
+        0.9434941967012829
+      ],
+      "training_samples": 9824,
+      "test_samples": 2456,
+      "trained_at": "2026-04-10T20:58:12",
+      "model_version": "2026.04.10",
+      "meets_target": true,
+      "model_file": "models/svm.pkl"
+    },
+    {
+      "model_name": "MLP Neural Network",
+      "accuracy": 0.9552117263843648,
+      "precision": 0.9557823601446951,
+      "recall": 0.9552117263843648,
+      "f1_score": 0.9538024321941545,
+      "macro_precision": 0.7364444280425584,
+      "macro_recall": 0.6818617277744772,
+      "macro_f1": 0.6915727705372305,
+      "cv_mean": 0.9460503527678168,
+      "cv_std": 0.00166449871038653,
+      "cv_scores": [
+        0.9483969465648855,
+        0.9450381679389313,
+        0.9447159437996335
+      ],
+      "training_samples": 9824,
+      "test_samples": 2456,
+      "trained_at": "2026-04-10T20:58:12",
+      "model_version": "2026.04.10",
+      "meets_target": true,
+      "model_file": "models/mlp_neural_network.pkl"
+    },
+    {
+      "model_name": "Random Forest",
+      "accuracy": 0.9535830618892508,
+      "precision": 0.9537275430459026,
+      "recall": 0.9535830618892508,
+      "f1_score": 0.9520571688967779,
+      "macro_precision": 0.701760205725897,
+      "macro_recall": 0.6743553157987184,
+      "macro_f1": 0.6747631662994197,
+      "cv_mean": 0.9407568614467289,
+      "cv_std": 0.0034361561566422206,
+      "cv_scores": [
+        0.9416793893129771,
+        0.9444274809160306,
+        0.9361637141111789
+      ],
+      "training_samples": 9824,
+      "test_samples": 2456,
+      "trained_at": "2026-04-10T20:58:12",
+      "model_version": "2026.04.10",
+      "meets_target": true,
+      "model_file": "models/random_forest.pkl"
+    },
+    {
+      "model_name": "Logistic Regression",
+      "accuracy": 0.9454397394136808,
+      "precision": 0.9556381098881821,
+      "recall": 0.9454397394136808,
+      "f1_score": 0.9481836440701588,
+      "macro_precision": 0.7265029381575017,
+      "macro_recall": 0.7276628835595464,
+      "macro_f1": 0.7058077325782901,
+      "cv_mean": 0.9392304236788888,
+      "cv_std": 0.000662547634595768,
+      "cv_scores": [
+        0.9386259541984733,
+        0.9401526717557251,
+        0.938912645082468
+      ],
+      "training_samples": 9824,
+      "test_samples": 2456,
+      "trained_at": "2026-04-10T20:58:12",
+      "model_version": "2026.04.10",
+      "meets_target": true,
+      "model_file": "models/logistic_regression.pkl"
+    }
+  ],
   "intents": [
     "account_help",
     "analytics",
     "bot_identity",
     "budget_search",
+    "category_search",
     "chatbot_rating",
     "complaint",
     "contact_support",
@@ -63,115 +240,199 @@
     "thanks",
     "warranty"
   ],
-  "cv_results": {
-    "Logistic Regression": [
-      0.719758064516129,
-      0.7600806451612904,
-      0.7439516129032258,
-      0.719758064516129,
-      0.7090909090909091
+  "best_model": "SVM (Linear)",
+  "accuracy": 0.9568403908794788,
+  "num_classes": 35,
+  "per_model": {
+    "Logistic Regression": {
+      "accuracy": 0.9454397394136808,
+      "precision": 0.9556381098881821,
+      "recall": 0.9454397394136808,
+      "f1_score": 0.9481836440701588,
+      "macro_precision": 0.7265029381575017,
+      "macro_recall": 0.7276628835595464,
+      "macro_f1": 0.7058077325782901,
+      "cv_mean": 0.9392304236788888,
+      "cv_std": 0.000662547634595768,
+      "cv_scores": [
+        0.9386259541984733,
+        0.9401526717557251,
+        0.938912645082468
+      ]
+    },
+    "Random Forest": {
+      "accuracy": 0.9535830618892508,
+      "precision": 0.9537275430459026,
+      "recall": 0.9535830618892508,
+      "f1_score": 0.9520571688967779,
+      "macro_precision": 0.701760205725897,
+      "macro_recall": 0.6743553157987184,
+      "macro_f1": 0.6747631662994197,
+      "cv_mean": 0.9407568614467289,
+      "cv_std": 0.0034361561566422206,
+      "cv_scores": [
+        0.9416793893129771,
+        0.9444274809160306,
+        0.9361637141111789
+      ]
+    },
+    "MLP Neural Network": {
+      "accuracy": 0.9552117263843648,
+      "precision": 0.9557823601446951,
+      "recall": 0.9552117263843648,
+      "f1_score": 0.9538024321941545,
+      "macro_precision": 0.7364444280425584,
+      "macro_recall": 0.6818617277744772,
+      "macro_f1": 0.6915727705372305,
+      "cv_mean": 0.9460503527678168,
+      "cv_std": 0.00166449871038653,
+      "cv_scores": [
+        0.9483969465648855,
+        0.9450381679389313,
+        0.9447159437996335
+      ]
+    },
+    "SVM (Linear)": {
+      "accuracy": 0.9568403908794788,
+      "precision": 0.9551357479405075,
+      "recall": 0.9568403908794788,
+      "f1_score": 0.9542803537223344,
+      "macro_precision": 0.7808710438862525,
+      "macro_recall": 0.7144591015865196,
+      "macro_f1": 0.7274769070591399,
+      "cv_mean": 0.9458466660760001,
+      "cv_std": 0.0035325627847093044,
+      "cv_scores": [
+        0.9508396946564885,
+        0.943206106870229,
+        0.9434941967012829
+      ]
+    }
+  },
+  "artifacts": {
+    "plots": [
+      {
+        "path": "plots/cm_logistic_regression.png",
+        "label": "Logistic Regression Confusion Matrix",
+        "kind": "plot",
+        "model_name": "Logistic Regression",
+        "exists": true,
+        "size_bytes": 222443,
+        "modified_at": "2026-04-10T20:57:55"
+      },
+      {
+        "path": "plots/cm_random_forest.png",
+        "label": "Random Forest Confusion Matrix",
+        "kind": "plot",
+        "model_name": "Random Forest",
+        "exists": true,
+        "size_bytes": 220138,
+        "modified_at": "2026-04-10T20:58:00"
+      },
+      {
+        "path": "plots/cm_mlp_neural_network.png",
+        "label": "MLP Neural Network Confusion Matrix",
+        "kind": "plot",
+        "model_name": "MLP Neural Network",
+        "exists": true,
+        "size_bytes": 220760,
+        "modified_at": "2026-04-10T20:58:05"
+      },
+      {
+        "path": "plots/cm_svm_linear.png",
+        "label": "SVM (Linear) Confusion Matrix",
+        "kind": "plot",
+        "model_name": "SVM (Linear)",
+        "exists": true,
+        "size_bytes": 220857,
+        "modified_at": "2026-04-10T20:58:09"
+      },
+      {
+        "path": "plots/all_metrics_comparison.png",
+        "label": "All Metrics Comparison",
+        "kind": "plot",
+        "exists": true,
+        "size_bytes": 65045,
+        "modified_at": "2026-04-10T20:58:10"
+      },
+      {
+        "path": "plots/model_comparison_grouped.png",
+        "label": "Grouped Model Comparison",
+        "kind": "plot",
+        "exists": true,
+        "size_bytes": 50828,
+        "modified_at": "2026-04-10T20:58:11"
+      },
+      {
+        "path": "plots/cross_validation.png",
+        "label": "Cross Validation Distribution",
+        "kind": "plot",
+        "exists": true,
+        "size_bytes": 43686,
+        "modified_at": "2026-04-10T20:58:11"
+      },
+      {
+        "path": "plots/dataset_distribution.png",
+        "label": "Dataset Distribution",
+        "kind": "plot",
+        "exists": true,
+        "size_bytes": 133429,
+        "modified_at": "2026-04-10T20:58:11"
+      }
     ],
-    "Random Forest": [
-      0.5907258064516129,
-      0.6633064516129032,
-      0.6915322580645161,
-      0.6653225806451613,
-      0.6525252525252525
-    ],
-    "SVM (RBF Kernel)": [
-      0.7016129032258065,
-      0.7116935483870968,
-      0.7016129032258065,
-      0.6693548387096774,
-      0.6747474747474748
-    ],
-    "MLP Neural Network": [
-      0.6814516129032258,
-      0.6975806451612904,
-      0.7016129032258065,
-      0.6915322580645161,
-      0.6727272727272727
+    "models": [
+      {
+        "path": "models/tfidf_vectorizer.pkl",
+        "label": "TF-IDF Vectorizer",
+        "kind": "model_support",
+        "exists": true,
+        "size_bytes": 334275,
+        "modified_at": "2026-04-10T20:58:12"
+      },
+      {
+        "path": "models/label_encoder.pkl",
+        "label": "Label Encoder",
+        "kind": "model_support",
+        "exists": true,
+        "size_bytes": 3156,
+        "modified_at": "2026-04-10T20:58:12"
+      },
+      {
+        "path": "models/logistic_regression.pkl",
+        "label": "Logistic Regression Model",
+        "kind": "model",
+        "model_name": "Logistic Regression",
+        "exists": true,
+        "size_bytes": 2241306,
+        "modified_at": "2026-04-10T20:58:12"
+      },
+      {
+        "path": "models/random_forest.pkl",
+        "label": "Random Forest Model",
+        "kind": "model",
+        "model_name": "Random Forest",
+        "exists": true,
+        "size_bytes": 175929047,
+        "modified_at": "2026-04-10T20:58:13"
+      },
+      {
+        "path": "models/mlp_neural_network.pkl",
+        "label": "MLP Neural Network Model",
+        "kind": "model",
+        "model_name": "MLP Neural Network",
+        "exists": true,
+        "size_bytes": 50064118,
+        "modified_at": "2026-04-10T20:58:13"
+      },
+      {
+        "path": "models/svm.pkl",
+        "label": "SVM (Linear) Model",
+        "kind": "model",
+        "model_name": "SVM (Linear)",
+        "exists": true,
+        "size_bytes": 6729229,
+        "modified_at": "2026-04-10T20:58:13"
+      }
     ]
-  },
-  "summary": {
-    "best_model": "Logistic Regression",
-    "accuracy": 0.7782258064516129,
-    "f1_score": 0.7682390755179918,
-    "average_accuracy": 0.7595766129032258,
-    "num_classes": 34,
-    "training_samples": 1983,
-    "test_samples": 496,
-    "total_samples": 2479,
-    "all_models_above_85": false,
-    "target_accuracy": 0.85,
-    "model_version": "2.0.0",
-    "dataset_files": [
-      "dataset/intents.json",
-      "dataset/intents_part2.json"
-    ]
-  },
-  "models": [
-    {
-      "model_name": "Logistic Regression",
-      "accuracy": 0.7782258064516129,
-      "precision": 0.7751319669156482,
-      "recall": 0.7782258064516129,
-      "f1_score": 0.7682390755179918,
-      "cv_mean": 0.7305278592375366,
-      "cv_std": 0.018681991899173023,
-      "is_best": true
-    },
-    {
-      "model_name": "Random Forest",
-      "accuracy": 0.7358870967741935,
-      "precision": 0.7586687906318119,
-      "recall": 0.7358870967741935,
-      "f1_score": 0.7304829536784877,
-      "cv_mean": 0.6526824698598891,
-      "cv_std": 0.03352789969703874,
-      "is_best": false
-    },
-    {
-      "model_name": "SVM (RBF Kernel)",
-      "accuracy": 0.7620967741935484,
-      "precision": 0.7598245266017041,
-      "recall": 0.7620967741935484,
-      "f1_score": 0.7466766324119826,
-      "cv_mean": 0.6918043336591724,
-      "cv_std": 0.01663077385933346,
-      "is_best": false
-    },
-    {
-      "model_name": "MLP Neural Network",
-      "accuracy": 0.7620967741935484,
-      "precision": 0.771538951185477,
-      "recall": 0.7620967741935484,
-      "f1_score": 0.7577829598526763,
-      "cv_mean": 0.6889809384164223,
-      "cv_std": 0.010591535431733305,
-      "is_best": false
-    }
-  ],
-  "dataset": {
-    "total_samples": 2479,
-    "num_classes": 34,
-    "train_samples": 1983,
-    "test_samples": 496,
-    "vocabulary_size": 5628,
-    "dataset_files": [
-      "dataset/intents.json",
-      "dataset/intents_part2.json"
-    ],
-    "database_augmentation": {
-      "product_search_samples": 0,
-      "faq_samples": 0,
-      "note": "DB-grounded responses handled by PHP layer at runtime"
-    }
-  },
-  "reports": [
-    {
-      "filename": "performance_report.txt",
-      "web_path": null
-    }
-  ]
+  }
 }
