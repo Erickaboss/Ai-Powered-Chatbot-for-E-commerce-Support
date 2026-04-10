@@ -294,6 +294,52 @@ a:hover { color: var(--accent); }
     transition: border-color .2s; background: #f8faff;
 }
 #chat-input:focus { border-color: var(--primary); background: #fff; }
+
+/* Image Upload Button - Enhanced Visibility */
+#chat-image-upload-btn {
+    background: linear-gradient(135deg, #0f3460, #e94560) !important;
+    box-shadow: 0 2px 8px rgba(233,69,96,0.3) !important;
+    border-radius: 8px !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+}
+#chat-image-upload-btn:hover {
+    transform: scale(1.15) !important;
+    box-shadow: 0 4px 16px rgba(233,69,96,0.5) !important;
+}
+#chat-image-upload-btn i {
+    font-size: 1.1rem !important;
+}
+
+/* Send Button Enhancement */
+#chat-send-btn {
+    background: linear-gradient(135deg, #e94560, #f5a623) !important;
+    box-shadow: 0 2px 8px rgba(245,166,35,0.3) !important;
+    border-radius: 8px !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 10px 14px !important;
+    transition: all 0.3s ease !important;
+}
+#chat-send-btn:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 16px rgba(245,166,35,0.5) !important;
+}
+
+/* Image Preview Box */
+#chat-image-preview {
+    animation: slideUp 0.3s ease;
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 #chat-input-area button {
     background: linear-gradient(135deg, var(--primary), var(--accent));
     color: #fff; border: none; border-radius: 50%;

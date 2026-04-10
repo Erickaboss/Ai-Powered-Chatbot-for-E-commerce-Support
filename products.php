@@ -11,6 +11,11 @@ if (!empty($_GET['category'])) {
 }
 if (!empty($_GET['min_price'])) $where .= " AND p.price>=" . (float)$_GET['min_price'];
 if (!empty($_GET['max_price'])) $where .= " AND p.price<=" . (float)$_GET['max_price'];
+if (!empty($_GET['brand'])) {
+    $b = $conn->real_escape_string($_GET['brand']);
+    $where .= " AND p.brand LIKE '%$b%'";
+}
+if (!empty($_GET['min_rating'])) $where .= " AND p.avg_rating>=" . (float)$_GET['min_rating'];
 if (!empty($_GET['in_stock']))  $where .= " AND p.stock>0";
 
 $sort = match($_GET['sort'] ?? '') {
@@ -22,6 +27,7 @@ $sort = match($_GET['sort'] ?? '') {
 
 $products   = $conn->query("SELECT p.*, c.name as cat_name FROM products p LEFT JOIN categories c ON p.category_id=c.id $where ORDER BY $sort");
 $categories = $conn->query("SELECT c.*, COUNT(p.id) as cnt FROM categories c LEFT JOIN products p ON p.category_id=c.id AND p.stock>0 GROUP BY c.id ORDER BY c.id");
+$brands = $conn->query("SELECT DISTINCT brand FROM products WHERE stock>0 AND brand IS NOT NULL ORDER BY brand");
 $active_cat = (int)($_GET['category'] ?? 0);
 ?>
 
@@ -88,6 +94,31 @@ $active_cat = (int)($_GET['category'] ?? 0);
                         </div>
                     </div>
 
+                    <!-- Brand Filter -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-600">Brand</label>
+                        <select name="brand" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">All Brands</option>
+                            <?php while ($brandRow = $brands->fetch_assoc()): ?>
+                            <option value="<?= htmlspecialchars($brandRow['brand']) ?>" 
+                                    <?= ($_GET['brand'] ?? '') === $brandRow['brand'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($brandRow['brand']) ?>
+                            </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+
+                    <!-- Rating Filter -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-600">Minimum Rating</label>
+                        <select name="min_rating" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">Any Rating</option>
+                            <option value="4" <?= ($_GET['min_rating'] ?? '') === '4' ? 'selected' : '' ?>>⭐ 4+ Stars</option>
+                            <option value="3" <?= ($_GET['min_rating'] ?? '') === '3' ? 'selected' : '' ?>>⭐ 3+ Stars</option>
+                            <option value="2" <?= ($_GET['min_rating'] ?? '') === '2' ? 'selected' : '' ?>>⭐ 2+ Stars</option>
+                        </select>
+                    </div>
+
                     <!-- In Stock -->
                     <div class="mb-3">
                         <div class="form-check">
@@ -142,15 +173,21 @@ $active_cat = (int)($_GET['category'] ?? 0);
                             <span class="cat-badge"><?= htmlspecialchars($p['cat_name'] ?? '') ?></span>
                             <h6 class="card-title"><?= htmlspecialchars($p['name']) ?></h6>
                             <?php
-                            $rv = $conn->query("SELECT AVG(rating) as avg, COUNT(*) as cnt FROM reviews WHERE product_id={$p['id']}")->fetch_assoc();
-                            if ($rv['cnt'] > 0):
+                            // Use cached avg_rating if available, otherwise query reviews
+                            $avg = $p['avg_rating'] ?? 0;
+                            $reviewCount = $p['review_count'] ?? 0;
+                            if ($reviewCount == 0 && $avg == 0) {
+                                $rv = $conn->query("SELECT AVG(rating) as avg, COUNT(*) as cnt FROM reviews WHERE product_id={$p['id']}")->fetch_assoc();
                                 $avg = round($rv['avg'], 1);
+                                $reviewCount = $rv['cnt'];
+                            }
+                            if ($reviewCount > 0):
                             ?>
                             <div class="d-flex align-items-center gap-1 mb-1">
                                 <?php for ($s=1;$s<=5;$s++): ?>
-                                <i class="bi bi-star<?= $s<=$avg?'-fill':'' ?>" style="color:#f5a623;font-size:.7rem"></i>
+                                <i class="bi bi-star<?= $s<=round($avg)?'-fill':'' ?>" style="color:#f5a623;font-size:.7rem"></i>
                                 <?php endfor; ?>
-                                <span style="font-size:.72rem;color:#888">(<?= $rv['cnt'] ?>)</span>
+                                <span style="font-size:.72rem;color:#888">(<?= $reviewCount ?>)</span>
                             </div>
                             <?php endif; ?>
                             <div class="d-flex align-items-center justify-content-between mt-auto mb-2">

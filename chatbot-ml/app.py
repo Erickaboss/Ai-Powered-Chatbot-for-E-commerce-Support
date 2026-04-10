@@ -11,26 +11,18 @@ import numpy as np
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
+from dataset_utils import load_merged_intents
+
 app = Flask(__name__)
 CORS(app)
+ML_API_PORT = int(os.environ.get('CHATBOT_ML_PORT', '5001'))
 
 # ── Load models & artifacts ──────────────────────────────────
 print("Loading models...")
 
 def _load_intents_merged():
-    """Merge intents.json + intents_part2.json; first file wins for responses per tag."""
-    seen, ordered = set(), []
-    for path in ('dataset/intents.json', 'dataset/intents_part2.json'):
-        try:
-            with open(path, encoding='utf-8') as f:
-                for intent in json.load(f).get('intents', []):
-                    tag = intent.get('tag')
-                    if tag and tag not in seen:
-                        seen.add(tag)
-                        ordered.append(intent)
-        except OSError:
-            pass
-    return {'intents': ordered}
+    """Load merged intents from all dataset files."""
+    return load_merged_intents(('dataset/intents.json', 'dataset/intents_part2.json'))
 
 
 intents_data = _load_intents_merged()
@@ -46,7 +38,11 @@ mlp_model= pickle.load(open('models/mlp_neural_network.pkl', 'rb'))
 try:
     with open('models/model_results.json') as f:
         model_results = json.load(f)
-    best_model_name = model_results.get('best_model', 'MLP Neural Network')
+    best_model_name = (
+        model_results.get('best_model')
+        or model_results.get('summary', {}).get('best_model')
+        or 'MLP Neural Network'
+    )
 except Exception:
     model_results   = {}
     best_model_name = 'MLP Neural Network'
@@ -72,12 +68,36 @@ def predict_rf(text):  return _predict(rf_model,  text)
 def predict_svm(text): return _predict(svm_model, text)
 def predict_mlp(text): return _predict(mlp_model, text)
 
+PREDICTORS = {
+    'Logistic Regression': predict_lr,
+    'Random Forest': predict_rf,
+    'SVM (Linear)': predict_svm,
+    'MLP Neural Network': predict_mlp,
+}
+
 def predict_best(text: str):
-    """Use MLP as primary (best performing), fallback to SVM."""
-    try:
-        return predict_mlp(text)
-    except Exception:
-        return predict_svm(text)
+    """Use the artifact-selected best model first, then fall back safely."""
+    ordered_models = []
+
+    if best_model_name in PREDICTORS:
+        ordered_models.append(best_model_name)
+
+    for fallback_name in ('SVM (Linear)', 'MLP Neural Network', 'Logistic Regression', 'Random Forest'):
+        if fallback_name not in ordered_models:
+            ordered_models.append(fallback_name)
+
+    last_error = None
+    for model_name in ordered_models:
+        try:
+            return PREDICTORS[model_name](text)
+        except Exception as exc:
+            last_error = exc
+            continue
+
+    if last_error is not None:
+        raise last_error
+
+    raise RuntimeError('No prediction models are available')
 
 # ── Routes ───────────────────────────────────────────────────
 
@@ -88,8 +108,10 @@ def health():
         'models':     ['Logistic Regression', 'Random Forest', 'SVM (Linear)', 'MLP Neural Network'],
         'best_model': best_model_name,
         'intents':    len(intents_data['intents']),
+        'target_accuracy': model_results.get('summary', {}).get('target_accuracy'),
+        'all_models_above_target': model_results.get('summary', {}).get('all_models_above_target'),
         'uptime':     'running',
-        'version':    '1.0.0',
+        'version':    model_results.get('summary', {}).get('model_version', '1.0.0'),
         'python':     __import__('sys').version.split()[0],
     })
 
@@ -162,5 +184,5 @@ def intents():
     ])
 
 if __name__ == '__main__':
-    print("Starting Flask ML API on http://localhost:5000")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    print(f"Starting Flask ML API on http://localhost:{ML_API_PORT}")
+    app.run(debug=True, host='0.0.0.0', port=ML_API_PORT)

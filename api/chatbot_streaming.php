@@ -11,15 +11,26 @@
 session_start();
 
 // Enable streaming headers
-header('Content-Type: application/json');
+header('Content-Type: application/x-ndjson; charset=UTF-8');
 header('Cache-Control: no-cache');
 header('X-Accel-Buffering: no');
 ini_set('zlib.output_compression', '0');
 ini_set('output_buffering', '0');
+ignore_user_abort(true);
 ob_implicit_flush(true);
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/chatbot_gemini_gate.php';
+
+function emitStreamEvent(array $payload): void {
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n";
+
+    if (ob_get_level() > 0) {
+        @ob_flush();
+    }
+
+    flush();
+}
 
 try {
     // Get JSON input
@@ -27,98 +38,44 @@ try {
     $data = json_decode($input, true);
     
     $message = trim($data['message'] ?? '');
-    $session_id = $data['session_id'] ?? session_id();
+    $phpSessionId = session_id();
+    $session_id = $data['session_id'] ?? $phpSessionId;
     $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
     
     if (empty($message)) {
         echo json_encode(['error' => 'Empty message']);
         exit;
     }
     
+    $log_id = 0;
+
     // Send typing indicator immediately
-    echo json_encode([
+    emitStreamEvent([
         'type' => 'typing',
         'message' => 'Bot is typing...'
     ]);
-    
-    // Flush output to send typing indicator
-    ob_flush();
-    flush();
-    
+
     // Small delay to show typing (200ms)
     usleep(200000);
     
     // Process the message
     $startTime = microtime(true);
     
-    // Load cached models (from your train.py)
-    static $vectorizer = null, $model = null, $encoder = null;
-    
-    if ($vectorizer === null) {
-        $modelsDir = __DIR__ . '/models/';
-        
-        // Load TF-IDF vectorizer (from train.py)
-        $vecFile = $modelsDir . 'tfidf_vectorizer.pkl';
-        if (file_exists($vecFile)) {
-            $vectorizer = unserialize(file_get_contents($vecFile));
-        }
-        
-        // Load label encoder (from train.py)
-        $encFile = $modelsDir . 'label_encoder.pkl';
-        if (file_exists($encFile)) {
-            $encoder = unserialize(file_get_contents($encFile));
-        }
-        
-        // Load best model - check in order of accuracy
-        $modelFound = false;
-        $preferredModels = [
-            'mlp_neural_network.pkl',  // Usually best from train.py
-            'random_forest.pkl',
-            'logistic_regression.pkl',
-            'svm.pkl'
-        ];
-        
-        foreach ($preferredModels as $modelName) {
-            $modelFile = $modelsDir . $modelName;
-            if (file_exists($modelFile)) {
-                $model = unserialize(file_get_contents($modelFile));
-                $modelFound = true;
-                error_log("Loaded model: " . str_replace('.pkl', '', $modelName));
-                break;
-            }
-        }
-        
-        if (!$modelFound) {
-            error_log("No trained model found! Please run train.py first.");
-        }
-    }
-    
     // Predict intent
     $intent = 'unknown';
-    $confidence = 0;
-    
-    if ($vectorizer && $model && $encoder) {
-        $X = $vectorizer->transform([$message]);
-        $pred = $model->predict($X)[0];
-        $proba = max($model->predict_proba($X)[0]);
+    $confidence = 0.0;
+    $modelUsed = null;
+    $mlResult = askStreamingMLModel($message);
 
-        $intent = $encoder->inverse_transform([$pred])[0];
-        $confidence = $proba;
+    if ($mlResult !== null) {
+        $intent = $mlResult['intent'];
+        $confidence = $mlResult['confidence'];
+        $modelUsed = $mlResult['model_used'] ?? null;
     }
-
-    // Align with main chatbot: only treat as ML "hit" above same confidence as askMLModel()
-    $mlResult = null;
-    if ($vectorizer && $model && $encoder && $confidence >= 0.55) {
-        $mlResult = ['intent' => $intent, 'confidence' => $confidence];
-    }
-
-    // Save context and log
-    saveContext($session_id, $user_id, 'last_message', $message);
-    $log_id = logChat($session_id, $user_id, $message, "Intent: $intent (".round($confidence*100)."%)", $conn);
-
-    $response = '';
-    $quickReplies = [];
-    $useGemini = false;
 
     $simpleIntents = [
         'greeting', 'goodbye', 'thanks', 'affirmation', 'denial',
@@ -126,78 +83,58 @@ try {
         'delivery_time', 'shipping_fee', 'delivery_info', 'order_status',
         'payment_methods', 'return_policy', 'warranty', 'contact_support',
         'discount_promo', 'account_help', 'complaint', 'stock_check',
-        'recommendation', 'place_order', 'bot_identity', 'product_price',
+        'recommendation', 'place_order', 'platform_info', 'bot_identity', 'product_price',
         'availability', 'price_check', 'faq', 'category_search',
     ];
 
-    $highConfidenceThreshold = 0.75;
+    $useGemini = $mlResult !== null
+        ? shouldInvokeGeminiLastResort($message, $mlResult)
+        : false;
 
-    if (in_array($intent, $simpleIntents, true) && $confidence >= $highConfidenceThreshold) {
-        list($response, $quickReplies) = getMLResponse($intent, $message, $user_id, $conn, $session_id);
-        error_log("Streaming: ML response intent=$intent (" . round($confidence * 100) . "%)");
-    } elseif (shouldInvokeGeminiLastResort($message, $mlResult)) {
-        $useGemini = true;
-        error_log("Streaming: Gemini last resort (intent=$intent, conf=" . round($confidence * 100) . "%)");
-    } elseif ($mlResult !== null) {
-        list($response, $quickReplies) = getMLResponse($intent, $message, $user_id, $conn, $session_id);
-        error_log("Streaming: ML medium-confidence intent=$intent");
-    } else {
-        $response = "I'm not sure I understood. Try <em>Show me products</em>, <em>Delivery info</em>, or <em>Contact support</em>.";
-        $quickReplies = ['Show me products', 'Delivery info', 'Contact support'];
-        error_log('Streaming: fallback (no ML / gate closed)');
+    if (in_array($intent, $simpleIntents, true) && $confidence >= 0.75) {
+        $useGemini = false;
     }
-    
+
     // Send progress update
-    echo json_encode([
+    emitStreamEvent([
         'type' => 'processing',
         'intent' => $intent,
         'confidence' => round($confidence * 100, 1),
-        'using_gemini' => $useGemini
+        'using_gemini' => $useGemini,
+        'model_used' => $modelUsed
     ]);
-    ob_flush();
-    flush();
-    
-    // If using Gemini, call it now
-    if ($useGemini) {
-        $geminiStart = microtime(true);
-        $geminiResponse = askGeminiFast($message, $user_id, $conn, $session_id, $intent, $confidence);
-        $geminiTime = round((microtime(true) - $geminiStart) * 1000);
 
-        if ($geminiResponse) {
-            $response = $geminiResponse['text'];
-            $quickReplies = $geminiResponse['quick_replies'];
+    $forwardData = $data;
+    $forwardData['message'] = $message;
+    $forwardData['session_id'] = $session_id;
 
-            echo json_encode([
-                'type' => 'gemini_complete',
-                'response_time_ms' => $geminiTime
-            ]);
-            ob_flush();
-            flush();
-        } elseif ($mlResult !== null) {
-            list($response, $quickReplies) = getMLResponse($intent, $message, $user_id, $conn, $session_id);
-        } else {
-            $response = "I couldn't reach the AI assistant. Please try again, or use the quick options below.";
-            $quickReplies = ['Show me products', 'Contact support', 'Delivery info'];
-        }
+    $primaryResponse = askPrimaryChatbot($forwardData, $phpSessionId);
+    if (!is_array($primaryResponse)) {
+        throw new RuntimeException('Primary chatbot unavailable.');
     }
-    
+
     // Calculate total processing time
     $totalTime = round((microtime(true) - $startTime) * 1000);
-    
+
+    $eventType = (($primaryResponse['type'] ?? '') === 'error') ? 'error' : 'response';
+    $response = $primaryResponse['response'] ?? 'Sorry, I could not process that.';
+    $quickReplies = $primaryResponse['quick_replies'] ?? ['Show me products', 'Contact support'];
+
     // Send final response
-    echo json_encode([
-        'type' => 'response',
+    emitStreamEvent([
+        'type' => $eventType,
         'response' => $response,
         'quick_replies' => $quickReplies,
-        'session_id' => $session_id,
-        'log_id' => $log_id,
+        'session_id' => $primaryResponse['session_id'] ?? $session_id,
+        'log_id' => $primaryResponse['log_id'] ?? null,
         'processing_time_ms' => $totalTime,
         'intent' => $intent,
-        'confidence' => round($confidence * 100, 1)
+        'confidence' => round($confidence * 100, 1),
+        'model_used' => $modelUsed
     ]);
     
 } catch (Throwable $e) {
-    echo json_encode([
+    emitStreamEvent([
         'type' => 'error',
         'response' => 'Something went wrong. Please try again.',
         'quick_replies' => ['Show me products', 'Contact support'],
@@ -214,28 +151,98 @@ exit;
 /**
  * Log chat conversation
  */
-function logChat(string $sessionId, ?int $userId, string $message, string $response, $conn): int {
-    $stmt = $conn->prepare("INSERT INTO chatbot_logs 
-                           (session_id, user_id, message, response, intent, confidence) 
-                           VALUES (?, ?, ?, ?, ?, ?)");
-    
-    // Extract intent from response if it contains "Intent:"
-    $intent = 'general';
-    $confidence = 1.0;
-    
-    if (preg_match('/Intent:\s*(\w+)\s*\(([\d.]+)%\)/', $response, $matches)) {
-        $intent = $matches[1];
-        $confidence = floatval($matches[2]) / 100;
+function logChat(string $sessionId, ?int $userId, string $message, string $response, string $intent, float $confidence, $conn): int {
+    $columns = ['session_id', 'user_id', 'message', 'response'];
+    $placeholders = ['?', '?', '?', '?'];
+    $types = 'siss';
+    $params = [$sessionId, $userId, $message, $response];
+
+    if (chatbotLogHasColumn($conn, 'intent_tag')) {
+        $columns[] = 'intent_tag';
+        $placeholders[] = '?';
+        $types .= 's';
+        $params[] = $intent;
+    } elseif (chatbotLogHasColumn($conn, 'intent')) {
+        $columns[] = 'intent';
+        $placeholders[] = '?';
+        $types .= 's';
+        $params[] = $intent;
     }
-    
+
+    if (chatbotLogHasColumn($conn, 'confidence')) {
+        $columns[] = 'confidence';
+        $placeholders[] = '?';
+        $types .= 'd';
+        $params[] = $confidence;
+    }
+
+    $sql = "INSERT INTO chatbot_logs (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+    $stmt = $conn->prepare($sql);
+
     if ($stmt) {
-        $stmt->bind_param("sisssd", $sessionId, $userId, $message, $response, $intent, $confidence);
+        $stmt->bind_param($types, ...$params);
         $stmt->execute();
         $logId = $stmt->insert_id;
         $stmt->close();
         return $logId;
     }
     return 0;
+}
+
+/**
+ * Update the final streamed response in the conversation log
+ */
+function updateChatLog(int $logId, string $response, string $intent, float $confidence, $conn): void {
+    $setParts = ['response=?'];
+    $types = 's';
+    $params = [$response];
+
+    if (chatbotLogHasColumn($conn, 'intent_tag')) {
+        $setParts[] = 'intent_tag=?';
+        $types .= 's';
+        $params[] = $intent;
+    } elseif (chatbotLogHasColumn($conn, 'intent')) {
+        $setParts[] = 'intent=?';
+        $types .= 's';
+        $params[] = $intent;
+    }
+
+    if (chatbotLogHasColumn($conn, 'confidence')) {
+        $setParts[] = 'confidence=?';
+        $types .= 'd';
+        $params[] = $confidence;
+    }
+
+    $types .= 'i';
+    $params[] = $logId;
+    $sql = "UPDATE chatbot_logs SET " . implode(', ', $setParts) . " WHERE id=?";
+    $stmt = $conn->prepare($sql);
+
+    if ($stmt) {
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
+
+/**
+ * Detect available chatbot_logs columns so the stream endpoint works across schema versions
+ */
+function chatbotLogHasColumn($conn, string $column): bool {
+    static $columns = null;
+
+    if ($columns === null) {
+        $columns = [];
+        $result = $conn->query("SHOW COLUMNS FROM chatbot_logs");
+
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $columns[$row['Field']] = true;
+            }
+        }
+    }
+
+    return isset($columns[$column]);
 }
 
 /**
@@ -253,6 +260,84 @@ function saveContext(string $sessionId, ?int $userId, string $key, string $value
         $stmt->execute();
         $stmt->close();
     }
+}
+
+/**
+ * Ask the running Flask ML service for the best intent prediction
+ */
+function askStreamingMLModel(string $message): ?array {
+    $payload = json_encode([
+        'message' => $message,
+        'model' => 'best',
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    $ch = curl_init('http://localhost:5001/predict');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_TIMEOUT => 3,
+        CURLOPT_CONNECTTIMEOUT => 2,
+    ]);
+
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($response === false || $statusCode !== 200) {
+        if ($error !== '') {
+            error_log('Streaming ML request failed: ' . $error);
+        }
+        return null;
+    }
+
+    $data = json_decode($response, true);
+    if (!is_array($data) || !isset($data['intent'], $data['confidence'])) {
+        return null;
+    }
+
+    return [
+        'intent' => (string)$data['intent'],
+        'confidence' => (float)$data['confidence'],
+        'model_used' => (string)($data['model_used'] ?? 'best'),
+    ];
+}
+
+/**
+ * Delegate final response generation to the primary chatbot endpoint
+ */
+function askPrimaryChatbot(array $payload, string $phpSessionId): ?array {
+    $body = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    $ch = curl_init(SITE_URL . '/api/chatbot.php');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $body,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'Cookie: ' . session_name() . '=' . rawurlencode($phpSessionId),
+        ],
+        CURLOPT_TIMEOUT => 15,
+        CURLOPT_CONNECTTIMEOUT => 3,
+    ]);
+
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($response === false || $statusCode !== 200) {
+        if ($error !== '') {
+            error_log('Primary chatbot request failed: ' . $error);
+        }
+        return null;
+    }
+
+    $data = json_decode($response, true);
+    return is_array($data) ? $data : null;
 }
 
 /**

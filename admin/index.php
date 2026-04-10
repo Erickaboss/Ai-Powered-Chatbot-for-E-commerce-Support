@@ -53,7 +53,12 @@ $recent_orders = $conn->query("SELECT o.*, u.name as uname FROM orders o JOIN us
 ?>
 
 <div class="admin-content">
-    <h4 class="mb-4">Dashboard</h4>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">Dashboard</h4>
+        <a href="<?= SITE_URL ?>/logout.php" class="btn btn-outline-danger" title="Logout">
+            <i class="bi bi-box-arrow-right me-2"></i>Logout
+        </a>
+    </div>
 
     <?php
     // Low stock warning banner

@@ -57,6 +57,7 @@ if ($filterSess) {
 .ml-status-dot { width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px; }
 .ml-online  { background:#28a745; }
 .ml-offline { background:#dc3545; }
+.ml-artifact { background:#ffc107; }
 .badge-guest { background:#6c757d; }
 .badge-user  { background:#198754; }
 .last-msg    { color:#6c757d;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px; }
@@ -74,13 +75,13 @@ if ($filterSess) {
     <!-- ML Status Card -->
     <div class="admin-card mb-4" id="ml-panel">
         <div class="card-head">
-            <h6><i class="bi bi-cpu me-2 text-primary"></i>ML Model Status &amp; Performance</h6>
+            <h6><i class="bi bi-cpu me-2 text-primary"></i>ML Model Status &amp; Artifact Report</h6>
             <button class="btn btn-sm btn-outline-primary" onclick="loadMLStatus()" style="border-radius:8px;font-size:.78rem">
                 <i class="bi bi-arrow-clockwise me-1"></i>Refresh
             </button>
         </div>
         <div class="card-body-pad" id="ml-content">
-            <div class="text-muted small"><i class="bi bi-hourglass me-2"></i>Checking ML API status...</div>
+            <div class="text-muted small"><i class="bi bi-hourglass me-2"></i>Loading ML artifacts and service status...</div>
         </div>
     </div>
 
@@ -293,6 +294,113 @@ async function loadMLStatus() {
     }
 }
 loadMLStatus();
+</script>
+
+<script>
+async function loadMLStatus() {
+    const el = document.getElementById('ml-content');
+    el.innerHTML = '<div class="text-muted small"><i class="bi bi-hourglass me-2"></i>Loading ML artifacts...</div>';
+
+    const fmtPct = (value) => (value === null || value === undefined || Number.isNaN(Number(value)))
+        ? 'N/A'
+        : `${(Number(value) * 100).toFixed(1)}%`;
+
+    try {
+        const res  = await fetch('<?= SITE_URL ?>/api/ml_status.php');
+        const data = await res.json();
+        const artifact = data.artifact || {};
+        const summary = artifact.summary || {};
+        const dataset = artifact.dataset || {};
+        const augmentation = dataset.database_augmentation || {};
+        const models = Array.isArray(artifact.models) ? artifact.models : [];
+        const reports = Array.isArray(artifact.reports) ? artifact.reports : [];
+        const statusClass = data.ml_online ? 'ml-online' : (artifact.available ? 'ml-artifact' : 'ml-offline');
+        const statusText = data.ml_online
+            ? 'Live ML service online'
+            : (artifact.available ? 'Live ML service offline, using saved artifacts' : 'ML artifacts unavailable');
+
+        if (!artifact.available && !data.ml_online) {
+            el.innerHTML = `<div class="d-flex align-items-center gap-2 mb-2">
+                <span class="ml-status-dot ml-offline"></span>
+                <strong class="text-danger">ML artifacts unavailable</strong></div>
+                <p class="text-muted small mb-0">${data.message}</p>`;
+            return;
+        }
+
+        const modelRows = models.map((model) =>
+            `<tr>
+                <td><strong>${model.model_name}</strong></td>
+                <td><span class="badge" style="background:#0f3460">${fmtPct(model.accuracy)}</span></td>
+                <td><span class="badge" style="background:#e94560">${fmtPct(model.f1_score)}</span></td>
+                <td><span class="badge" style="background:#1f8a70">${fmtPct(model.cv_mean)}</span></td>
+                <td>${model.model_name === summary.best_model ? '<span class="badge bg-success">Best</span>' : ''}</td>
+            </tr>`
+        ).join('');
+
+        const reportLinks = reports
+            .filter((report) => report.web_path)
+            .map((report) => `<a href="${report.web_path}" target="_blank" class="me-2">${report.filename}</a>`)
+            .join('');
+
+        el.innerHTML = `
+            <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+                <div><span class="ml-status-dot ${statusClass}"></span><strong>${statusText}</strong></div>
+                ${summary.best_model ? `<span class="badge bg-info text-dark">Best: ${summary.best_model}</span>` : ''}
+                ${summary.model_version ? `<span class="badge bg-dark">v${summary.model_version}</span>` : ''}
+                ${summary.num_classes ? `<span class="badge bg-primary">${summary.num_classes} intents</span>` : ''}
+            </div>
+            <p class="text-muted small mb-3">${data.message}</p>
+            <div class="row g-3 mb-3">
+                <div class="col-md-3">
+                    <div class="small text-muted">Best Accuracy</div>
+                    <div class="fw-bold">${fmtPct(summary.accuracy)}</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="small text-muted">Average Accuracy</div>
+                    <div class="fw-bold">${fmtPct(summary.average_accuracy)}</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="small text-muted">Train / Test Rows</div>
+                    <div class="fw-bold">${summary.training_samples || 0} / ${summary.test_samples || 0}</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="small text-muted">DB Augmentation</div>
+                    <div class="fw-bold">${augmentation.product_search_samples || 0} product + ${augmentation.faq_samples || 0} FAQ</div>
+                </div>
+            </div>
+            ${models.length ? `<div class="table-responsive">
+                <table class="table table-sm"><thead><tr><th>Model</th><th>Accuracy</th><th>F1 Score</th><th>CV Mean</th><th></th></tr></thead>
+                <tbody>${modelRows}</tbody></table></div>
+                <canvas id="mlArtifactChart" height="60"></canvas>` : '<p class="text-muted small mb-0">No per-model artifact rows available yet.</p>'}
+            ${reportLinks ? `<div class="mt-3 small"><strong>Reports:</strong> ${reportLinks}</div>` : ''}`;
+
+        if (models.length) {
+            if (window.mlArtifactChartInstance) {
+                window.mlArtifactChartInstance.destroy();
+            }
+            window.mlArtifactChartInstance = new Chart(document.getElementById('mlArtifactChart'), {
+                type: 'bar',
+                data: {
+                    labels: models.map((model) => model.model_name),
+                    datasets: [
+                        { label: 'Accuracy (%)', data: models.map((model) => Number(model.accuracy || 0) * 100), backgroundColor:'#0f3460', borderRadius:6 },
+                        { label: 'F1 Score (%)', data: models.map((model) => Number(model.f1_score || 0) * 100), backgroundColor:'#e94560', borderRadius:6 },
+                        { label: 'CV Mean (%)', data: models.map((model) => Number(model.cv_mean || 0) * 100), backgroundColor:'#1f8a70', borderRadius:6 },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true, max: 100, ticks: { callback: (value) => `${value}%` } } }
+                }
+            });
+        }
+    } catch (e) {
+        el.innerHTML = '<div class="text-danger small"><i class="bi bi-exclamation-circle me-2"></i>Could not load ML status or artifacts.</div>';
+    }
+}
+
+// Legacy loader kept for reference; the artifact-backed loader below performs the final render.
 </script>
 
 <script>

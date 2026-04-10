@@ -1011,12 +1011,18 @@
         "which product is the most featured",
         "which product is the most highlighted",
         "which product is the most promoted",
-        "which product is the most advertised"
+        "which product is the most advertised",
+        "recommend phones under 250k", "best option within my budget",
+        "je cherche un produit sous 200k", "quel produit pour un budget de 150k",
+        "recommande moi un téléphone sous 300k", "je veux une bonne option pas chère",
+        "mfite budget ya 200k", "ndashaka telefoni iri munsi ya 300k",
+        "nsabira ikintu kijyanye na budget yanjye", "ni iki nagura mfite 150k"
       ],
       "responses": [
         "I'd be happy to recommend products! What category interests you?",
         "Our top categories are Smartphones, Laptops, and Home Appliances. What do you need?",
-        "Let me suggest some popular products for you! What's your budget?"
+        "Let me suggest some popular products for you! What's your budget?",
+        "I can recommend options based on your category, budget, and preferred language. Tell me what you need and how much you want to spend."
       ]
     },
 
@@ -1068,12 +1074,21 @@
         "guide to place an order", "guide to order online",
         "guide to buy online", "guide to purchase online",
         "guide to shop online", "guide to checkout online",
-        "guide to add to cart online", "guide to buy now online"
+        "guide to add to cart online", "guide to buy now online",
+        "comment commander", "comment acheter", "comment passer commande",
+        "etapes pour commander", "processus de commande", "guide de commande",
+        "ni gute nagura", "uburyo bwo kugura", "intambwe zo kugura",
+        "natumiza nte", "nategeka nte", "ndashaka gutumiza",
+        "can a guest place an order", "do i need an account to order",
+        "how does guest checkout work", "what is the ordering process for guests",
+        "comment commander en tant qu invité", "dois je me connecter pour commander",
+        "umushyitsi ashobora gutumiza ate", "ngomba kwinjira mbere yo gutumiza"
       ],
       "responses": [
         "To place an order: browse products, add to cart, then checkout!",
         "You can order by adding items to your cart and proceeding to checkout.",
-        "Start by browsing our products, add what you like to cart, then checkout!"
+        "Start by browsing our products, add what you like to cart, then checkout!",
+        "I can explain the full ordering journey, including what guests can do before login and when an account is required."
       ]
     },
 
@@ -1229,6 +1244,170 @@
         "Chatbot analytics are available in the admin dashboard under Analytics.",
         "The admin can view detailed chatbot statistics including satisfaction rates and top questions.",
         "Analytics data is available to administrators in the admin panel."
+      ]
+    },
+    {
+      "tag": "platform_info",
+      "patterns": [
+        "tell me about this platform", "tell me about this store", "tell me about this shop",
+        "what do you know about this platform", "what do you know about this store",
+        "platform information", "store information", "shop information",
+        "platform overview", "store overview", "catalog overview",
+        "how many products do you have", "how many categories do you have",
+        "what categories do you have", "what brands do you have",
+        "what do you sell here", "about your platform", "about this ecommerce platform",
+        "parlez moi de cette plateforme", "informations sur la boutique",
+        "combien de produits avez vous", "quelles categories avez vous",
+        "que vendez vous ici", "apercu du catalogue",
+        "mbwira ibijyanye n uru rubuga", "amakuru y ububiko",
+        "mufite ibicuruzwa bingahe", "mufite ibyiciro bingahe", "mugurisha iki",
+        "what can this platform do", "what services does this store offer",
+        "how does this shop work", "what can guests do here",
+        "professional overview of this store", "services de cette plateforme",
+        "que peut faire cette plateforme", "uru rubuga rukora rute",
+        "umushyitsi ashobora gukora iki hano"
+      ],
+      "responses": [
+        "I can summarize the live store catalog, categories, brands, prices, and services available on the platform.",
+        "This platform includes live product data, order services, multilingual support, and budget-based recommendations.",
+        "I can give you a professional overview of the store, what it sells, and how the shopping journey works.",
+        "I can explain the platform's catalog coverage, multilingual support, guest guidance, and order services in a professional way."
+      ]
+    },
+    {
+      "tag": "guest_order_guide",
+      "patterns": [
+        "how do i order as a guest", "can i order without account", "how to place order",
+        "guide me to order", "how to buy", "steps to order", "ordering process",
+        "how does ordering work", "i want to buy but i am not registered",
+        "can i shop without login", "do i need an account to buy",
+        "how to purchase", "buying guide", "order guide", "purchase guide",
+        "comment commander", "comment acheter", "guide d'achat",
+        "nshaka kugura", "uburyo bwo kugura", "gura nta konti",
+        "how to order step by step", "walk me through ordering",
+        "explain how to buy", "what are the steps to place an order",
+        "i am new how do i buy", "first time buyer guide",
+        "how do i checkout", "checkout process explained"
+      ],
+      "responses": [
+        "Here's how to place an order: 1) Browse products and find what you want. 2) Create a free account or login. 3) Add items to your cart. 4) Go to checkout, enter your delivery address. 5) Choose your payment method. 6) Confirm your order. You'll receive a confirmation email instantly!",
+        "To order: Register → Browse → Add to Cart → Checkout → Pay → Done! You can also order directly through me by typing 'I want [product name]'.",
+        "Ordering is simple! Create a free account, find your product, add to cart, and checkout. Need help? Just tell me what you want to buy!"
+      ]
+    },
+    {
+      "tag": "budget_search",
+      "patterns": [
+        "i have 50000 rwf", "my budget is 200k", "i can spend 100000",
+        "show me products under 50000", "what can i buy with 100k",
+        "products under 200000 rwf", "affordable products", "cheap products",
+        "budget products", "i only have 30000", "i have limited budget",
+        "what can i get for 50k", "products within my budget",
+        "j'ai 50000 rwf", "mon budget est 200k", "produits pas chers",
+        "nfite amafaranga 50000", "ibicuruzwa bya hasi", "ibicuruzwa bitagura",
+        "show me phones under 100k", "laptops under 500k", "cheap phones",
+        "most affordable", "lowest price products", "budget friendly",
+        "what is cheapest", "show cheapest products", "least expensive",
+        "products between 50k and 200k", "between 100000 and 500000",
+        "i want to spend less than 100k", "under 50k products",
+        "what can i buy with 200000 francs", "products for 100000 rwf"
+      ],
+      "responses": [
+        "I can find products within your budget! Tell me your budget amount and preferred category, e.g. 'Show me phones under 200k' or 'I have 50000 RWF'.",
+        "Great! I'll search our entire catalog for products within your budget. Just tell me how much you have and what category interests you.",
+        "Budget shopping made easy! Tell me your maximum budget and I'll show you the best options across all 15 categories."
+      ]
+    },
+    {
+      "tag": "platform_info",
+      "patterns": [
+        "about this store", "about this platform", "what is this website",
+        "tell me about your store", "what do you sell", "store information",
+        "platform overview", "about your shop", "what is this shop",
+        "how many products do you have", "what categories do you have",
+        "tell me about the platform", "store details", "shop info",
+        "what services do you offer", "what can i find here",
+        "parlez moi de votre boutique", "informations sur la boutique",
+        "mbwira ibyerekeye iyi sitasiyo", "iyi sitasiyo irakora iki",
+        "how many categories", "list all categories", "all product categories",
+        "what brands do you carry", "which brands are available"
+      ],
+      "responses": [
+        "Welcome to AI-Powered Chatbot For E-commerce Support! We offer 1,161+ products across 15 categories: Smartphones, Laptops, TV & Audio, Home Appliances, Fashion Men, Fashion Women, Groceries, Health & Beauty, Sports, Baby & Kids, Furniture, Car Accessories, Books, Jewelry & Watches, and Gaming. All with fast delivery across Rwanda!",
+        "We are Rwanda's AI-powered e-commerce store with 1,161+ products in 15 categories. Shop phones, laptops, fashion, groceries, beauty products and more. Delivery in 1-4 business days across Rwanda.",
+        "Our store has 15 product categories with over 1,161 items. We accept MTN MoMo, Airtel Money, Cash on Delivery, Bank Transfer, and Visa/Mastercard. Free shipping on orders above RWF 50,000!"
+      ]
+    },
+    {
+      "tag": "product_description",
+      "patterns": [
+        "tell me about this product", "product details", "product description",
+        "what are the specs", "product specifications", "features of",
+        "describe this product", "more details about", "product info",
+        "what does it include", "what comes in the box", "product features",
+        "specifications of samsung", "specs of iphone", "details of laptop",
+        "describe samsung galaxy", "tell me about iphone", "laptop specifications",
+        "what is the description of", "full details of", "complete info about",
+        "donnez moi les details", "description du produit", "caracteristiques",
+        "sobanura iyi product", "amakuru yuzuye", "ibiranga iyi product"
+      ],
+      "responses": [
+        "I can give you full product details! Just tell me the product name and I'll show you the complete description, price, stock, and specifications.",
+        "Sure! Which product would you like details about? I have complete information for all 1,161+ products in our catalog.",
+        "I'll show you the full product description including specs, price, stock availability, and brand information. Which product interests you?"
+      ]
+    },
+    {
+      "tag": "multilingual_help",
+      "patterns": [
+        "parlez vous francais", "do you speak french", "pouvez vous m'aider en francais",
+        "muraho mwandika mu kinyarwanda", "mwandika mu rurimi rw'ikinyarwanda",
+        "ndashaka gufasha mu kinyarwanda", "urasobanura mu kinyarwanda",
+        "je veux de l'aide en francais", "aidez moi en francais",
+        "can you speak kinyarwanda", "do you understand kinyarwanda",
+        "speak to me in french", "respond in kinyarwanda",
+        "je ne comprends pas l'anglais", "i speak french only",
+        "ndavuga ikinyarwanda gusa", "je parle seulement francais"
+      ],
+      "responses": [
+        "Oui! Je parle français, anglais et kinyarwanda. Comment puis-je vous aider aujourd'hui? / Yes! I speak English, French and Kinyarwanda. How can I help you?",
+        "Yego! Ndavuga Ikinyarwanda, Igifaransa na Icyongereza. Nakugirira iki? / I speak all three languages - just write in your preferred language!",
+        "Je suis disponible en français, anglais et kinyarwanda. Posez votre question dans la langue de votre choix!"
+      ]
+    },
+    {
+      "tag": "order_status_query",
+      "patterns": [
+        "what is my order status", "check my order", "where is my package",
+        "is my order shipped", "has my order been processed",
+        "order update", "delivery update", "package status",
+        "when will my order arrive", "estimated delivery",
+        "mon colis est ou", "ou est ma commande", "statut de commande",
+        "aho ibicuruzwa byanjye biri", "ibicuruzwa byanjye byageze he",
+        "order number status", "track package", "find my order",
+        "my order is late", "order delayed", "order not arrived yet"
+      ],
+      "responses": [
+        "To check your order status, type 'track order [number]' or just your order number like #000005. You can also visit My Orders page.",
+        "I can track your order! Just tell me your order number (e.g. 'track order 5' or '#000005') and I'll show you the current status.",
+        "Order tracking is easy! Type your order number and I'll give you a full status update including estimated delivery time."
+      ]
+    },
+    {
+      "tag": "professional_greeting",
+      "patterns": [
+        "good morning sir", "good afternoon madam", "hello professional",
+        "greetings", "good day sir", "good evening madam",
+        "bonjour monsieur", "bonjour madame", "bonsoir",
+        "mwaramutse cyane", "mwiriwe cyane", "amakuru",
+        "i need professional assistance", "i need expert help",
+        "can i speak to an expert", "professional support needed",
+        "i need help from an expert", "connect me to support"
+      ],
+      "responses": [
+        "Good day! Welcome to AI-Powered Chatbot For E-commerce Support. I'm your professional AI shopping assistant, ready to help you find products, place orders, track deliveries, and answer any questions. How may I assist you today?",
+        "Welcome! I'm your dedicated AI assistant for AI-Powered Chatbot For E-commerce Support. I can help with product searches, order management, delivery information, and more. What can I do for you?",
+        "Bonjour! Je suis votre assistant IA professionnel. Je peux vous aider à trouver des produits, passer des commandes et suivre vos livraisons. Comment puis-je vous aider?"
       ]
     }
   ]

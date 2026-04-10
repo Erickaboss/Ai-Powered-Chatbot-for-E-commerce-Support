@@ -1,7 +1,8 @@
-// ===== Chatbot Widget JS — Persistent History =====
+// ===== Chatbot Widget JS — Real-Time Streaming + Typing Indicators =====
 
 let chatOpen = true;
 let historyLoaded = false;
+let isProcessing = false;
 
 // ── Persistent session ID stored in localStorage ──
 function getChatSessionId() {
@@ -15,10 +16,42 @@ function getChatSessionId() {
 }
 const CHAT_SESSION_ID = getChatSessionId();
 
+function getStreamingApiUrl() {
+    return typeof CHATBOT_STREAM_API_URL === 'string' && CHATBOT_STREAM_API_URL.trim()
+        ? CHATBOT_STREAM_API_URL
+        : '';
+}
+
+function normalizeBotMessageHtml(text) {
+    return String(text || '').replace(/\r?\n/g, '<br>');
+}
+
+function updateTyping(text = 'AI is thinking...') {
+    const label = document.querySelector('#typing span');
+    if (label) {
+        label.textContent = text;
+    }
+}
+
+function formatIntentLabel(intent) {
+    return String(intent || 'your request').replace(/_/g, ' ');
+}
+
+function getProcessingMessage(event) {
+    if (!event) return 'AI is thinking...';
+    if (event.type === 'gemini_complete') return 'AI response is ready...';
+    if (event.type !== 'processing') return 'AI is thinking...';
+    if (event.using_gemini) return 'AI is preparing a detailed answer...';
+    if (event.intent && event.intent !== 'unknown') {
+        return `AI is working on ${formatIntentLabel(event.intent)}...`;
+    }
+    return 'AI is thinking...';
+}
+
 // ── Load history from DB on widget open ──
 async function loadChatHistory() {
     if (historyLoaded) return;
-    historyLoaded = true; // Set early to prevent duplicate calls
+    historyLoaded = true;
 
     try {
         const sid = localStorage.getItem('chat_session_id') || CHAT_SESSION_ID;
@@ -32,7 +65,10 @@ async function loadChatHistory() {
         if (!data.history || data.history.length === 0) return;
 
         const messages = document.getElementById('chat-messages');
-        // Clear the default welcome message before loading history
+        // If the user already sent a message while history was loading, do not wipe the thread
+        if (messages.querySelector('.user-msg')) {
+            return;
+        }
         messages.innerHTML = '';
 
         // Show last 20 messages to avoid overwhelming the widget
@@ -141,7 +177,7 @@ function appendMessage(text, type, quickReplies, logId = null) {
     const div = document.createElement('div');
     div.className = type === 'user' ? 'user-msg' : 'bot-msg';
     div.innerHTML = type === 'bot'
-        ? `<i class="bi bi-robot"></i> ${text}`
+        ? `<i class="bi bi-robot"></i> ${normalizeBotMessageHtml(text)}`
         : text;
 
     if (quickReplies && quickReplies.length > 0) {
@@ -178,7 +214,8 @@ function showTyping() {
     const div = document.createElement('div');
     div.className = 'typing-indicator';
     div.id = 'typing';
-    div.textContent = 'AI is typing...';
+    div.innerHTML = `<i class="bi bi-three-dots"></i> <span>AI is thinking...</span>`;
+    div.style.cssText = 'padding:8px 12px;background:rgba(255,255,255,0.05);border-radius:18px;display:inline-block;margin:4px 0;animation: pulse 1.5s infinite';
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
 }
@@ -188,47 +225,151 @@ function removeTyping() {
     if (t) t.remove();
 }
 
+async function fetchStandardChatResponse(msg) {
+    const res = await fetch(CHATBOT_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            message: msg,
+            session_id: localStorage.getItem('chat_session_id') || CHAT_SESSION_ID
+        })
+    });
+
+    if (!res.ok) {
+        throw new Error('HTTP ' + res.status);
+    }
+
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        console.error('Chatbot non-JSON response:', text);
+        throw new Error('Invalid response');
+    }
+}
+
+async function fetchStreamingChatResponse(msg) {
+    const streamUrl = getStreamingApiUrl();
+    if (!streamUrl) {
+        return fetchStandardChatResponse(msg);
+    }
+
+    const res = await fetch(streamUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            message: msg,
+            session_id: localStorage.getItem('chat_session_id') || CHAT_SESSION_ID
+        })
+    });
+
+    if (!res.ok) {
+        throw new Error('HTTP ' + res.status);
+    }
+
+    if (!res.body || typeof res.body.getReader !== 'function') {
+        return fetchStandardChatResponse(msg);
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let finalEvent = null;
+
+    const processLine = (line) => {
+        if (!line) return;
+
+        let event;
+        try {
+            event = JSON.parse(line);
+        } catch (err) {
+            console.warn('Skipping invalid stream event:', line);
+            return;
+        }
+
+        if (event.type === 'typing' || event.type === 'processing' || event.type === 'gemini_complete') {
+            updateTyping(getProcessingMessage(event));
+        }
+
+        if (event.type === 'response' || event.type === 'error') {
+            finalEvent = event;
+        }
+    };
+
+    while (true) {
+        const { value, done } = await reader.read();
+        buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+
+        const lines = buffer.split(/\r?\n/);
+        buffer = lines.pop() || '';
+
+        lines.forEach(line => processLine(line.trim()));
+
+        if (done) {
+            break;
+        }
+    }
+
+    processLine(buffer.trim());
+
+    if (!finalEvent) {
+        throw new Error('Stream completed without a final response');
+    }
+
+    return finalEvent;
+}
+
 async function sendMessage() {
     const input = document.getElementById('chat-input');
     const msg = input.value.trim();
-    if (!msg) return;
+    
+    // If no message or already processing, return
+    if (!msg || isProcessing) return;
+    
+    // Set processing flag
+    isProcessing = true;
 
+    // Show user message
     appendMessage(msg, 'user');
+    
     input.value = '';
     showTyping();
 
     try {
-        const res = await fetch(CHATBOT_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: msg,
-                session_id: localStorage.getItem('chat_session_id') || CHAT_SESSION_ID
-            })
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const text = await res.text();
-        let data;
-        try { data = JSON.parse(text); }
-        catch(e) {
-            console.error('Chatbot non-JSON response:', text);
-            throw new Error('Invalid response');
-        }
+        const data = await fetchStreamingChatResponse(msg);
+        
         removeTyping();
+
         // Keep localStorage in sync with server-confirmed session_id
         if (data.session_id && /^[a-f0-9]{32}$/.test(data.session_id)) {
             localStorage.setItem('chat_session_id', data.session_id);
         }
-        appendMessage(
-            data.response || 'Sorry, I could not process that.',
-            'bot',
-            data.quick_replies || [],
-            data.log_id || null
-        );
+
+        // api/chatbot.php returns { response, quick_replies, session_id, log_id } — no "type" field.
+        // Streaming / other endpoints may send type === 'response' | 'error'.
+        if (data.type === 'error') {
+            appendMessage(data.response || 'Error occurred', 'bot', data.quick_replies || []);
+        } else if (typeof data.response === 'string') {
+            appendMessage(
+                data.response || 'Sorry, I could not process that.',
+                'bot',
+                data.quick_replies || [],
+                data.log_id || null
+            );
+            if (data.processing_time_ms) {
+                console.log(`Response time: ${data.processing_time_ms}ms`);
+            }
+        } else {
+            appendMessage('Sorry, I could not process that.', 'bot', ['Show me products', 'Contact support']);
+        }
+        
     } catch (err) {
         removeTyping();
         console.error('Chatbot error:', err);
         appendMessage('Sorry, something went wrong. Please try again in a moment.', 'bot', ['Show me products', 'Contact support']);
+    } finally {
+        // Reset processing flag
+        isProcessing = false;
     }
 }
 
@@ -244,10 +385,196 @@ async function rateResponse(logId, rating, el) {
         await fetch(CHATBOT_API_URL + '?action=rate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ log_id: logId, rating: rating, session_id: CHAT_SESSION_ID })
+            body: JSON.stringify({
+                log_id: logId,
+                rating: rating,
+                session_id: localStorage.getItem('chat_session_id') || CHAT_SESSION_ID
+            })
         });
         el.innerHTML = rating === 1
             ? '<span style="color:#4caf50">👍 Thanks for your feedback!</span>'
             : '<span style="color:#e94560">👎 Thanks! We\'ll improve.</span>';
     } catch(e) {}
 }
+
+// ================================================================
+// VOICE INPUT FEATURE - Speech-to-Text using Web Speech API
+// ================================================================
+
+let isListening = false;
+let recognition = null;
+
+// Initialize voice recognition if supported
+function initVoiceRecognition() {
+    // Check browser support
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+        console.log('Voice input not supported in this browser');
+        return null;
+    }
+    
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US'; // Default to English
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    
+    recognition.onstart = function() {
+        isListening = true;
+        updateVoiceButtonState();
+    };
+    
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        const confidence = event.results[0].confidence;
+        
+        console.log(`🎤 Voice input: "${transcript}" (${(confidence * 100).toFixed(0)}% confidence)`);
+        
+        // Set the transcribed text in chat input
+        const input = document.getElementById('chat-input');
+        input.value = transcript;
+        
+        // Auto-send after short delay
+        setTimeout(() => {
+            sendMessage();
+        }, 500);
+    };
+    
+    recognition.onerror = function(event) {
+        console.error('Voice recognition error:', event.error);
+        isListening = false;
+        updateVoiceButtonState();
+        
+        if (event.error === 'no-speech') {
+            alert('No speech detected. Please try again.');
+        } else if (event.error === 'audio-capture') {
+            alert('No microphone found. Please ensure microphone is connected.');
+        } else if (event.error === 'not-allowed') {
+            alert('Microphone permission denied. Please allow microphone access.');
+        }
+    };
+    
+    recognition.onend = function() {
+        isListening = false;
+        updateVoiceButtonState();
+    };
+    
+    return recognition;
+}
+
+// Toggle voice input
+function toggleVoiceInput() {
+    if (!recognition) {
+        recognition = initVoiceRecognition();
+        if (!recognition) {
+            alert('Voice input is not supported in your browser. Please use Chrome, Edge, or Safari.');
+            return;
+        }
+    }
+    
+    if (isListening) {
+        recognition.stop();
+    } else {
+        try {
+            recognition.start();
+        } catch (e) {
+            console.error('Failed to start recognition:', e);
+            alert('Failed to start voice input. Please try again.');
+        }
+    }
+}
+
+// Update voice button visual state
+function updateVoiceButtonState() {
+    const voiceBtn = document.getElementById('voice-input-btn');
+    if (!voiceBtn) return;
+    
+    if (isListening) {
+        voiceBtn.classList.add('listening');
+        voiceBtn.innerHTML = '<i class="bi bi-mic-fill"></i>';
+        voiceBtn.title = 'Listening... Click to stop';
+    } else {
+        voiceBtn.classList.remove('listening');
+        voiceBtn.innerHTML = '<i class="bi bi-mic"></i>';
+        voiceBtn.title = 'Voice Input';
+    }
+}
+
+// Add multilingual support
+function setVoiceLanguage(langCode) {
+    if (recognition) {
+        recognition.lang = langCode;
+    }
+}
+
+// Create voice input button in chat UI
+function createVoiceInputButton() {
+    // Check if browser supports it
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+        return; // Don't show button if not supported
+    }
+    
+    // Find the input area and add voice button
+    const inputContainer = document.querySelector('.chat-input-area');
+    if (!inputContainer) return;
+    
+    const voiceButton = document.createElement('button');
+    voiceButton.id = 'voice-input-btn';
+    voiceButton.className = 'btn btn-sm voice-input-btn';
+    voiceButton.innerHTML = '<i class="bi bi-mic"></i>';
+    voiceButton.title = 'Voice Input';
+    voiceButton.onclick = toggleVoiceInput;
+    
+    // Insert before send button
+    const sendButton = inputContainer.querySelector('button[type="button"]');
+    if (sendButton) {
+        inputContainer.insertBefore(voiceButton, sendButton);
+    } else {
+        inputContainer.appendChild(voiceButton);
+    }
+    
+    // Add CSS styles for listening animation
+    const style = document.createElement('style');
+    style.textContent = `
+        .voice-input-btn {
+            background: none;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+        
+        .voice-input-btn:hover {
+            background: #f5f5f5;
+            border-color: #bbb;
+        }
+        
+        .voice-input-btn.listening {
+            background: #e94560;
+            border-color: #e94560;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(233, 69, 96, 0.7); }
+            50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(233, 69, 96, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(233, 69, 96, 0); }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Initialize voice input on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        createVoiceInputButton();
+    }, 500);
+});

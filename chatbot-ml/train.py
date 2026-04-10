@@ -31,14 +31,37 @@ os.makedirs('reports', exist_ok=True)
 os.makedirs('plots',   exist_ok=True)
 
 # ─────────────────────────────────────────────────────────────
-# 1. LOAD DATASET
+# 1. LOAD DATASET — merge all intent files
 # ─────────────────────────────────────────────────────────────
 print("\n" + "="*60)
-print("  STEP 1: Loading Dataset")
+print("  STEP 1: Loading Merged Dataset")
 print("="*60)
 
-with open('dataset/intents.json', 'r') as f:
-    data = json.load(f)
+def load_merged_intents(*files):
+    merged = {'intents': []}
+    seen_tags = set()
+    for fpath in files:
+        if not os.path.exists(fpath):
+            print(f"  Skipping missing file: {fpath}")
+            continue
+        with open(fpath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        for intent in data.get('intents', []):
+            tag = intent['tag']
+            if tag in seen_tags:
+                # Merge patterns into existing intent
+                for existing in merged['intents']:
+                    if existing['tag'] == tag:
+                        existing['patterns'].extend(intent['patterns'])
+                        break
+            else:
+                merged['intents'].append(intent)
+                seen_tags.add(tag)
+        print(f"  Loaded: {fpath} ({len(data.get('intents',[]))} intents)")
+    return merged
+
+dataset_files = ['dataset/intents.json', 'dataset/intents_part2.json']
+data = load_merged_intents(*dataset_files)
 
 sentences, labels = [], []
 for intent in data['intents']:
@@ -372,7 +395,50 @@ with open('models/model_results.json', 'w') as f:
         'best_model':  best,
         'num_classes': num_classes,
         'intents':     list(le.classes_),
-        'cv_results':  {k: v.tolist() for k, v in cv_results.items()}
+        'cv_results':  {k: v.tolist() for k, v in cv_results.items()},
+        'summary': {
+            'best_model':          best,
+            'accuracy':            results[best]['accuracy'],
+            'f1_score':            results[best]['f1'],
+            'average_accuracy':    sum(r['accuracy'] for r in results.values()) / len(results),
+            'num_classes':         num_classes,
+            'training_samples':    len(X_train_raw),
+            'test_samples':        len(X_test_raw),
+            'total_samples':       len(sentences),
+            'all_models_above_85': all(r['accuracy'] >= 0.85 for r in results.values()),
+            'target_accuracy':     0.85,
+            'model_version':       '2.0.0',
+            'dataset_files':       dataset_files,
+        },
+        'models': [
+            {
+                'model_name': name,
+                'accuracy':   m['accuracy'],
+                'precision':  m['precision'],
+                'recall':     m['recall'],
+                'f1_score':   m['f1'],
+                'cv_mean':    cv_results.get(name, [0]).mean() if hasattr(cv_results.get(name, [0]), 'mean') else 0,
+                'cv_std':     cv_results.get(name, [0]).std()  if hasattr(cv_results.get(name, [0]), 'std')  else 0,
+                'is_best':    name == best,
+            }
+            for name, m in results.items()
+        ],
+        'dataset': {
+            'total_samples':   len(sentences),
+            'num_classes':     num_classes,
+            'train_samples':   len(X_train_raw),
+            'test_samples':    len(X_test_raw),
+            'vocabulary_size': len(tfidf.vocabulary_),
+            'dataset_files':   dataset_files,
+            'database_augmentation': {
+                'product_search_samples': 0,
+                'faq_samples':            0,
+                'note': 'DB-grounded responses handled by PHP layer at runtime',
+            }
+        },
+        'reports': [
+            {'filename': 'performance_report.txt', 'web_path': None},
+        ],
     }, f, indent=2)
 
 print("\n  All models trained and saved!")

@@ -17,14 +17,15 @@ from sklearn.metrics import (accuracy_score, precision_score, recall_score,
                               f1_score, confusion_matrix, classification_report)
 from sklearn.model_selection import cross_val_score, train_test_split
 
+from dataset_utils import build_training_samples, load_merged_intents
+
 os.makedirs('plots',   exist_ok=True)
 os.makedirs('reports', exist_ok=True)
 
 # ── Load artifacts ────────────────────────────────────────────
 print("Loading dataset and models...")
 
-with open('dataset/intents.json') as f:
-    data = json.load(f)
+data = load_merged_intents(('dataset/intents.json', 'dataset/intents_part2.json'))
 
 le    = pickle.load(open('models/label_encoder.pkl',    'rb'))
 tfidf = pickle.load(open('models/tfidf_vectorizer.pkl', 'rb'))
@@ -33,11 +34,7 @@ rf    = pickle.load(open('models/random_forest.pkl',    'rb'))
 svm   = pickle.load(open('models/svm.pkl',              'rb'))
 mlp   = pickle.load(open('models/mlp_neural_network.pkl','rb'))
 
-sentences, labels = [], []
-for intent in data['intents']:
-    for pattern in intent['patterns']:
-        sentences.append(pattern.lower())
-        labels.append(intent['tag'])
+sentences, labels = build_training_samples(data)
 
 y = le.transform(labels)
 X = tfidf.transform(sentences)
@@ -52,7 +49,7 @@ print(f"  Dataset loaded: {len(sentences)} samples, {len(set(labels))} intents")
 models = {
     'Logistic Regression': lr,
     'Random Forest':       rf,
-    'SVM (RBF Kernel)':    svm,
+    'SVM (Linear)':        svm,
     'MLP Neural Network':  mlp,
 }
 
@@ -142,7 +139,7 @@ for name, model in models.items():
     print(f"  {name}: {scores.mean()*100:.2f}% ± {scores.std()*100:.2f}%")
 
 fig, ax = plt.subplots(figsize=(12, 5))
-bp = ax.boxplot([cv_results[m]*100 for m in cv_results], labels=list(cv_results.keys()),
+bp = ax.boxplot([cv_results[m]*100 for m in cv_results], tick_labels=list(cv_results.keys()),
                 patch_artist=True, medianprops={'color':'white','linewidth':2})
 for patch, color in zip(bp['boxes'], ['#0f3460','#e94560','#f5a623','#2ecc71']):
     patch.set_facecolor(color); patch.set_alpha(0.8)
@@ -187,7 +184,7 @@ lines = [
     "  AI-Powered Chatbot For E-commerce Support",
     sep, "",
     "1. DATASET SUMMARY", sep2,
-    f"   Source          : Custom E-commerce Intents (intents.json)",
+    f"   Source          : Merged e-commerce intents (intents.json + intents_part2.json)",
     f"   Total Patterns  : {len(sentences)}",
     f"   Total Intents   : {len(set(labels))}",
     f"   Train Samples   : {int(len(sentences)*0.8)}",
@@ -197,9 +194,8 @@ lines = [
     "2. MODELS SELECTED", sep2,
     "   Model 1 : Logistic Regression (TF-IDF + LR)   — ML Baseline",
     "   Model 2 : Random Forest (TF-IDF + RF)          — ML Ensemble",
-    "   Model 3 : SVM with RBF Kernel                  — ML Kernel Method",
-    "   Model 4 : MLP Neural Network (256-128-64)      — Deep Learning",
-    "   Model 5 : Google Gemini API                    — LLM (multilingual)",
+    "   Model 3 : SVM (Linear)                         — ML Margin Classifier",
+    "   Model 4 : MLP Neural Network                  — Neural Classifier",
     "",
     "3. PERFORMANCE METRICS", sep2,
     f"   {'Model':<28} {'Accuracy':>10} {'Precision':>10} {'Recall':>10} {'F1 Score':>10}",
@@ -231,7 +227,7 @@ lines += [
     "   Backend   : PHP 8 (intent routing, DB queries)",
     "   ML API    : Python Flask (intent classification)",
     "   Database  : MySQL (products, orders, users, logs)",
-    "   AI Layer  : Google Gemini API (multilingual polish)",
+    "   AI Layer  : Optional Gemini last-resort responses (outside core ML metrics)",
     "   Email     : PHPMailer + Gmail SMTP",
     "",
     "7. PLOTS GENERATED", sep2,
@@ -241,7 +237,7 @@ lines += [
     "   plots/cross_validation.png",
     "   plots/cm_logistic_regression.png",
     "   plots/cm_random_forest.png",
-    "   plots/cm_svm_rbf_kernel.png",
+    "   plots/cm_svm_linear.png",
     "   plots/cm_mlp_neural_network.png",
     "",
     sep,

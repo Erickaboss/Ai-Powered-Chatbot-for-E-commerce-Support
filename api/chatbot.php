@@ -458,6 +458,7 @@ function reply(string $text, array $qr = []): array {
  */
 function intentMlFastReply(string $intent, string $msg, ?int $uid, $conn, array &$ctx): ?array {
     $ml = strtolower(trim($msg));
+    $lang = detectLanguage($msg);
 
     switch ($intent) {
         case 'delivery_time':
@@ -550,8 +551,18 @@ function intentMlFastReply(string $intent, string $msg, ?int $uid, $conn, array 
 
         case 'bot_identity':
             return reply(
+                getCapabilityShowcaseText($conn, $uid, $lang),
+                getLocalizedPrimaryReplies($lang, $uid)
+            );
+            return reply(
                 "🤖 I'm the AI shopping assistant for <strong>" . SITE_NAME . "</strong>!<br>I can find products, check prices, track orders, and answer questions about our store — in English, French, or Kinyarwanda.",
                 ['Show me products', 'What can you do?']
+            );
+
+        case 'platform_info':
+            return reply(
+                getStoreOverviewText($conn, $lang),
+                getLocalizedPrimaryReplies($lang, $uid)
             );
 
         case 'chatbot_rating':
@@ -634,6 +645,10 @@ function intentMlFastReply(string $intent, string $msg, ?int $uid, $conn, array 
             );
 
         case 'place_order':
+            return reply(
+                getOrderGuideText($uid, $lang),
+                getOrderGuideQuickReplies($lang, $uid)
+            );
             if (!$uid) {
                 return reply(
                     "🔒 Please <a href='" . SITE_URL . "/login.php'><strong>login</strong></a> first to place an order.",
@@ -661,8 +676,9 @@ function intentMlFastReply(string $intent, string $msg, ?int $uid, $conn, array 
                 } elseif ($minP) {
                     $label = 'Products above RWF ' . number_format($minP);
                 }
-                $fp = formatProducts($rows, $label);
-                return reply($fp['text'], array_merge($fp['qr'], ['Show me more', 'Delivery info']));
+                $label = getBudgetLabelText($minP, $maxP, $lang);
+                $fp = formatProducts($rows, $label, false, $lang);
+                return reply($fp['text'], array_merge($fp['qr'], getBudgetQuickReplies($lang)));
             }
             return null;
 
@@ -704,6 +720,13 @@ function extractKeywords(string $msg): array {
              'like','give','find','200k','100k','50k','300k','500k','150k','400k','600k','700k','800k','900k',
              '1m','rwf','between','less','than','more','minimum','maximum','cheapest','most','least','affordable',
              'budget','range','also','just','only','very','really','please','sir','madam','hello','hi','hey'];
+    $stop = array_merge($stop, [
+        'bonjour','salut','merci','montre','montrez','affiche','afficher','cherche','chercher','besoin','veux',
+        'acheter','commande','livraison','paiement','retour','prix','produit','produits','avec','sans','pour',
+        'mon','ma','mes','des','les','une','dans','sous','plus','moins','combien','quel','quelle','quelles',
+        'muraho','murakoze','nyereka','erekana','mbwira','ndashaka','nshaka','mfite','nfite','gura','kugura',
+        'igiciro','ibicuruzwa','amafaranga','budgeti','uru','iri','iki','ni','nde','he','kuri','yawe','yanjye'
+    ]);
     $words = array_filter(
         explode(' ', preg_replace('/[^a-z0-9\s]/i', '', strtolower(trim($msg)))),
         fn($w) => strlen($w) >= 3 && !in_array($w, $stop)
@@ -714,21 +737,44 @@ function extractKeywords(string $msg): array {
 // ================================================================
 // PRICE RANGE EXTRACTOR
 // ================================================================
+function parseBudgetAmount(string $number, string $suffix = ''): int {
+    $n = (int)preg_replace('/[^\d]/', '', $number);
+    $suffix = strtolower(trim($suffix));
+    if ($n <= 0) {
+        return 0;
+    }
+    if (in_array($suffix, ['m', 'million', 'millions', 'milio', 'miliyoni'], true)) {
+        return $n * 1000000;
+    }
+    if (in_array($suffix, ['k', 'thousand'], true)) {
+        return $n * 1000;
+    }
+    return $n <= 999 ? $n * 1000 : $n;
+}
+
 function extractPriceRange(string $ml): array {
-    $min = null; $max = null;
-    // between X and Y
-    if (preg_match('/between\s*(?:rwf\s*)?(\d+)\s*k?\s*(?:and|to|-)\s*(?:rwf\s*)?(\d+)\s*(k|m)?/i', $ml, $m)) {
-        $min = (int)$m[1] * (stripos($m[0],'k')!==false || (int)$m[1]<=999 ? 1000 : 1);
-        $max = (int)$m[2] * (!empty($m[3]) && strtolower($m[3])==='m' ? 1000000 : (stripos($m[0],'k')!==false || (int)$m[2]<=999 ? 1000 : 1));
+    $min = null;
+    $max = null;
+    $normalized = strtolower(trim($ml));
+    $normalized = preg_replace('/(?<=\d)[,\s](?=\d{3}\b)/', '', $normalized);
+    $num = '([0-9]+(?:[.,][0-9]+)?)';
+
+    if (preg_match('/(?:between|entre|hagati(?:\s+ya)?|kuva)\s*(?:rwf|frw|amafaranga|francs?)?\s*' . $num . '\s*(k|m|million|millions|milio|miliyoni)?\s*(?:and|to|-|et|na)\s*(?:rwf|frw|amafaranga|francs?)?\s*' . $num . '\s*(k|m|million|millions|milio|miliyoni)?/iu', $normalized, $m)) {
+        $min = parseBudgetAmount($m[1], $m[2] ?? '');
+        $max = parseBudgetAmount($m[3], $m[4] ?? '');
+        if ($min > $max) {
+            [$min, $max] = [$max, $min];
+        }
     }
-    // under / below / less than / max
-    if (!$max && preg_match('/(?:under|below|less than|cheaper than|maximum|max|at most)\s*(?:rwf\s*)?(\d+)\s*(k|m)?/i', $ml, $m)) {
-        $n = (int)$m[1]; $max = $n * (!empty($m[2]) && strtolower($m[2])==='m' ? 1000000 : (!empty($m[2]) || $n <= 999 ? 1000 : 1));
+
+    if (!$max && preg_match('/(?:under|below|less than|cheaper than|maximum|max|at most|moins de|inferieur a|inférieur à|jusqu a|jusquà|ntarenze|atarengeje|munsi ya)\s*(?:rwf|frw|amafaranga|francs?)?\s*' . $num . '\s*(k|m|million|millions|milio|miliyoni)?/iu', $normalized, $m)) {
+        $max = parseBudgetAmount($m[1], $m[2] ?? '');
     }
-    // above / over / more than / min
-    if (!$min && preg_match('/(?:above|over|more than|minimum|min|at least)\s*(?:rwf\s*)?(\d+)\s*(k|m)?/i', $ml, $m)) {
-        $n = (int)$m[1]; $min = $n * (!empty($m[2]) && strtolower($m[2])==='m' ? 1000000 : (!empty($m[2]) || $n <= 999 ? 1000 : 1));
+
+    if (!$min && preg_match('/(?:above|over|more than|minimum|min|at least|plus de|superieur a|supérieur à|kurenga|hejuru ya|guhera kuri|from)\s*(?:rwf|frw|amafaranga|francs?)?\s*' . $num . '\s*(k|m|million|millions|milio|miliyoni)?/iu', $normalized, $m)) {
+        $min = parseBudgetAmount($m[1], $m[2] ?? '');
     }
+
     return [$min, $max];
 }
 
@@ -753,6 +799,26 @@ function detectCategory(string $ml): ?int {
         14 => 'watch|watches|jewelry|jewellery|ring|necklace|bracelet|earring|gold|silver|pendant|wrist watch|engagement ring|wedding ring|chain|bangle',
         15 => 'game|games|gaming|playstation|xbox|console|controller|nintendo|ps4|ps5|gaming headset|gaming chair|gaming mouse|gaming keyboard|joystick|vr headset',
     ];
+    $localized = [
+        1  => 'telephone|telephones|téléphone|téléphones|portable|portables|telefoni|simu',
+        2  => 'ordinateur|ordinateurs|ordinateur portable|ordinateurs portables|mudasobwa',
+        3  => 'televiseur|televiseurs|téléviseur|téléviseurs|enceinte|haut parleur|hautparleur|ecouteur|écouteur|televiziyo',
+        4  => 'refrigerateur|refrigerateurs|réfrigérateur|réfrigérateurs|frigo|machine a laver|machine à laver|mixeur|ibikoresho byo mu rugo',
+        5  => 'vetement homme|vêtement homme|homme|abagabo|imyenda y abagabo',
+        6  => 'robe|robes|sac a main|sac à main|chaussure femme|vetement femme|vêtement femme|femme|abagore|imyenda y abagore',
+        7  => 'epicerie|épicerie|alimentation|nourriture|ibiribwa|ibiryo',
+        8  => 'beaute|beauté|cosmetique|cosmétique|kwisiga',
+        9  => 'sportif|sportswear|siporo',
+        10 => 'bebe|bébé|jouet|jouets|umwana|abana',
+        11 => 'meuble|meubles|ameublement',
+        12 => 'voiture|voitures|imodoka',
+        13 => 'livre|livres|papeterie|ibitabo',
+        14 => 'montre|montres|bijou|bijoux|isaha',
+        15 => 'jeu|jeux|imikino',
+    ];
+    foreach ($localized as $id => $pattern) {
+        $map[$id] .= '|' . $pattern;
+    }
     foreach ($map as $id => $pattern) {
         if (preg_match("/\b($pattern)\b/i", $ml)) return $id;
     }
@@ -804,23 +870,36 @@ function dbProductSearch(string $msg, $conn, ?int $forceCatId = null): array {
     return $rows;
 }
 
-function formatProducts(array $rows, string $label = '', bool $showDesc = false): array {
+function formatProducts(array $rows, string $label = '', bool $showDesc = false, string $lang = 'en'): array {
     if (empty($rows)) return ['text' => '', 'qr' => []];
-    $out = $label ? "🛍️ <strong>$label</strong><br>" : "🛍️ <strong>Here's what we have:</strong><br>";
+    $defaultHeading = $lang === 'fr'
+        ? "Voici une sélection pertinente :"
+        : ($lang === 'rw' ? "Dore ibikubereye :" : "Here are some matching products:");
+    $stockSuffix = $lang === 'fr'
+        ? 'en stock'
+        : ($lang === 'rw' ? 'biri muri stock' : 'in stock');
+    $descPrefix = $lang === 'fr'
+        ? 'Résumé'
+        : ($lang === 'rw' ? 'Ibisobanuro' : 'Summary');
+    $browseLabel = $lang === 'fr'
+        ? 'Voir tous les produits'
+        : ($lang === 'rw' ? 'Reba ibicuruzwa byose' : 'Browse all products');
+
+    $out = $label ? "🛍️ <strong>$label</strong><br>" : "🛍️ <strong>$defaultHeading</strong><br>";
     $qr  = [];
     foreach ($rows as $p) {
         $out .= "• <a href='" . SITE_URL . "/product.php?id={$p['id']}'><strong>" . htmlspecialchars($p['name']) . "</strong></a>"
               . ($p['brand'] ? " <em>({$p['brand']})</em>" : '')
               . " — <strong>RWF " . number_format($p['price']) . "</strong>"
-              . " | " . $p['stock'] . " in stock";
+              . " | " . $p['stock'] . " " . $stockSuffix;
         if ($showDesc && !empty($p['description'])) {
             $desc = mb_substr(strip_tags($p['description']), 0, 80);
-            $out .= "<br><small style='color:rgba(255,255,255,.6)'>📝 $desc...</small>";
+            $out .= "<br><small style='color:rgba(255,255,255,.6)'>📝 " . $descPrefix . ": " . htmlspecialchars($desc) . "...</small>";
         }
         $out .= "<br>";
         $qr[] = "🛒 Add: add_to_cart:{$p['id']}";
     }
-    $out .= "<a href='" . SITE_URL . "/products.php'>Browse all products →</a>";
+    $out .= "<a href='" . SITE_URL . "/products.php'>" . $browseLabel . " →</a>";
     return ['text' => $out, 'qr' => array_slice($qr, 0, 4)];
 }
 
@@ -862,6 +941,315 @@ function getCategorySummary($conn): string {
 // ================================================================
 // MAIN PROCESSOR — every intent handled natively from DB
 // ================================================================
+function getStoreSnapshotData($conn): array {
+    $snapshot = [
+        'products' => 0,
+        'categories' => 0,
+        'brands' => 0,
+        'min_price' => 0,
+        'max_price' => 0,
+        'top_categories' => [],
+    ];
+
+    $stats = $conn->query("
+        SELECT
+            COUNT(*) AS products,
+            COUNT(DISTINCT category_id) AS categories,
+            COUNT(DISTINCT NULLIF(TRIM(brand), '')) AS brands,
+            MIN(price) AS min_price,
+            MAX(price) AS max_price
+        FROM products
+        WHERE stock > 0
+    ");
+    if ($stats && ($row = $stats->fetch_assoc())) {
+        $snapshot['products'] = (int)($row['products'] ?? 0);
+        $snapshot['categories'] = (int)($row['categories'] ?? 0);
+        $snapshot['brands'] = (int)($row['brands'] ?? 0);
+        $snapshot['min_price'] = (float)($row['min_price'] ?? 0);
+        $snapshot['max_price'] = (float)($row['max_price'] ?? 0);
+    }
+
+    $topCategories = $conn->query("
+        SELECT c.name, COUNT(p.id) AS total
+        FROM categories c
+        LEFT JOIN products p ON p.category_id = c.id AND p.stock > 0
+        GROUP BY c.id
+        HAVING total > 0
+        ORDER BY total DESC, c.name ASC
+        LIMIT 5
+    ");
+    if ($topCategories) {
+        while ($row = $topCategories->fetch_assoc()) {
+            $snapshot['top_categories'][] = [
+                'name' => $row['name'],
+                'total' => (int)$row['total'],
+            ];
+        }
+    }
+
+    return $snapshot;
+}
+
+function getStoreOverviewText($conn, string $lang = 'en'): string {
+    $snapshot = getStoreSnapshotData($conn);
+    $topCategories = [];
+    foreach ($snapshot['top_categories'] as $category) {
+        $topCategories[] = htmlspecialchars($category['name']) . ' (' . $category['total'] . ')';
+    }
+    $topCategoriesText = !empty($topCategories) ? implode(', ', $topCategories) : 'Catalog categories';
+
+    if ($lang === 'fr') {
+        return "🏬 <strong>Aperçu de " . SITE_NAME . " :</strong><br>" .
+            "• Catalogue en direct : <strong>" . number_format($snapshot['products']) . "</strong> produits en stock<br>" .
+            "• Couverture : <strong>" . number_format($snapshot['categories']) . "</strong> catégories et <strong>" . number_format($snapshot['brands']) . "</strong> marques<br>" .
+            "• Gamme de prix : <strong>RWF " . number_format($snapshot['min_price']) . " - RWF " . number_format($snapshot['max_price']) . "</strong><br>" .
+            "• Catégories phares : " . $topCategoriesText . "<br><br>" .
+            "Je peux répondre aux questions sur les produits, prix, stocks, livraisons, paiements, retours, recommandations par budget et suivi de commande.<br>" .
+            "Pour les questions complexes en français, anglais ou kinyarwanda, j'utilise aussi l'assistance Gemini avec le contexte de la boutique.";
+    }
+
+    if ($lang === 'rw') {
+        return "🏬 <strong>Incamake ya " . SITE_NAME . ":</strong><br>" .
+            "• Dufite <strong>" . number_format($snapshot['products']) . "</strong> ibicuruzwa biri mu bubiko<br>" .
+            "• Hari <strong>" . number_format($snapshot['categories']) . "</strong> ibyiciro na <strong>" . number_format($snapshot['brands']) . "</strong> brands<br>" .
+            "• Ibiciro biri hagati ya <strong>RWF " . number_format($snapshot['min_price']) . " - RWF " . number_format($snapshot['max_price']) . "</strong><br>" .
+            "• Ibyiciro bikomeye: " . $topCategoriesText . "<br><br>" .
+            "Nshobora kugufasha ku bicuruzwa, ibiciro, stock, delivery, payment, returns, gukurikirana commande no kuguhuza n'ibikubereye ku ngengo y'imari yawe.<br>" .
+            "Ibibazo bikomeye mu Cyongereza, Igifaransa cyangwa Ikinyarwanda bishyigikirwa na Gemini ariko bikaguma bishingiye ku makuru y'ububiko.";
+    }
+
+    return "🏬 <strong>" . SITE_NAME . " platform overview:</strong><br>" .
+        "• Live catalog: <strong>" . number_format($snapshot['products']) . "</strong> in-stock products<br>" .
+        "• Coverage: <strong>" . number_format($snapshot['categories']) . "</strong> categories and <strong>" . number_format($snapshot['brands']) . "</strong> brands<br>" .
+        "• Price range: <strong>RWF " . number_format($snapshot['min_price']) . " - RWF " . number_format($snapshot['max_price']) . "</strong><br>" .
+        "• Top categories: " . $topCategoriesText . "<br><br>" .
+        "I can answer product, price, stock, delivery, payment, return, order-tracking and support questions directly from the platform data.<br>" .
+        "For complex English, French, or Kinyarwanda questions, I can also use Gemini with store-aware context.";
+}
+
+function getOrderGuideText(?int $uid, string $lang = 'en'): string {
+    if ($lang === 'fr') {
+        if ($uid) {
+            return "🛒 <strong>Comment commander via le chatbot :</strong><br>" .
+                "1. Demandez un produit ou un budget, par exemple <em>montrez-moi des téléphones sous 200k</em>.<br>" .
+                "2. Dites <em>je veux [produit]</em> ou utilisez le bouton <strong>Add to cart</strong>.<br>" .
+                "3. Choisissez la quantité.<br>" .
+                "4. Saisissez l'adresse de livraison.<br>" .
+                "5. Choisissez le paiement : COD, MTN MoMo, Airtel Money, carte ou virement.<br>" .
+                "6. Tapez <strong>confirm</strong> pour finaliser, puis suivez la commande depuis <a href='" . SITE_URL . "/orders.php'>Mes commandes</a>.";
+        }
+
+        return "🛒 <strong>Processus de commande pour les visiteurs :</strong><br>" .
+            "1. Utilisez le chatbot pour chercher des produits, comparer les prix ou donner votre budget.<br>" .
+            "2. Ouvrez la fiche produit pour voir les détails.<br>" .
+            "3. <a href='" . SITE_URL . "/register.php'><strong>Créez un compte gratuit</strong></a> ou <a href='" . SITE_URL . "/login.php'><strong>connectez-vous</strong></a> avant de commander, suivre, annuler ou télécharger une facture.<br>" .
+            "4. Ajoutez le produit au panier ou dites <em>je veux [produit]</em> après connexion.<br>" .
+            "5. Confirmez quantité, adresse et mode de paiement.<br>" .
+            "6. Finalisez la commande puis suivez-la dans votre compte.";
+    }
+
+    if ($lang === 'rw') {
+        if ($uid) {
+            return "🛒 <strong>Uko gutumiza bikora muri chatbot:</strong><br>" .
+                "1. Mbwira igicuruzwa ushaka cyangwa budget yawe, nko kuvuga <em>nyereka telefoni ziri munsi ya 200k</em>.<br>" .
+                "2. Vuga <em>ndashaka [izina ry'igicuruzwa]</em> cyangwa ukoreshe <strong>Add to cart</strong>.<br>" .
+                "3. Hitamo umubare ushaka.<br>" .
+                "4. Andika aho ushaka ko bikugeraho.<br>" .
+                "5. Hitamo payment: COD, MTN MoMo, Airtel Money, card cyangwa bank transfer.<br>" .
+                "6. Andika <strong>confirm</strong> kugira ngo order ishyirweho, hanyuma uyikurikirane kuri <a href='" . SITE_URL . "/orders.php'>My Orders</a>.";
+        }
+
+        return "🛒 <strong>Uko umushyitsi ashobora gutumiza:</strong><br>" .
+            "1. Banza ukoreshe chatbot gushaka ibicuruzwa, kugereranya ibiciro cyangwa kuvuga amafaranga ufite.<br>" .
+            "2. Reba page y'igicuruzwa kugira ngo ubone ibisobanuro byose.<br>" .
+            "3. <a href='" . SITE_URL . "/register.php'><strong>Fungura konti ku buntu</strong></a> cyangwa <a href='" . SITE_URL . "/login.php'><strong>injira</strong></a> mbere yo gutumiza, gukurikirana order, kuyihagarika cyangwa kubona invoice.<br>" .
+            "4. Nyuma yo kwinjira, shyira igicuruzwa muri cart cyangwa uvuge <em>ndashaka [igicuruzwa]</em>.<br>" .
+            "5. Emeza quantity, address na payment method.<br>" .
+            "6. Kanda confirm hanyuma ukurikirane order yawe muri konti.";
+    }
+
+    if ($uid) {
+        return "🛒 <strong>How ordering works in chat:</strong><br>" .
+            "1. Ask for a product or give me a budget, for example <em>show me phones under 200k</em>.<br>" .
+            "2. Say <em>I want [product]</em> or use the <strong>Add to cart</strong> button.<br>" .
+            "3. Choose the quantity.<br>" .
+            "4. Enter your delivery address.<br>" .
+            "5. Choose your payment method: COD, MTN MoMo, Airtel Money, card, or bank transfer.<br>" .
+            "6. Type <strong>confirm</strong> to place the order, then track it from <a href='" . SITE_URL . "/orders.php'>My Orders</a>.";
+    }
+
+    return "🛒 <strong>How ordering works for guests:</strong><br>" .
+        "1. Use the chatbot to search products, compare prices, or share your budget.<br>" .
+        "2. Open the product page to review the details you want.<br>" .
+        "3. <a href='" . SITE_URL . "/register.php'><strong>Create a free account</strong></a> or <a href='" . SITE_URL . "/login.php'><strong>login</strong></a> before placing, tracking, cancelling orders, or downloading invoices.<br>" .
+        "4. After login, add the item to cart or say <em>I want [product]</em>.<br>" .
+        "5. Confirm quantity, address, and payment method.<br>" .
+        "6. Finalize the order and follow it from your account.";
+}
+
+function getCapabilityShowcaseText($conn, ?int $uid, string $lang = 'en'): string {
+    $snapshot = getStoreSnapshotData($conn);
+    $guestLineEn = $uid
+        ? "Because you're logged in, I can also guide you through cart, checkout, order tracking, invoices, and support."
+        : "Guests can browse and ask questions freely, and after login I can help with orders, tracking, invoices, and cancellations.";
+    $guestLineFr = $uid
+        ? "Comme vous êtes connecté, je peux aussi vous guider pour le panier, le checkout, le suivi, les factures et le support."
+        : "Les visiteurs peuvent explorer librement, puis après connexion je peux aider pour les commandes, le suivi, les factures et les annulations.";
+    $guestLineRw = $uid
+        ? "Kubera ko winjiye, nshobora no kugufasha kuri cart, checkout, gukurikirana order, invoice na support."
+        : "Abashyitsi bashobora gushaka amakuru yose ku bicuruzwa; nyuma yo kwinjira, nshobora gufasha no kuri order, tracking, invoice no guhagarika order.";
+
+    if ($lang === 'fr') {
+        return "🤖 <strong>Assistant IA de " . SITE_NAME . "</strong><br>" .
+            "Je suis connecté aux données en direct de la boutique : <strong>" . number_format($snapshot['products']) . "</strong> produits en stock, <strong>" . number_format($snapshot['categories']) . "</strong> catégories et <strong>" . number_format($snapshot['brands']) . "</strong> marques.<br><br>" .
+            "Je peux :<br>" .
+            "• trouver des produits, prix, stocks et catégories<br>" .
+            "• recommander selon votre budget<br>" .
+            "• expliquer livraison, paiement, retours et support<br>" .
+            "• répondre en anglais, français ou kinyarwanda<br>" .
+            "• utiliser Gemini pour les questions complexes tout en restant ancré dans les données de la plateforme<br><br>" .
+            $guestLineFr;
+    }
+
+    if ($lang === 'rw') {
+        return "🤖 <strong>AI shopping assistant ya " . SITE_NAME . "</strong><br>" .
+            "Nkomeretswe ku makuru y'ububiko mu buryo bwa live: hari <strong>" . number_format($snapshot['products']) . "</strong> ibicuruzwa biri muri stock, <strong>" . number_format($snapshot['categories']) . "</strong> ibyiciro na <strong>" . number_format($snapshot['brands']) . "</strong> brands.<br><br>" .
+            "Nshobora:<br>" .
+            "• kukwereka ibicuruzwa, ibiciro, stock n'ibyiciro<br>" .
+            "• kukugenera products zishingiye kuri budget yawe<br>" .
+            "• gusobanura delivery, payment, returns na support<br>" .
+            "• kuvugana nawe mu Cyongereza, Igifaransa no mu Kinyarwanda<br>" .
+            "• gukoresha Gemini ku bibazo bikomeye ariko nkiri ku makuru y'urubuga<br><br>" .
+            $guestLineRw;
+    }
+
+    return "🤖 <strong>" . SITE_NAME . " AI shopping assistant</strong><br>" .
+        "I'm connected to live store data: <strong>" . number_format($snapshot['products']) . "</strong> in-stock products, <strong>" . number_format($snapshot['categories']) . "</strong> categories, and <strong>" . number_format($snapshot['brands']) . "</strong> brands.<br><br>" .
+        "I can:<br>" .
+        "• search products, prices, stock, and categories<br>" .
+        "• recommend products based on budget<br>" .
+        "• explain delivery, payment, returns, and support policies<br>" .
+        "• answer in English, French, or Kinyarwanda<br>" .
+        "• use Gemini for complex questions while staying grounded in platform data<br><br>" .
+        $guestLineEn;
+}
+
+function getLocalizedPrimaryReplies(string $lang, ?int $uid): array {
+    if ($lang === 'fr') {
+        return $uid
+            ? ['Voir produits', 'Suivre ma commande', 'Mes commandes']
+            : ['Voir produits', 'Comment commander', 'Créer un compte'];
+    }
+
+    if ($lang === 'rw') {
+        return $uid
+            ? ['Nyereka products', 'Kurikirana order', 'Orders zanjye']
+            : ['Nyereka products', 'Uko gutumiza bikorwa', 'Fungura konti'];
+    }
+
+    return $uid
+        ? ['Show me products', 'Track my order', 'My orders']
+        : ['Show me products', 'How to order', 'Register free'];
+}
+
+function getOrderGuideQuickReplies(string $lang, ?int $uid): array {
+    if ($lang === 'fr') {
+        return $uid
+            ? ['Voir produits', 'Mon panier', 'Livraison']
+            : ['Voir produits', 'Créer un compte', 'Se connecter'];
+    }
+
+    if ($lang === 'rw') {
+        return $uid
+            ? ['Nyereka products', 'Cart yanjye', 'Delivery']
+            : ['Nyereka products', 'Fungura konti', 'Injira'];
+    }
+
+    return $uid
+        ? ['Show me products', 'My cart', 'Delivery info']
+        : ['Show me products', 'Register free', 'Login'];
+}
+
+function getCapabilityExamplesText(string $lang = 'en'): string {
+    if ($lang === 'fr') {
+        return "<strong>Exemples :</strong><br>" .
+            "• <em>montrez-moi des téléphones sous 200k</em><br>" .
+            "• <em>quel est le prix du Samsung Galaxy A54</em><br>" .
+            "• <em>comment commander en tant qu'invité</em>";
+    }
+
+    if ($lang === 'rw') {
+        return "<strong>Urugero:</strong><br>" .
+            "• <em>nyereka telefoni ziri munsi ya 200k</em><br>" .
+            "• <em>igiciro cya Samsung Galaxy A54 ni angahe</em><br>" .
+            "• <em>umushyitsi yatumiza ate</em>";
+    }
+
+    return "<strong>Examples:</strong><br>" .
+        "• <em>show me phones under 200k</em><br>" .
+        "• <em>price of Samsung Galaxy A54</em><br>" .
+        "• <em>how can a guest place an order</em>";
+}
+
+function getBudgetLabelText(?int $minPrice, ?int $maxPrice, string $lang, string $categoryName = ''): string {
+    if ($lang === 'fr') {
+        if ($minPrice && $maxPrice) {
+            return "Produits entre RWF " . number_format($minPrice) . " et RWF " . number_format($maxPrice);
+        }
+        if ($maxPrice) {
+            $label = "Produits dans votre budget de RWF " . number_format($maxPrice);
+            return $categoryName !== '' ? $label . " (" . $categoryName . ")" : $label;
+        }
+        if ($minPrice) {
+            return "Produits à partir de RWF " . number_format($minPrice);
+        }
+    }
+
+    if ($lang === 'rw') {
+        if ($minPrice && $maxPrice) {
+            return "Ibicuruzwa biri hagati ya RWF " . number_format($minPrice) . " na RWF " . number_format($maxPrice);
+        }
+        if ($maxPrice) {
+            $label = "Ibicuruzwa bihuye na budget ya RWF " . number_format($maxPrice);
+            return $categoryName !== '' ? $label . " (" . $categoryName . ")" : $label;
+        }
+        if ($minPrice) {
+            return "Ibicuruzwa bitangirira kuri RWF " . number_format($minPrice);
+        }
+    }
+
+    if ($minPrice && $maxPrice) {
+        return "Products between RWF " . number_format($minPrice) . " and RWF " . number_format($maxPrice);
+    }
+    if ($maxPrice) {
+        $label = "Products within your budget of RWF " . number_format($maxPrice);
+        return $categoryName !== '' ? $label . " (" . $categoryName . ")" : $label;
+    }
+    if ($minPrice) {
+        return "Products above RWF " . number_format($minPrice);
+    }
+
+    return '';
+}
+
+function getBudgetQuickReplies(string $lang, string $variant = 'default'): array {
+    if ($lang === 'fr') {
+        return $variant === 'fallback'
+            ? ['Voir des options moins chères', 'Voir produits', 'Autre catégorie']
+            : ['Voir plus', 'Autre catégorie', 'Livraison'];
+    }
+
+    if ($lang === 'rw') {
+        return $variant === 'fallback'
+            ? ['Nyereka ibihendutse', 'Nyereka products', 'Ikindi cyiciro']
+            : ['Nyereka ibindi', 'Ikindi cyiciro', 'Delivery'];
+    }
+
+    return $variant === 'fallback'
+        ? ['Show me cheaper options', 'Show me products', 'Different category']
+        : ['Show me more', 'Different category', 'Delivery info'];
+}
+
 function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $session_id): array {
     $ml = strtolower(trim($msg));
 
@@ -1066,6 +1454,14 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
     }
 
     // ── TRIGGER: proceed to checkout ──
+    if (preg_match('/\b(how to order|how do i order|how to place an order|how to place order|ordering process|steps to order|steps to place an order|guide to order|guide to buy|can i order as a guest|can i place an order as a guest|order as a guest|place an order as a guest|how can a guest place an order|how does guest ordering work|comment commander|comment acheter|comment passer commande|commander en tant quinvite|commander en tant qu\'invite|etapes pour commander|processus de commande|ni gute nagura|uburyo bwo kugura|intambwe zo kugura|nategeka nte|natumiza nte|guest order|can a guest order|umushyitsi yatumiza ate)\b/i', $ml)) {
+        $lang = detectLanguage($msg);
+        return reply(
+            getOrderGuideText($uid, $lang),
+            getOrderGuideQuickReplies($lang, $uid)
+        );
+    }
+
     if (preg_match('/\b(proceed to checkout|checkout|place order|buy now|order now|i want to buy|i want to order|finalize order|complete order)\b/i', $ml)) {
         if (!$uid) {
             return reply(
@@ -1148,15 +1544,10 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
             }
         } else {
             // ── Guest ──
+            $lang = detectLanguage($msg);
             return reply(
-                "👋 Hello! Welcome to <strong>" . SITE_NAME . "</strong>.<br><br>" .
-                "I'm your AI shopping assistant. I can help you:<br>" .
-                "• 🛍️ Browse & find products<br>" .
-                "• 💰 Check prices<br>" .
-                "• 🚚 Delivery & payment info<br>" .
-                "• ↩️ Return policy<br><br>" .
-                "💡 <strong>Tip:</strong> <a href='" . SITE_URL . "/register.php'><strong>Create a free account</strong></a> to place orders, track deliveries, and get order updates!",
-                ['Show me products', 'Register free', 'Login', 'Delivery info']
+                getCapabilityShowcaseText($conn, null, $lang) . "<br><br>" . getCapabilityExamplesText($lang),
+                getLocalizedPrimaryReplies($lang, null)
             );
         }
     }
@@ -1175,10 +1566,26 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
             ['Show me products', 'Track my order']);
     }
     if (preg_match('/who are you|what are you|your name|are you (a bot|human|real|ai)/i', $ml)) {
-        return reply("🤖 I'm the AI shopping assistant for <strong>" . SITE_NAME . "</strong>!<br>I can find products, check prices, track orders, and answer any question about our store — in English, French, or Kinyarwanda.",
-            ['Show me products', 'What can you do?']);
+        $lang = detectLanguage($msg);
+        return reply(
+            getCapabilityShowcaseText($conn, $uid, $lang) . "<br><br>" . getCapabilityExamplesText($lang),
+            getLocalizedPrimaryReplies($lang, $uid)
+        );
     }
+    if (preg_match('/tell me about (this platform|this store|this shop)|what do you know about (this platform|this store|this shop)|platform overview|store overview|shop overview|about this ecommerce platform|about your platform|how many products do you have|how many categories do you have|what categories do you have|what brands do you have|what do you sell here|catalog overview|parlez moi de cette plateforme|informations sur la boutique|combien de produits avez vous|quelles categories avez vous|que vendez vous ici|mbwira ibijyanye n(uru rubuga|iri duka)|amakuru y(ububiko|urubuga)|mufite ibicuruzwa bingahe|mugurisha iki/i', $ml)) {
+        $lang = detectLanguage($msg);
+        return reply(
+            getStoreOverviewText($conn, $lang),
+            getLocalizedPrimaryReplies($lang, $uid)
+        );
+    }
+
     if (preg_match('/what can you do|how can you help|help me/i', $ml)) {
+        $lang = detectLanguage($msg);
+        return reply(
+            getCapabilityShowcaseText($conn, $uid, $lang) . "<br><br>" . getCapabilityExamplesText($lang),
+            getLocalizedPrimaryReplies($lang, $uid)
+        );
         if ($uid) {
             $name = getFirstName($uid, $conn);
             return reply(
@@ -1440,8 +1847,9 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
 
     // ── 15d. BUDGET-BASED SEARCH ──
     // "I have 50000 RWF" / "my budget is 200k" / "I want to spend 100k"
-    if (preg_match('/\b(i have|my budget|i want to spend|i can spend|i only have|with|budget of|afford|i got)\b/i', $ml)
+    if (preg_match('/\b(i have|my budget|i want to spend|i can spend|i only have|with|budget of|afford|i got|mon budget|je peux payer|je veux depenser|je veux dépenser|j ai|j\'ai|moins de|plus de|mfite|nfite|amafaranga|budget yanjye|nshobora kwishyura|ndi gushaka spending)\b/i', $ml)
         && preg_match('/\d/', $ml)) {
+        $lang = detectLanguage($msg);
         [$minP, $maxP] = extractPriceRange($ml);
         // If no range found, try to extract a plain number as max budget
         if (!$maxP && !$minP) {
@@ -1463,10 +1871,9 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
             if ($res) while ($r = $res->fetch_assoc()) $rows[] = $r;
 
             if (!empty($rows)) {
-                $label = "Products within your budget of RWF " . number_format($maxP);
-                if ($catId) $label .= " (" . ($rows[0]['cat'] ?? '') . ")";
-                $fp = formatProducts($rows, $label, true);
-                return reply($fp['text'], array_merge($fp['qr'], ['Show me more', 'Different category']));
+                $label = getBudgetLabelText($minP, $maxP, $lang, $catId ? ($rows[0]['cat'] ?? '') : '');
+                $fp = formatProducts($rows, $label, true, $lang);
+                return reply($fp['text'], array_merge($fp['qr'], getBudgetQuickReplies($lang)));
             }
 
             // Nothing found — recommend closest products above budget
@@ -1479,27 +1886,40 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
             if ($res2) while ($r = $res2->fetch_assoc()) $alt[] = $r;
 
             if (!empty($alt)) {
-                $fp = formatProducts($alt, "No products found under RWF " . number_format($maxP) . " — but here are the closest options:", true);
+                $fallbackLabel = $lang === 'fr'
+                    ? "Aucun produit sous RWF " . number_format($maxP) . " — voici les options les plus proches :"
+                    : ($lang === 'rw'
+                        ? "Nta bicuruzwa biri munsi ya RWF " . number_format($maxP) . " — ariko dore ibikwegereye:"
+                        : "No products found under RWF " . number_format($maxP) . " — but here are the closest options:");
+                $fp = formatProducts($alt, $fallbackLabel, true, $lang);
+                $intro = $lang === 'fr'
+                    ? "Nous n'avons pas de produits dans votre budget de <strong>RWF " . number_format($maxP) . "</strong>" . ($catId ? " pour cette catégorie" : "") . " pour le moment.<br><br>Voici les options les plus abordables proches de votre budget :<br>"
+                    : ($lang === 'rw'
+                        ? "Kuri ubu nta bicuruzwa bihuye na budget yawe ya <strong>RWF " . number_format($maxP) . "</strong>" . ($catId ? " muri icyo cyiciro" : "") . ".<br><br>Dore ibiciro bya hafi kandi bihendutse kurusha ibindi:<br>"
+                        : "We don't have products within <strong>RWF " . number_format($maxP) . "</strong>" . ($catId ? " in that category" : "") . " right now.<br><br>Here are our most affordable options close to your budget:<br>");
                 return reply(
-                    "😔 We don't have products within <strong>RWF " . number_format($maxP) . "</strong>" .
-                    ($catId ? " in that category" : "") . " right now.<br><br>" .
-                    "💡 Here are our most affordable options close to your budget:<br>" . $fp['text'],
-                    array_merge($fp['qr'], ['Show me cheaper options', 'Show me products'])
+                    $intro . $fp['text'],
+                    array_merge($fp['qr'], getBudgetQuickReplies($lang, 'fallback'))
                 );
             }
 
+            $minAvailable = (int)($conn->query("SELECT MIN(price) as m FROM products WHERE stock>0")->fetch_assoc()['m'] ?? 0);
+            $finalPrompt = $lang === 'fr'
+                ? "Aucun produit trouvé dans <strong>RWF " . number_format($maxP) . "</strong>.<br>Nos options les plus abordables commencent à <strong>RWF " . number_format($minAvailable) . "</strong>.<br>Voulez-vous les voir ?"
+                : ($lang === 'rw'
+                    ? "Nta bicuruzwa twabonye muri <strong>RWF " . number_format($maxP) . "</strong>.<br>Ibicuruzwa byacu bihendutse bitangirira kuri <strong>RWF " . number_format($minAvailable) . "</strong>.<br>Wifuza ko nkubyereka?"
+                    : "No products found within <strong>RWF " . number_format($maxP) . "</strong>.<br>Our most affordable products start from <strong>RWF " . number_format($minAvailable) . "</strong>.<br>Would you like to see them?");
             return reply(
-                "😔 No products found within <strong>RWF " . number_format($maxP) . "</strong>.<br>" .
-                "Our most affordable products start from <strong>RWF " .
-                number_format($conn->query("SELECT MIN(price) as m FROM products WHERE stock>0")->fetch_assoc()['m']) .
-                "</strong>.<br>Would you like to see them?",
-                ['Show me cheapest products', 'Show me products']
+                $finalPrompt,
+                $lang === 'fr'
+                    ? ['Voir les produits les moins chers', 'Voir produits']
+                    : ($lang === 'rw' ? ['Nyereka ibihendutse', 'Nyereka products'] : ['Show me cheapest products', 'Show me products'])
             );
         }
     }
 
     // ── 16. PRODUCT PRICE QUERY ──
-    if (preg_match('/\b(price of|how much is|cost of|how much does|what is the price|price for|how much.*cost|combien)\b/i', $ml)) {
+    if (preg_match('/\b(price of|how much is|cost of|how much does|what is the price|price for|how much.*cost|combien|prix de|quel prix|igiciro cya|ni angahe|bingahe)\b/i', $ml)) {
         $rows = dbProductSearch($msg, $conn);
         if (!empty($rows)) {
             // Single product — show full detail
@@ -1575,7 +1995,7 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
     }
 
     // ── 18. RECOMMENDATION ──
-    if (preg_match('/\b(recommend|suggest|best|popular|top rated|what should i buy|which is better|advise|good phone|good laptop|best phone|best laptop|best tv)\b/i', $ml)) {
+    if (preg_match('/\b(recommend|suggest|best|popular|top rated|what should i buy|which is better|advise|good phone|good laptop|best phone|best laptop|best tv|recommande|suggere|suggère|meilleur|populaire|nsabira|wansabira|icyiza)\b/i', $ml)) {
         $catId = detectCategory($ml);
         $where = $catId ? "WHERE p.stock>0 AND p.category_id=$catId" : "WHERE p.stock>0";
         $res   = $conn->query("SELECT p.id,p.name,p.brand,p.price,c.name as cat FROM products p LEFT JOIN categories c ON p.category_id=c.id $where ORDER BY RAND() LIMIT 5");
@@ -1733,8 +2153,10 @@ function processMessage(string $msg, ?int $uid, $conn, array &$ctx, string $sess
 
     // ── 19. PRODUCT SEARCH — show me X, find X, etc. ──
     // ONLY trigger product search if message contains shopping-related keywords
-    $shoppingKeywords = ['show', 'find', 'buy', 'order', 'price', 'cost', 'stock', 'available', 
-                         'sell', 'have', 'product', 'item', 'shop', 'store', 'catalog', 'browse'];
+    $shoppingKeywords = ['show', 'find', 'buy', 'order', 'price', 'cost', 'stock', 'available',
+                         'sell', 'have', 'product', 'item', 'shop', 'store', 'catalog', 'browse',
+                         'montre', 'montrez', 'affiche', 'cherche', 'acheter', 'commande', 'prix',
+                         'nyereka', 'erekana', 'gura', 'igiciro', 'ibicuruzwa', 'catalogue'];
     
     $hasShoppingIntent = false;
     foreach ($shoppingKeywords as $kw) {
@@ -2063,7 +2485,7 @@ function getFirstName(int $uid, $conn): string {
 // Called before Gemini for fast local intent detection
 // ================================================================
 function askMLModel(string $message): ?array {
-    $url = 'http://localhost:5000/predict';
+    $url = 'http://localhost:5001/predict';
     $ch  = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -2145,6 +2567,18 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
         $catCtx .= "- {$row['cat']}: {$row['total']} products, RWF " . number_format($row['mn']) . " – RWF " . number_format($row['mx']) . "\n";
 
     // ── 5. Customer context ──
+    $snapshot = getStoreSnapshotData($conn);
+    $topCategorySummary = [];
+    foreach ($snapshot['top_categories'] as $category) {
+        $topCategorySummary[] = $category['name'] . ' (' . $category['total'] . ')';
+    }
+    $snapshotCtx = "\nSTORE SNAPSHOT:\n"
+        . "- In-stock products: " . number_format($snapshot['products']) . "\n"
+        . "- Categories: " . number_format($snapshot['categories']) . "\n"
+        . "- Brands: " . number_format($snapshot['brands']) . "\n"
+        . "- Price range: RWF " . number_format($snapshot['min_price']) . " - RWF " . number_format($snapshot['max_price']) . "\n"
+        . "- Top categories: " . (!empty($topCategorySummary) ? implode(', ', $topCategorySummary) : 'N/A') . "\n";
+
     $userCtx = '';
     if ($uid) {
         $u  = $conn->query("SELECT name FROM users WHERE id=$uid")->fetch_assoc();
@@ -2187,6 +2621,8 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
         . "- NEVER place orders, add items to cart, confirm orders, or collect delivery/payment details. "
         . "  If a customer wants to buy or place an order, tell them to click the product link or use the Add to Cart button. "
         . "  Order placement is handled by the system — you must NOT simulate or pretend to place orders.\n"
+        . "- Guests may browse products and ask questions, but they must register or login before placing, tracking, cancelling orders, or downloading invoices.\n"
+        . "- When the customer asks how ordering works, explain the real platform process clearly: browse products, login/register if needed, add to cart, provide address, choose payment, confirm, then track from My Orders.\n"
         . "- IMPORTANT: The conversation history below contains ALL previous messages from this customer. Use it to:\n"
         . "  * Remember what products they asked about before\n"
         . "  * Avoid repeating the same products if they already saw them\n"
@@ -2198,6 +2634,7 @@ function askGemini(string $userMessage, ?int $uid, $conn, string $session_id): ?
         . "- Returns: 7 days after delivery\n"
         . "- Payment: MTN MoMo, Airtel Money, Cash on Delivery, Bank Transfer, Visa/Mastercard\n"
         . "- Support: " . ADMIN_EMAIL . " | " . ADMIN_PHONE . "\n"
+        . $snapshotCtx
         . $catCtx
         . $productCtx
         . $userCtx;

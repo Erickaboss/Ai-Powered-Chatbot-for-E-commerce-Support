@@ -1,6 +1,7 @@
 ﻿<?php require_once 'includes/admin_header.php'; ?>
 <?php
 require_once __DIR__ . '/../includes/mailer.php';
+require_once __DIR__ . '/../includes/free_delivery_notifier.php';
 
 $msg = '';
 
@@ -8,15 +9,17 @@ $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'])) {
     $oid    = (int)$_POST['order_id'];
     $status = $conn->real_escape_string($_POST['status']);
+    $oldStatus = $conn->query("SELECT status FROM orders WHERE id=$oid")->fetch_assoc()['status'];
     $conn->query("UPDATE orders SET status='$status' WHERE id=$oid");
 
-    // Send status update email to customer
+    // Get order details
     $ord = $conn->query("
-        SELECT o.*, u.name as customer_name, u.email as customer_email
+        SELECT o.*, u.name as customer_name, u.email as customer_email, u.phone as customer_phone
         FROM orders o JOIN users u ON o.user_id = u.id
         WHERE o.id = $oid
     ")->fetch_assoc();
 
+    // Send notification based on new status
     if ($ord && in_array($status, ['processing','shipped','delivered','cancelled'])) {
         $items_res = $conn->query("
             SELECT oi.*, p.name FROM order_items oi
@@ -24,16 +27,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'])) {
             WHERE oi.order_id = $oid
         ");
         $items = $items_res->fetch_all(MYSQLI_ASSOC);
-        $html  = emailOrderStatusUpdate($ord, $items);
-        $statusLabels = [
-            'processing' => 'Order Confirmed & Processing',
-            'shipped'    => 'Your Order Has Been Shipped 🚚',
-            'delivered'  => 'Order Delivered 🎉',
-            'cancelled'  => 'Order Cancelled',
-        ];
-        $subject = ($statusLabels[$status] ?? 'Order Update') . ' — #' . str_pad($oid, 6, '0', STR_PAD_LEFT);
-        sendMail($ord['customer_email'], $ord['customer_name'], $subject, $html);
-        $msg = '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Order status updated to <strong>' . ucfirst($status) . '</strong> and customer notified by email.</div>';
+        
+        // SPECIAL: When status changes to 'shipped', send delivery notification
+        if ($status === 'shipped' && $oldStatus !== 'shipped') {
+            // Send detailed delivery notification with estimated delivery date
+            $sent = FreeDeliveryNotifier::sendFreeDeliveryNotification($oid, $conn);
+            
+            if ($sent) {
+                $msg = '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Order shipped! <strong>Delivery notification sent</strong> to ' . htmlspecialchars($ord['customer_email']) . ' with estimated delivery date.</div>';
+            } else {
+                $msg = '<div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>Order shipped but email notification failed.</div>';
+            }
+        } else {
+            // Send regular status update email
+            $html  = emailOrderStatusUpdate($ord, $items);
+            $statusLabels = [
+                'processing' => 'Order Confirmed & Processing',
+                'shipped'    => 'Your Order Has Been Shipped 🚚',
+                'delivered'  => 'Order Delivered 🎉',
+                'cancelled'  => 'Order Cancelled',
+            ];
+            $subject = ($statusLabels[$status] ?? 'Order Update') . ' — #' . str_pad($oid, 6, '0', STR_PAD_LEFT);
+            sendMail($ord['customer_email'], $ord['customer_name'], $subject, $html);
+            $msg = '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Order status updated to <strong>' . ucfirst($status) . '</strong> and customer notified by email.</div>';
+        }
     } else {
         $msg = '<div class="alert alert-success">Order status updated.</div>';
     }

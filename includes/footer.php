@@ -30,8 +30,15 @@ if (!$hideChat):
         </div>
         <div id="chat-input-area" style="position:relative">
             <div id="chat-suggestions" style="display:none;position:absolute;bottom:100%;left:0;right:0;background:#1a1a2e;border:1px solid rgba(255,255,255,.1);border-radius:10px;margin-bottom:4px;z-index:999;overflow:hidden"></div>
-            <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKey(event)" oninput="showSuggestions(this.value)">
-            <button onclick="sendMessage()" title="Send"><i class="bi bi-send-fill"></i></button>
+            
+            <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKey(event)" oninput="showSuggestions(this.value)" 
+                   class="form-control">
+            <button id="chat-send-btn" onclick="sendMessage()" title="Send" 
+                    style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:linear-gradient(135deg,#e94560,#f5a623);border:none;color:white;cursor:pointer;padding:10px 14px;border-radius:8px;z-index:10;transition:all 0.3s ease;box-shadow:0 2px 8px rgba(245,166,35,0.3);" 
+                    onmouseover="this.style.transform='translateY(-50%) scale(1.05)'" 
+                    onmouseout="this.style.transform='translateY(-50%)'">
+                <i class="bi bi-send-fill" style="font-size:1rem"></i>
+            </button>
         </div>
     </div>
 </div>
@@ -98,7 +105,14 @@ if (!$hideChat):
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <?php if (!$hideChat): ?>
-<script>const CHATBOT_API_URL = '<?= SITE_URL ?>/api/chatbot.php';</script>
+<!-- TensorFlow.js and MobileNet for FREE image recognition -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+<script src="<?= SITE_URL ?>/assets/js/free_image_recognition.js?v=<?= filemtime(__DIR__ . '/../assets/js/free_image_recognition.js') ?>"></script>
+<script>
+const CHATBOT_API_URL = '<?= SITE_URL ?>/api/chatbot.php';
+const CHATBOT_STREAM_API_URL = '<?= SITE_URL ?>/api/chatbot_streaming.php';
+</script>
 <script src="<?= SITE_URL ?>/assets/js/chatbot.js?v=<?= filemtime(__DIR__ . '/../assets/js/chatbot.js') ?>"></script>
 <?php endif; ?>
 </body>

@@ -29,6 +29,7 @@ $nav = [
     'orders.php'       => ['bi-bag',          'Orders'],
     'users.php'        => ['bi-people',       'Customers'],
     'chatbot_logs.php'     => ['bi-chat-dots',    'Chatbot Logs'],
+    'ml_performance.php' => ['bi-graph-up-arrow', 'ML Performance'],
     'chatbot_analytics.php'=> ['bi-bar-chart-line','Analytics'],
     'support_tickets.php'  => ['bi-headset',       'Support Tickets'],
     'product_images.php'   => ['bi-images',        'Product Images'],
@@ -70,6 +71,13 @@ $nav = [
         </a>
         <?php endforeach; ?>
     </nav>
+
+    <!-- Logout Button (Prominent) -->
+    <div class="mt-3 px-3">
+        <a href="<?= SITE_URL ?>/logout.php" class="btn btn-danger w-100" style="border-radius: 8px;">
+            <i class="bi bi-box-arrow-right me-2"></i>Logout
+        </a>
+    </div>
 
     <!-- Footer -->
     <div class="sidebar-footer">
