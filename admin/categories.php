@@ -6,12 +6,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'add') {
         $name = $conn->real_escape_string(trim($_POST['name']));
         $desc = $conn->real_escape_string(trim($_POST['description']));
-        $conn->query("INSERT INTO categories (name, description) VALUES ('$name','$desc')");
+        $stmt = $conn->prepare("INSERT INTO categories (name, description) VALUES (?,?)");
+        $stmt->bind_param("ss", $name, $desc);
+        $stmt->execute();
         $msg = '<div class="alert alert-success">Category added.</div>';
     }
     if ($action === 'delete') {
         $id = (int)$_POST['id'];
-        $conn->query("DELETE FROM categories WHERE id=$id");
+        $stmt = $conn->prepare("DELETE FROM categories WHERE id=?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
         $msg = '<div class="alert alert-warning">Category deleted.</div>';
     }
 }

@@ -8,23 +8,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'add') {
         $pid = (int)$_POST['product_id'];
         $qty = max(1, (int)($_POST['quantity'] ?? 1));
-        $res = $conn->query("SELECT id FROM cart WHERE user_id=$uid LIMIT 1");
-        if ($res->num_rows === 0) { $conn->query("INSERT INTO cart (user_id) VALUES ($uid)"); $cart_id = $conn->insert_id; }
+        $stmtP = $conn->prepare("SELECT stock FROM products WHERE id=? AND stock>0 LIMIT 1");
+        $stmtP->bind_param("i", $pid);
+        $stmtP->execute();
+        $product = $stmtP->get_result()->fetch_assoc();
+        $stmtP->close();
+        if (!$product) {
+            header('Location: products.php'); exit;
+        }
+        $qty = min($qty, (int)$product['stock']);
+        $stmtC = $conn->prepare("SELECT id FROM cart WHERE user_id=? LIMIT 1");
+        $stmtC->bind_param("i", $uid);
+        $stmtC->execute();
+        $res = $stmtC->get_result();
+        if ($res->num_rows === 0) { $stmtCi = $conn->prepare("INSERT INTO cart (user_id) VALUES (?)"); $stmtCi->bind_param("i", $uid); $stmtCi->execute(); $cart_id = $conn->insert_id; $stmtCi->close(); }
         else $cart_id = $res->fetch_assoc()['id'];
-        $ex = $conn->query("SELECT id,quantity FROM cart_items WHERE cart_id=$cart_id AND product_id=$pid");
-        if ($ex->num_rows > 0) { $row=$ex->fetch_assoc(); $conn->query("UPDATE cart_items SET quantity=".($row['quantity']+$qty)." WHERE id={$row['id']}"); }
-        else $conn->query("INSERT INTO cart_items (cart_id,product_id,quantity) VALUES ($cart_id,$pid,$qty)");
+        $stmtCiSel = $conn->prepare("SELECT id,quantity FROM cart_items WHERE cart_id=? AND product_id=?");
+        $stmtCiSel->bind_param("ii", $cart_id, $pid);
+        $stmtCiSel->execute();
+        $ex = $stmtCiSel->get_result();
+        if ($ex->num_rows > 0) { $row=$ex->fetch_assoc(); $newQty = min((int)$product['stock'], $row['quantity']+$qty); $stmtCiUpd = $conn->prepare("UPDATE cart_items SET quantity=? WHERE id=?"); $stmtCiUpd->bind_param("ii", $newQty, $row['id']); $stmtCiUpd->execute(); $stmtCiUpd->close(); }
+        else $stmtCiIns = $conn->prepare("INSERT INTO cart_items (cart_id,product_id,quantity) VALUES (?,?,?)"); $stmtCiIns->bind_param("iii", $cart_id, $pid, $qty); $stmtCiIns->execute(); $stmtCiIns->close();
         header('Location: cart.php'); exit;
     }
-    if ($action === 'update') { $conn->query("UPDATE cart_items SET quantity=".max(1,(int)$_POST['quantity'])." WHERE id=".(int)$_POST['item_id']); header('Location: cart.php'); exit; }
-    if ($action === 'remove') { $conn->query("DELETE FROM cart_items WHERE id=".(int)$_POST['item_id']); header('Location: cart.php'); exit; }
+    if ($action === 'update') { $updQty = max(1, (int)$_POST['quantity']); $updId = (int)$_POST['item_id']; $stmtUpdate = $conn->prepare("UPDATE cart_items SET quantity=? WHERE id=?"); $stmtUpdate->bind_param("ii", $updQty, $updId); $stmtUpdate->execute(); $stmtUpdate->close(); header('Location: cart.php'); exit; }
+    if ($action === 'remove') { $remId = (int)$_POST['item_id']; $stmtRemove = $conn->prepare("DELETE FROM cart_items WHERE id=?"); $stmtRemove->bind_param("i", $remId); $stmtRemove->execute(); $stmtRemove->close(); header('Location: cart.php'); exit; }
 }
 
-$items = $conn->query("SELECT ci.id,ci.quantity,p.name,p.price,p.image,p.stock,p.id as pid
-    FROM cart c JOIN cart_items ci ON c.id=ci.cart_id JOIN products p ON ci.product_id=p.id WHERE c.user_id=$uid");
+$stmtItems = $conn->prepare("SELECT ci.id,ci.quantity,p.name,p.price,p.image,p.stock,p.id as pid
+    FROM cart c JOIN cart_items ci ON c.id=ci.cart_id JOIN products p ON ci.product_id=p.id WHERE c.user_id=?");
+$stmtItems->bind_param("i", $uid);
+$stmtItems->execute();
+$items = $stmtItems->get_result();
+$stmtItems->close();
 $rows  = $items->fetch_all(MYSQLI_ASSOC);
 $subtotal = array_sum(array_map(fn($r) => $r['price'] * $r['quantity'], $rows));
-$shipping = $subtotal >= 50000 ? 0 : ($subtotal > 0 ? 2000 : 0);
+$shipping = 0;
 $grand    = $subtotal + $shipping;
 ?>
 
@@ -111,11 +130,7 @@ $grand    = $subtotal + $shipping;
             </div>
             <div class="d-flex justify-content-between mb-3 small">
                 <span class="text-muted">Shipping</span>
-                <?php if ($shipping === 0): ?>
                 <span class="fw-600" style="color:#28a745">FREE 🎉</span>
-                <?php else: ?>
-                <span>RWF <?= number_format($shipping) ?></span>
-                <?php endif; ?>
             </div>
             <hr>
             <div class="d-flex justify-content-between mb-4">
@@ -123,15 +138,9 @@ $grand    = $subtotal + $shipping;
                 <span class="fw-800 fs-5" style="color:var(--accent)">RWF <?= number_format($grand) ?></span>
             </div>
 
-            <?php if ($shipping > 0): ?>
-            <div class="p-3 mb-3 small" style="background:#fff8e1;border-radius:10px;border-left:3px solid #f5a623">
-                💡 Add <strong>RWF <?= number_format(50000-$subtotal) ?></strong> more for <strong>free shipping</strong>
-            </div>
-            <?php else: ?>
             <div class="p-3 mb-3 small" style="background:#e8f5e9;border-radius:10px;border-left:3px solid #28a745">
-                🎉 You qualify for <strong>free shipping!</strong>
+                🎉 Free shipping on all orders!
             </div>
-            <?php endif; ?>
 
             <a href="checkout.php" class="btn w-100 mb-2 fw-700"
                style="background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border-radius:12px;padding:12px">

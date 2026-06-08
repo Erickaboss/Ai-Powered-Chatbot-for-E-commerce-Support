@@ -8,10 +8,17 @@ venv/
 
 # ML models (large binary files)
 chatbot-ml/models/*.pkl
+chatbot-ml/models/bert_intent_classifier/
+chatbot-ml/models/product_embeddings.faiss
+
+# ML backups + test dirs
+chatbot-ml/dataset/intents_backup_*.json
+chatbot-ml/tests/
 
 # Sensitive config — real credentials, never commit
 config/secrets.php
 _brevo_api_send.php
+.env
 
 # Logs
 *.log
@@ -23,6 +30,20 @@ Thumbs.db
 # VSCode
 .vscode/
 
+# AI assistant caches
+.hypothesis/
+.kiro/
+
 # Temp
 *.tmp
 *.bak
+*.bat
+_car_accessories.php
+_update_images.php
+.copilot-specs-cache/
+test_*.php
+0
+seed.php
+install_startup.bat
+start_chatbot.bat
+start_flask.bat

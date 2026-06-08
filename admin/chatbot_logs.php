@@ -241,61 +241,7 @@ if ($filterSess) {
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
-async function loadMLStatus() {
-    const el = document.getElementById('ml-content');
-    el.innerHTML = '<div class="text-muted small"><i class="bi bi-hourglass me-2"></i>Checking ML API...</div>';
-    try {
-        const res  = await fetch('<?= SITE_URL ?>/api/ml_status.php');
-        const data = await res.json();
-        if (!data.ml_online) {
-            el.innerHTML = `<div class="d-flex align-items-center gap-2 mb-2">
-                <span class="ml-status-dot ml-offline"></span>
-                <strong class="text-danger">ML API Offline</strong></div>
-                <p class="text-muted small mb-0">${data.message}</p>`;
-            return;
-        }
-        const h = data.health;
-        const p = data.performance?.results || {};
-        const models = Object.keys(p);
-        let modelRows = models.map(m =>
-            `<tr><td><strong>${m}</strong></td>
-             <td><span class="badge" style="background:#0f3460">${(p[m].accuracy*100).toFixed(1)}%</span></td>
-             <td><span class="badge" style="background:#e94560">${(p[m].f1*100).toFixed(1)}%</span></td>
-             <td>${m === data.performance?.best_model ? '<span class="badge bg-success">✓ Best</span>' : ''}</td></tr>`
-        ).join('');
-        el.innerHTML = `
-            <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
-                <div><span class="ml-status-dot ml-online"></span><strong class="text-success">ML API Online</strong></div>
-                <span class="badge bg-info text-dark">Best: ${h.best_model}</span>
-                <span class="badge bg-primary">${h.intents} intents</span>
-            </div>
-            ${models.length ? `<div class="table-responsive">
-                <table class="table table-sm"><thead><tr><th>Model</th><th>Accuracy</th><th>F1 Score</th><th></th></tr></thead>
-                <tbody>${modelRows}</tbody></table></div>
-                <canvas id="mlChart" height="60"></canvas>` : ''}`;
-        if (models.length) {
-            new Chart(document.getElementById('mlChart'), {
-                type: 'bar',
-                data: {
-                    labels: models,
-                    datasets: [
-                        { label: 'Accuracy (%)', data: models.map(m=>(p[m].accuracy*100).toFixed(1)), backgroundColor:'#0f3460', borderRadius:6 },
-                        { label: 'F1 Score (%)', data: models.map(m=>(p[m].f1*100).toFixed(1)),       backgroundColor:'#e94560', borderRadius:6 },
-                    ]
-                },
-                options: { responsive:true, plugins:{legend:{position:'top'}}, scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}}} }
-            });
-        }
-    } catch(e) {
-        document.getElementById('ml-content').innerHTML =
-            '<div class="text-danger small"><i class="bi bi-exclamation-circle me-2"></i>Could not reach ML API. Make sure Flask is running on port 5000.</div>';
-    }
-}
-loadMLStatus();
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
 <script>
 async function loadMLStatus() {
     const el = document.getElementById('ml-content');

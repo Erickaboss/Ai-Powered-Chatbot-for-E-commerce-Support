@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS chatbot_logs;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS cart_items;
+DROP TABLE IF EXISTS product_views;
 DROP TABLE IF EXISTS cart;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS categories;
@@ -46,6 +47,8 @@ CREATE TABLE products (
     image VARCHAR(255) DEFAULT 'placeholder.jpg',
     category_id INT,
     stock INT DEFAULT 0,
+    avg_rating DECIMAL(3,2) DEFAULT 0.00,
+    review_count INT DEFAULT 0,
     brand VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
@@ -397,6 +400,22 @@ INSERT INTO reviews (product_id, user_id, rating, comment) VALUES
 (29, 2, 5, 'Nike shoes are amazing! Very comfortable for running. True to size.');
 
 -- ============================================================
+-- FEATURE TABLES
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS product_views (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT DEFAULT NULL,
+    session_id VARCHAR(64) DEFAULT NULL,
+    product_id INT NOT NULL,
+    viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user (user_id),
+    INDEX idx_product (product_id),
+    INDEX idx_session (session_id),
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
 -- SUMMARY
 -- ============================================================
 -- Total Categories : 10
@@ -407,3 +426,23 @@ INSERT INTO reviews (product_id, user_id, rating, comment) VALUES
 -- Sample Reviews   : 5
 -- Currency         : Rwandan Franc (RWF)
 -- ============================================================
+
+-- Performance indexes (add after all table definitions)
+ALTER TABLE products ADD INDEX idx_category_id (category_id);
+ALTER TABLE products ADD INDEX idx_price (price);
+ALTER TABLE products ADD INDEX idx_stock (stock);
+ALTER TABLE products ADD INDEX idx_brand (brand);
+ALTER TABLE products ADD INDEX idx_avg_rating (avg_rating);
+ALTER TABLE orders ADD INDEX idx_user_id (user_id);
+ALTER TABLE orders ADD INDEX idx_status (status);
+ALTER TABLE orders ADD INDEX idx_created_at (created_at);
+ALTER TABLE reviews ADD INDEX idx_product_id (product_id);
+ALTER TABLE reviews ADD INDEX idx_user_id (user_id);
+ALTER TABLE cart_items ADD UNIQUE INDEX idx_cart_product (cart_id, product_id);
+ALTER TABLE chatbot_logs ADD INDEX idx_user_id (user_id);
+ALTER TABLE chatbot_logs ADD INDEX idx_session_id (session_id);
+ALTER TABLE chatbot_logs ADD INDEX idx_created_at (created_at);
+ALTER TABLE product_views ADD INDEX idx_user_id (user_id);
+ALTER TABLE product_views ADD INDEX idx_session_id (session_id);
+ALTER TABLE product_views ADD INDEX idx_product_id (product_id);
+-- avg_rating and review_count already exist in the products CREATE TABLE above

@@ -1,4 +1,4 @@
-﻿<?php require_once 'includes/admin_header.php'; ?>
+<?php require_once 'includes/admin_header.php'; ?>
 <?php
 require_once __DIR__ . '/../includes/mailer.php';
 require_once __DIR__ . '/../includes/free_delivery_notifier.php';
@@ -9,23 +9,34 @@ $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'])) {
     $oid    = (int)$_POST['order_id'];
     $status = $conn->real_escape_string($_POST['status']);
-    $oldStatus = $conn->query("SELECT status FROM orders WHERE id=$oid")->fetch_assoc()['status'];
-    $conn->query("UPDATE orders SET status='$status' WHERE id=$oid");
+    $stmt = $conn->prepare("SELECT status FROM orders WHERE id=?");
+    $stmt->bind_param("i", $oid);
+    $stmt->execute();
+    $oldStatus = $stmt->get_result()->fetch_assoc()['status'];
+    $stmt = $conn->prepare("UPDATE orders SET status=? WHERE id=?");
+    $stmt->bind_param("si", $status, $oid);
+    $stmt->execute();
 
     // Get order details
-    $ord = $conn->query("
+    $stmt = $conn->prepare("
         SELECT o.*, u.name as customer_name, u.email as customer_email, u.phone as customer_phone
         FROM orders o JOIN users u ON o.user_id = u.id
-        WHERE o.id = $oid
-    ")->fetch_assoc();
+        WHERE o.id = ?
+    ");
+    $stmt->bind_param("i", $oid);
+    $stmt->execute();
+    $ord = $stmt->get_result()->fetch_assoc();
 
     // Send notification based on new status
     if ($ord && in_array($status, ['processing','shipped','delivered','cancelled'])) {
-        $items_res = $conn->query("
+        $stmt = $conn->prepare("
             SELECT oi.*, p.name FROM order_items oi
             JOIN products p ON oi.product_id = p.id
-            WHERE oi.order_id = $oid
+            WHERE oi.order_id = ?
         ");
+        $stmt->bind_param("i", $oid);
+        $stmt->execute();
+        $items_res = $stmt->get_result();
         $items = $items_res->fetch_all(MYSQLI_ASSOC);
         
         // SPECIAL: When status changes to 'shipped', send delivery notification
@@ -60,8 +71,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'])) {
 $view_order = null;
 if (!empty($_GET['view'])) {
     $vid = (int)$_GET['view'];
-    $view_order = $conn->query("SELECT o.*, u.name as customer FROM orders o JOIN users u ON o.user_id=u.id WHERE o.id=$vid")->fetch_assoc();
-    $view_items = $conn->query("SELECT oi.*, p.name FROM order_items oi JOIN products p ON oi.product_id=p.id WHERE oi.order_id=$vid");
+    $stmt = $conn->prepare("SELECT o.*, u.name as customer FROM orders o JOIN users u ON o.user_id=u.id WHERE o.id=?");
+    $stmt->bind_param("i", $vid);
+    $stmt->execute();
+    $view_order = $stmt->get_result()->fetch_assoc();
+    $stmt = $conn->prepare("SELECT oi.*, p.name FROM order_items oi JOIN products p ON oi.product_id=p.id WHERE oi.order_id=?");
+    $stmt->bind_param("i", $vid);
+    $stmt->execute();
+    $view_items = $stmt->get_result();
 }
 
 $orders = $conn->query("SELECT o.*, u.name as customer FROM orders o JOIN users u ON o.user_id=u.id ORDER BY o.created_at DESC");
@@ -82,7 +99,12 @@ $statuses = ['pending','processing','shipped','delivered','cancelled'];
             <h5>Order #<?= $view_order['id'] ?> — <?= htmlspecialchars($view_order['customer']) ?></h5>
             <a href="orders.php" class="btn btn-sm btn-outline-secondary">Back</a>
         </div>
-        <p class="text-muted mb-2"><?= date('M d, Y h:i A', strtotime($view_order['created_at'])) ?> | Address: <?= htmlspecialchars($view_order['address']) ?></p>
+        <p class="text-muted mb-2">
+            <?= date('M d, Y h:i A', strtotime($view_order['created_at'])) ?> | 
+            <strong>Province:</strong> <?= htmlspecialchars($view_order['province']) ?> | 
+            <strong>Address:</strong> <?= htmlspecialchars($view_order['address']) ?> | 
+            <strong>Phone:</strong> <?= htmlspecialchars($view_order['phone']) ?>
+        </p>
         <table class="table table-sm mb-3">
             <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead>
             <tbody>
@@ -111,6 +133,9 @@ $statuses = ['pending','processing','shipped','delivered','cancelled'];
                     </select>
                     <button class="btn btn-sm btn-dark">Update Status</button>
                 </form>
+            <div class="mt-2 p-2 bg-light border-start border-3 border-primary" style="border-radius:4px">
+                <small class="text-muted d-block fw-bold text-uppercase" style="font-size:.65rem">Payment Details</small>
+                <div class="small fw-semibold"><?= htmlspecialchars($view_order['payment_method']) ?>: <?= htmlspecialchars($view_order['payment_details']) ?></div>
             </div>
         </div>
     </div>

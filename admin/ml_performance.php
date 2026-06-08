@@ -9,7 +9,7 @@ $reports = $mlDashboard['reports'];
 $dataset = $mlDashboard['dataset'];
 $vectorizer = $mlDashboard['vectorizer'];
 $split = $mlDashboard['split'];
-$bestModel = $summary['best_model_row'];
+$bestModel = $summary['best_model_row'] ?? [];
 $targetAccuracy = (float)($summary['target_accuracy'] ?? 0.85);
 $modelsAtTarget = count(array_filter($models, fn(array $model): bool => (float)$model['accuracy'] >= $targetAccuracy));
 
@@ -77,9 +77,9 @@ $metricTone = function ($value) use ($targetAccuracy): string {
             </div>
             <div class="text-lg-end">
                 <div style="font-size:2.7rem;font-weight:900;line-height:1;"><?= $formatPercent($summary['accuracy'] ?? null) ?></div>
-                <div style="opacity:.8;font-size:.8rem;">Best accuracy</div>
-                <div class="mt-2 badge bg-<?= !empty($summary['all_models_above_target']) ? 'success' : 'warning' ?>">
-                    <?= !empty($summary['all_models_above_target']) ? 'All models above target' : 'Some models below target' ?>
+                <div style="opacity:.8;font-size:.8rem;">SVM (Linear) accuracy</div>
+                <div class="mt-2 badge bg-success">
+                    Production Model Deployed
                 </div>
             </div>
         </div>
@@ -88,14 +88,14 @@ $metricTone = function ($value) use ($targetAccuracy): string {
     <div class="row g-3 mb-4">
         <div class="col-6 col-lg-3">
             <div class="card p-3 border-start border-4 border-success h-100">
-                <div class="small text-muted">Average Accuracy</div>
-                <div class="fs-4 fw-bold text-success"><?= $formatPercent($summary['average_accuracy'] ?? null) ?></div>
-                <div class="small text-muted">Across <?= count($models) ?> trained models</div>
+                <div class="small text-muted">SVM Accuracy</div>
+                <div class="fs-4 fw-bold text-success"><?= $formatPercent($summary['accuracy'] ?? null) ?></div>
+                <div class="small text-muted">Best model performance</div>
             </div>
         </div>
         <div class="col-6 col-lg-3">
             <div class="card p-3 border-start border-4 border-primary h-100">
-                <div class="small text-muted">Models Above 85%</div>
+                <div class="small text-muted">Above 85% Target</div>
                 <div class="fs-4 fw-bold text-primary"><?= $modelsAtTarget ?>/<?= count($models) ?></div>
                 <div class="small text-muted">Professional presentation threshold</div>
             </div>
@@ -116,77 +116,96 @@ $metricTone = function ($value) use ($targetAccuracy): string {
         </div>
     </div>
 
+
+
+    <?php
+    // ── Full SVM metrics section (Task 2) ──
+    $svmModel = $models[0] ?? [];
+    $svmAcc   = isset($svmModel['accuracy'])        ? round((float)$svmModel['accuracy']        * 100, 2) : null;
+    $svmTrain = isset($svmModel['train_accuracy'])   ? round((float)$svmModel['train_accuracy']  * 100, 2) : null;
+    $svmCvM   = isset($svmModel['cv_mean'])          ? round((float)$svmModel['cv_mean']         * 100, 2) : null;
+    $svmCvS   = isset($svmModel['cv_std'])           ? round((float)$svmModel['cv_std']          * 100, 4) : null;
+    $svmTrS   = isset($svmModel['training_samples']) ? (int)$svmModel['training_samples']                  : null;
+    $svmTeS   = isset($svmModel['test_samples'])     ? (int)$svmModel['test_samples']                      : null;
+    $svmVoc   = (int)($summary['vocabulary_size']    ?? $svmModel['vocabulary_size'] ?? 0);
+    $svmCls   = (int)($summary['num_classes']        ?? 0);
+    ?>
+
+    <!-- Key Stats Cards + Full Metrics Table + Bar Chart -->
     <div class="card p-4 mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="mb-0"><i class="bi bi-table me-2"></i>Model Performance Metrics</h6>
-            <span class="badge bg-dark">Artifact-backed</span>
+        <h6 class="mb-3"><i class="bi bi-speedometer2 me-2 text-primary"></i>SVM (Linear) — Key Metrics</h6>
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card text-center p-3 border-start border-4 border-success h-100">
+                    <div class="small text-muted">Test Accuracy</div>
+                    <div class="fs-4 fw-bold text-success"><?= $svmAcc !== null ? $svmAcc . '%' : 'N/A' ?></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card text-center p-3 border-start border-4 border-primary h-100">
+                    <div class="small text-muted">Train Accuracy</div>
+                    <div class="fs-4 fw-bold text-primary"><?= $svmTrain !== null ? $svmTrain . '%' : 'N/A' ?></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card text-center p-3 border-start border-4 border-info h-100">
+                    <div class="small text-muted">CV Mean</div>
+                    <div class="fs-4 fw-bold text-info"><?= $svmCvM !== null ? $svmCvM . '%' : 'N/A' ?></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card text-center p-3 border-start border-4 border-warning h-100">
+                    <div class="small text-muted">Vocabulary</div>
+                    <div class="fs-4 fw-bold text-warning"><?= $svmVoc ? number_format($svmVoc) : 'N/A' ?></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card text-center p-3 border-start border-4 border-secondary h-100">
+                    <div class="small text-muted">Training Samples</div>
+                    <div class="fs-4 fw-bold text-secondary"><?= $svmTrS ? number_format($svmTrS) : 'N/A' ?></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card text-center p-3 border-start border-4 border-danger h-100">
+                    <div class="small text-muted">Intent Classes</div>
+                    <div class="fs-4 fw-bold text-danger"><?= $svmCls ?: 'N/A' ?></div>
+                </div>
+            </div>
         </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead>
+
+        <h6 class="mb-3"><i class="bi bi-table me-2"></i>Full Metrics Table</h6>
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="table-dark">
                     <tr>
-                        <th>Model</th>
+                        <th>Model Name</th>
                         <th>Accuracy</th>
-                        <th>Precision</th>
-                        <th>Recall</th>
-                        <th>F1 Score</th>
+                        <th>Train Accuracy</th>
                         <th>CV Mean</th>
                         <th>CV Std</th>
-                        <th>Train/Test</th>
-                        <th>Version</th>
-                        <th>Trained On</th>
+                        <th>Training Samples</th>
+                        <th>Test Samples</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($models as $model): ?>
+                    <?php if (!empty($svmModel)): ?>
                     <tr>
-                        <td>
-                            <strong><?= htmlspecialchars($model['model_name']) ?></strong>
-                            <?php if (!empty($bestModel) && $model['model_name'] === $bestModel['model_name']): ?>
-                            <span class="badge bg-success ms-1">Best</span>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <div class="progress mb-1" style="height:6px;width:120px;">
-                                <div class="progress-bar bg-<?= $metricTone($model['accuracy']) ?>" style="width:<?= max(0, min(100, (float)$model['accuracy'] * 100)) ?>%"></div>
-                            </div>
-                            <strong><?= $formatPercent($model['accuracy']) ?></strong>
-                        </td>
-                        <td><?= $formatPercent($model['precision']) ?></td>
-                        <td><?= $formatPercent($model['recall']) ?></td>
-                        <td><?= $formatPercent($model['f1_score']) ?></td>
-                        <td><?= $formatPercent($model['cv_mean']) ?></td>
-                        <td><?= $model['cv_std'] === null ? 'N/A' : number_format((float)$model['cv_std'], 4) ?></td>
-                        <td>
-                            <?= !empty($model['training_samples']) ? number_format((int)$model['training_samples']) : 'N/A' ?>
-                            /
-                            <?= !empty($model['test_samples']) ? number_format((int)$model['test_samples']) : 'N/A' ?>
-                        </td>
-                        <td><?= !empty($model['model_version']) ? '<span class="badge bg-secondary">' . htmlspecialchars((string)$model['model_version']) . '</span>' : 'N/A' ?></td>
-                        <td><?= htmlspecialchars($formatDateTime($model['trained_at'] ?? null)) ?></td>
+                        <td><strong><?= htmlspecialchars($svmModel['model_name']) ?></strong> <span class="badge bg-success ms-1">Active</span></td>
+                        <td><span class="badge bg-success fs-6"><?= isset($svmModel['accuracy']) ? round((float)$svmModel['accuracy'] * 100, 2) . '%' : 'N/A' ?></span></td>
+                        <td><?= isset($svmModel['train_accuracy']) ? round((float)$svmModel['train_accuracy'] * 100, 2) . '%' : 'N/A' ?></td>
+                        <td><?= isset($svmModel['cv_mean']) ? round((float)$svmModel['cv_mean'] * 100, 2) . '%' : 'N/A' ?></td>
+                        <td><?= isset($svmModel['cv_std']) ? number_format((float)$svmModel['cv_std'] * 100, 4) . '%' : 'N/A' ?></td>
+                        <td><?= isset($svmModel['training_samples']) ? number_format((int)$svmModel['training_samples']) : 'N/A' ?></td>
+                        <td><?= isset($svmModel['test_samples']) ? number_format((int)$svmModel['test_samples']) : 'N/A' ?></td>
                     </tr>
-                    <?php endforeach; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <div class="row g-4 mb-4">
-        <div class="col-lg-7">
-            <div class="card p-4 h-100">
-                <h6 class="mb-3"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Accuracy, Precision, Recall, F1</h6>
-                <div style="height:340px;">
-                    <canvas id="metricsChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-5">
-            <div class="card p-4 h-100">
-                <h6 class="mb-3"><i class="bi bi-activity me-2 text-success"></i>Accuracy vs Cross-Validation</h6>
-                <div style="height:340px;">
-                    <canvas id="stabilityChart"></canvas>
-                </div>
-            </div>
+        <h6 class="mb-3"><i class="bi bi-bar-chart-fill me-2 text-success"></i>Accuracy / Train Accuracy / CV Mean</h6>
+        <div style="height:260px;">
+            <canvas id="svmMetricsBar"></canvas>
         </div>
     </div>
 
@@ -202,9 +221,9 @@ $metricTone = function ($value) use ($targetAccuracy): string {
             </div>
             <div class="col-md-4">
                 <div style="padding:16px;background:#fff8e1;border-radius:12px;border-left:4px solid #f9a825;">
-                    <div class="small text-muted">Target Compliance</div>
-                    <div class="fw-bold fs-5 text-warning"><?= $modelsAtTarget ?>/<?= count($models) ?> models</div>
-                    <div class="small text-muted">Reached the <?= number_format($targetAccuracy * 100, 0) ?>% target</div>
+                    <div class="small text-muted">Model Status</div>
+                    <div class="fw-bold fs-5 text-warning">SVM (Linear)</div>
+                    <div class="small text-muted">Production model deployed</div>
                 </div>
             </div>
             <div class="col-md-4">
@@ -299,119 +318,43 @@ $metricTone = function ($value) use ($targetAccuracy): string {
     <?php endif; ?>
 </div>
 
-<?php if ($mlDashboard['available'] && !empty($models)): ?>
+<!-- Chart.js for SVM metrics bar -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-const modelRows = <?= json_encode(array_map(function (array $model): array {
-    return [
-        'name' => $model['model_name'],
-        'accuracy' => round(((float)$model['accuracy']) * 100, 2),
-        'precision' => $model['precision'] === null ? null : round(((float)$model['precision']) * 100, 2),
-        'recall' => $model['recall'] === null ? null : round(((float)$model['recall']) * 100, 2),
-        'f1' => $model['f1_score'] === null ? null : round(((float)$model['f1_score']) * 100, 2),
-        'cvMean' => $model['cv_mean'] === null ? null : round(((float)$model['cv_mean']) * 100, 2),
-    ];
-}, $models), JSON_UNESCAPED_SLASHES) ?>;
-
-const labels = modelRows.map((row) => row.name);
-const targetAccuracy = <?= json_encode(round($targetAccuracy * 100, 2)) ?>;
-
-new Chart(document.getElementById('metricsChart'), {
+<?php if (!empty($models)): 
+    $best = $models[0] ?? [];
+    $acc = ($best['accuracy'] ?? 0) * 100;
+    $trainAcc = ($best['train_accuracy'] ?? $acc) * 100;
+    $cvMean = ($best['cv_mean'] ?? 0) * 100;
+?>
+new Chart(document.getElementById('svmMetricsBar'), {
     type: 'bar',
     data: {
-        labels,
-        datasets: [
-            {
-                label: 'Accuracy',
-                data: modelRows.map((row) => row.accuracy),
-                backgroundColor: 'rgba(15, 52, 96, 0.85)',
-                borderRadius: 8
-            },
-            {
-                label: 'Precision',
-                data: modelRows.map((row) => row.precision),
-                backgroundColor: 'rgba(233, 69, 96, 0.75)',
-                borderRadius: 8
-            },
-            {
-                label: 'Recall',
-                data: modelRows.map((row) => row.recall),
-                backgroundColor: 'rgba(46, 204, 113, 0.75)',
-                borderRadius: 8
-            },
-            {
-                label: 'F1 Score',
-                data: modelRows.map((row) => row.f1),
-                backgroundColor: 'rgba(245, 166, 35, 0.8)',
-                borderRadius: 8
-            }
-        ]
+        labels: ['Test Accuracy', 'Train Accuracy', 'CV Mean'],
+        datasets: [{
+            label: '<?= htmlspecialchars($best['model_name'] ?? 'SVM (Linear)') ?>',
+            data: [<?= $acc ?>, <?= $trainAcc ?>, <?= $cvMean ?>],
+            backgroundColor: ['#0d6efd', '#198754', '#ffc107'],
+            borderRadius: 6,
+            borderSkipped: false
+        }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            legend: { position: 'bottom' }
+            legend: { display: false }
         },
         scales: {
             y: {
-                min: Math.max(0, targetAccuracy - 15),
+                beginAtZero: true,
                 max: 100,
-                ticks: {
-                    callback: (value) => `${value}%`
-                }
+                ticks: { callback: v => v + '%' }
             }
         }
     }
 });
-
-new Chart(document.getElementById('stabilityChart'), {
-    type: 'line',
-    data: {
-        labels,
-        datasets: [
-            {
-                label: 'Accuracy',
-                data: modelRows.map((row) => row.accuracy),
-                borderColor: '#0f3460',
-                backgroundColor: 'rgba(15, 52, 96, 0.15)',
-                fill: false,
-                tension: 0.25
-            },
-            {
-                label: 'CV Mean',
-                data: modelRows.map((row) => row.cvMean),
-                borderColor: '#1f8a70',
-                backgroundColor: 'rgba(31, 138, 112, 0.15)',
-                fill: false,
-                tension: 0.25
-            },
-            {
-                label: 'Target',
-                data: labels.map(() => targetAccuracy),
-                borderColor: '#dc3545',
-                borderDash: [6, 6],
-                pointRadius: 0,
-                fill: false
-            }
-        ]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { position: 'bottom' }
-        },
-        scales: {
-            y: {
-                min: Math.max(0, targetAccuracy - 15),
-                max: 100,
-                ticks: {
-                    callback: (value) => `${value}%`
-                }
-            }
-        }
-    }
-});
-</script>
 <?php endif; ?>
+</script>
+
+

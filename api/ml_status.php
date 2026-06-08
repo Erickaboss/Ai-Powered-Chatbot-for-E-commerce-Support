@@ -7,14 +7,14 @@ require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/ml_artifacts.php';
 
 // Only admin can access
-session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+if (session_status() === PHP_SESSION_NONE) session_start();
+if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
     http_response_code(403);
     echo json_encode(['error' => 'Unauthorized']);
     exit;
 }
 
-$flask_base = 'http://localhost:5000';
+$flask_base = defined('ML_API_BASE') ? ML_API_BASE : 'http://localhost:5000';
 $artifacts = loadMlArtifacts();
 $mlOnline = false;
 $health = null;
@@ -56,7 +56,6 @@ echo json_encode([
         'split'      => $artifacts['split'],
         'plots'      => $artifacts['plots'],
         'reports'    => $artifacts['reports'],
-        'artifacts'  => $artifacts['artifacts'],
     ],
-    'performance' => !empty($artifacts['raw']['results']) ? $artifacts['raw']['results'] : null,
+    'performance' => !empty($artifacts['models']) ? $artifacts['models'] : null,
 ]);

@@ -15,7 +15,7 @@
             $faqs = [
                 'Orders & Delivery' => [
                     ['How long does delivery take?', 'Kigali: 1–2 business days. Other provinces: 2–4 business days. Remote areas: up to 5–7 days. You will receive an SMS/email update once your order is shipped.'],
-                    ['What are the shipping fees?', 'Orders above RWF 50,000 get FREE shipping. Orders below RWF 50,000 have a flat rate of RWF 2,000. Express delivery in Kigali costs RWF 3,500.'],
+                    ['What are the shipping fees?', 'We offer FREE shipping on all orders! No minimum purchase required.'],
                     ['Can I cancel my order?', 'Yes — you can cancel a pending order from your My Orders page. Once an order is processing or shipped, cancellation is no longer possible.'],
                     ['How do I track my order?', 'Go to My Orders page or ask the AI chatbot "track order [number]". You can also type your order number like #000004 in the chatbot.'],
                 ],

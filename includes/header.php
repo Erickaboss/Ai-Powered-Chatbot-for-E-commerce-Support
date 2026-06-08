@@ -1,13 +1,36 @@
 ﻿<?php
 ob_start();
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params(['httponly' => true, 'samesite' => 'Strict', 'secure' => isset($_SERVER['HTTPS'])]);
+    session_start();
+}
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/security.php';
+sendSecurityHeaders();
+
+// Session timeout: 1 hour inactivity
+$timeout = 3600;
+if (isset($_SESSION['user_id']) && isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeout)) {
+    session_unset();
+    session_destroy();
+    if (basename($_SERVER['PHP_SELF']) !== 'login.php') {
+        header('Location: ' . SITE_URL . '/login.php?timeout=1');
+        exit;
+    }
+}
+if (isset($_SESSION['user_id'])) {
+    $_SESSION['last_activity'] = time();
+}
 
 $cart_count = 0;
 if (isset($_SESSION['user_id'])) {
-    $uid = $_SESSION['user_id'];
-    $res = $conn->query("SELECT SUM(ci.quantity) as total FROM cart c JOIN cart_items ci ON c.id=ci.cart_id WHERE c.user_id=$uid");
+    $uid = (int)$_SESSION['user_id'];
+    $stmt = $conn->prepare("SELECT SUM(ci.quantity) as total FROM cart c JOIN cart_items ci ON c.id=ci.cart_id WHERE c.user_id=?");
+    $stmt->bind_param("i", $uid);
+    $stmt->execute();
+    $res = $stmt->get_result();
     $cart_count = (int)($res->fetch_assoc()['total'] ?? 0);
+    $stmt->close();
 }
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>

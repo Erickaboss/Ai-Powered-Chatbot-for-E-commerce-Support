@@ -5,6 +5,22 @@
 
 USE ecommerce_chatbot;
 
+-- Table for chatbot conversation context (language, state, etc.)
+CREATE TABLE IF NOT EXISTS chatbot_context (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    session_id VARCHAR(64) NOT NULL,
+    user_id INT DEFAULT NULL,
+    context_key VARCHAR(100) NOT NULL,
+    context_value TEXT DEFAULT NULL,
+    expires_at DATETIME DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_session (session_id),
+    INDEX idx_user (user_id),
+    INDEX idx_key (context_key),
+    UNIQUE KEY unique_context (session_id, user_id, context_key),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
 -- Table for delivery notifications tracking
 CREATE TABLE IF NOT EXISTS delivery_notifications (
     id INT AUTO_INCREMENT PRIMARY KEY,

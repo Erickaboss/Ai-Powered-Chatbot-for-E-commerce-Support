@@ -17,7 +17,7 @@ if ($token) {
         $result = $conn->query("SELECT p.*, c.name as cat_name, p.avg_rating, p.review_count 
                                 FROM products p 
                                 LEFT JOIN categories c ON p.category_id = c.id 
-                                WHERE p.id IN ($idList)");
+                                WHERE p.id IN ($idList) AND p.stock>0");
         $products = $result->fetch_all(MYSQLI_ASSOC);
     }
 }

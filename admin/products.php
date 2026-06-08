@@ -32,11 +32,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($msg)) {
             if ($action === 'add') {
-                $conn->query("INSERT INTO products (name,description,price,image,category_id,stock) VALUES ('$name','$desc',$price,'$image',$cat,$stock)");
+                $stmt = $conn->prepare("INSERT INTO products (name,description,price,image,category_id,stock) VALUES (?,?,?,?,?,?)");
+                $stmt->bind_param("ssdsii", $name, $desc, $price, $image, $cat, $stock);
+                $stmt->execute();
                 $msg = '<div class="alert alert-success">Product added successfully.</div>';
             } else {
                 $id = (int)$_POST['id'];
-                $conn->query("UPDATE products SET name='$name',description='$desc',price=$price,image='$image',category_id=$cat,stock=$stock WHERE id=$id");
+                $stmt = $conn->prepare("UPDATE products SET name=?,description=?,price=?,image=?,category_id=?,stock=? WHERE id=?");
+                $stmt->bind_param("ssdsiii", $name, $desc, $price, $image, $cat, $stock, $id);
+                $stmt->execute();
                 $msg = '<div class="alert alert-success">Product updated successfully.</div>';
             }
         }
@@ -44,7 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'delete') {
         $id = (int)$_POST['id'];
-        $conn->query("DELETE FROM products WHERE id=$id");
+        $stmt = $conn->prepare("DELETE FROM products WHERE id=?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
         $msg = '<div class="alert alert-warning">Product deleted.</div>';
     }
 
@@ -57,7 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (in_array($ext, $allowed) && $_FILES['quick_image']['size'] < 5000000) {
                 $filename = 'p' . $id . '.' . $ext;
                 if (move_uploaded_file($_FILES['quick_image']['tmp_name'], $upload_dir . $filename)) {
-                    $conn->query("UPDATE products SET image='$filename' WHERE id=$id");
+                    $stmt = $conn->prepare("UPDATE products SET image=? WHERE id=?");
+                    $stmt->bind_param("si", $filename, $id);
+                    $stmt->execute();
                     $msg = '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Image uploaded for product #' . $id . '.</div>';
                 } else {
                     $msg = '<div class="alert alert-danger">Upload failed. Check folder permissions on assets/images/products/</div>';
@@ -66,6 +74,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $msg = '<div class="alert alert-danger">Invalid file. Use JPG/PNG/GIF/WEBP under 5MB.</div>';
             }
         }
+    }
+
+    // ── Trigger semantic index rebuild after product changes ──
+    if (in_array($action, ['add', 'edit', 'delete'])) {
+        $rebuildUrl = defined('ML_API_BASE') ? ML_API_BASE . '/rebuild-index' : 'http://localhost:5000/rebuild-index';
+        @file_get_contents($rebuildUrl, false, stream_context_create([
+            'http' => ['method' => 'POST', 'timeout' => 2, 'ignore_errors' => true],
+        ]));
     }
 }
 
@@ -76,7 +92,10 @@ $cats_arr   = $categories->fetch_all(MYSQLI_ASSOC);
 $edit = null;
 if (!empty($_GET['edit'])) {
     $eid  = (int)$_GET['edit'];
-    $edit = $conn->query("SELECT * FROM products WHERE id=$eid")->fetch_assoc();
+    $stmt = $conn->prepare("SELECT * FROM products WHERE id=?");
+    $stmt->bind_param("i", $eid);
+    $stmt->execute();
+    $edit = $stmt->get_result()->fetch_assoc();
 }
 ?>
 <div class="admin-content">

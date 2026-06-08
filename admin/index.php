@@ -1,4 +1,5 @@
 ﻿<?php require_once 'includes/admin_header.php'; ?>
+<?php require_once __DIR__ . '/../includes/ml_artifacts.php'; ?>
 <?php
 // ── Core stats ────────────────────────────────────────────────
 $total_products = $conn->query("SELECT COUNT(*) as c FROM products")->fetch_assoc()['c'];
@@ -24,10 +25,18 @@ for ($i = 6; $i >= 0; $i--) {
     $date = date('Y-m-d', strtotime("-$i days"));
     $label = date('M d', strtotime("-$i days"));
     $revenue_labels[] = $label;
-    $res = $conn->query("SELECT COALESCE(SUM(total_price),0) as s FROM orders WHERE DATE(created_at)='$date' AND status != 'cancelled'");
-    $revenue_data[] = (float)$res->fetch_assoc()['s'];
-    $cres = $conn->query("SELECT COUNT(*) as c FROM users WHERE DATE(created_at)='$date' AND role='customer'");
-    $customers_data[] = (int)$cres->fetch_assoc()['c'];
+    $stmtRev = $conn->prepare("SELECT COALESCE(SUM(total_price),0) as s FROM orders WHERE DATE(created_at)=? AND status != 'cancelled'");
+    $stmtRev->bind_param("s", $date);
+    $stmtRev->execute();
+    $revRes = $stmtRev->get_result();
+    $revenue_data[] = (float)$revRes->fetch_assoc()['s'];
+    $stmtRev->close();
+    $stmtCust = $conn->prepare("SELECT COUNT(*) as c FROM users WHERE DATE(created_at)=? AND role='customer'");
+    $stmtCust->bind_param("s", $date);
+    $stmtCust->execute();
+    $custRes = $stmtCust->get_result();
+    $customers_data[] = (int)$custRes->fetch_assoc()['c'];
+    $stmtCust->close();
 }
 
 // ── Chatbot stats ─────────────────────────────────────────────
@@ -35,6 +44,11 @@ $chat_total    = $conn->query("SELECT COUNT(*) as c FROM chatbot_logs")->fetch_a
 $chat_today    = $conn->query("SELECT COUNT(*) as c FROM chatbot_logs WHERE DATE(created_at)=CURDATE()")->fetch_assoc()['c'];
 $chat_sessions = $conn->query("SELECT COUNT(DISTINCT session_id) as c FROM chatbot_logs WHERE session_id IS NOT NULL")->fetch_assoc()['c'];
 $chat_guests   = $conn->query("SELECT COUNT(DISTINCT session_id) as c FROM chatbot_logs WHERE is_guest=1 AND session_id IS NOT NULL")->fetch_assoc()['c'];
+
+// ── ML Model Performance ──────────────────────────────────────
+$ml = loadMlArtifacts();
+$mlModels = $ml['models'] ?? [];
+$mlAvailable = $ml['available'] && !empty($mlModels);
 
 // ── Top selling products ──────────────────────────────────────
 $top_products = $conn->query("
@@ -191,6 +205,47 @@ $recent_orders = $conn->query("SELECT o.*, u.name as uname FROM orders o JOIN us
         </div>
     </div>
 
+    <?php if ($mlAvailable): ?>
+    <!-- ── Model Performance ── -->
+    <div class="card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0 fw-semibold"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>ML Model Performance</h6>
+            <a href="ml_performance.php" class="btn btn-sm btn-outline-primary">Detailed Report</a>
+        </div>
+        <div class="row g-3 mb-3">
+            <?php foreach ($mlModels as $m): $nm = htmlspecialchars($m['model_name']); ?>
+            <div class="col-6 col-md-3">
+                <div class="card h-100 border-0 shadow-sm" style="border-radius:10px">
+                    <div class="card-body p-3">
+                        <div class="small fw-bold text-muted mb-2"><?= $nm ?></div>
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="text-muted">Accuracy</span>
+                            <strong><?= number_format($m['accuracy'] * 100, 1) ?>%</strong>
+                        </div>
+                        <div class="progress mb-2" style="height:4px">
+                            <div class="progress-bar" style="width:<?= $m['accuracy'] * 100 ?>%;background:<?= $m['accuracy'] >= 0.95 ? '#198754' : ($m['accuracy'] >= 0.9 ? '#ffc107' : '#dc3545') ?>"></div>
+                        </div>
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="text-muted">Precision</span>
+                            <strong><?= number_format(($m['precision'] ?? $m['accuracy']) * 100, 1) ?>%</strong>
+                        </div>
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="text-muted">Recall</span>
+                            <strong><?= number_format(($m['recall'] ?? $m['accuracy']) * 100, 1) ?>%</strong>
+                        </div>
+                        <div class="d-flex justify-content-between small">
+                            <span class="text-muted">F1-Score</span>
+                            <strong><?= number_format(($m['f1_score'] ?? $m['accuracy']) * 100, 1) ?>%</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <canvas id="mlComparisonChart" height="65"></canvas>
+    </div>
+    <?php endif; ?>
+
     <!-- ── Top Products + Recent Orders ── -->
     <div class="row g-3">
         <div class="col-md-4">
@@ -241,7 +296,7 @@ $recent_orders = $conn->query("SELECT o.*, u.name as uname FROM orders o JOIN us
 </div>
 
 <!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
 <script>
 // Revenue bar chart
 new Chart(document.getElementById('revenueChart'), {
@@ -310,6 +365,50 @@ new Chart(document.getElementById('statusChart'), {
         plugins: { legend: { display: false } }
     }
 });
+
+<?php if ($mlAvailable): ?>
+// ML Model comparison grouped bar chart
+const mlCtx = document.getElementById('mlComparisonChart');
+if (mlCtx) {
+    new Chart(mlCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Accuracy', 'Precision', 'Recall', 'F1-Score'],
+            datasets: [
+                <?php foreach ($mlModels as $i => $m):
+                    $colors = ['#0d6efd','#198754','#ffc107','#dc3545'];
+                    $c = $colors[$i % count($colors)];
+                ?>
+                {
+                    label: '<?= htmlspecialchars($m['model_name'], ENT_QUOTES) ?>',
+                    data: [
+                        <?= $m['accuracy'] * 100 ?>,
+                        <?= ($m['precision'] ?? $m['accuracy']) * 100 ?>,
+                        <?= ($m['recall'] ?? $m['accuracy']) * 100 ?>,
+                        <?= ($m['f1_score'] ?? $m['accuracy']) * 100 ?>
+                    ],
+                    backgroundColor: '<?= $c ?>',
+                    borderRadius: 4
+                }<?= $i < count($mlModels) - 1 ? ',' : '' ?>
+                <?php endforeach; ?>
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { callback: v => v + '%' }
+                }
+            }
+        }
+    });
+}
+<?php endif; ?>
 </script>
 
 <?php require_once 'includes/admin_footer.php'; ?>

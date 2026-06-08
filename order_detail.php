@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once 'includes/header.php';
 if (!isset($_SESSION['user_id'])) { header('Location: login.php'); exit; }
 $uid  = $_SESSION['user_id'];
@@ -107,9 +107,10 @@ $step_labels = ['Order Placed','Processing','Shipped','Delivered'];
                     <span class="text-muted">Date</span>
                     <span><?= date('d M Y', strtotime($order['created_at'])) ?></span>
                 </div>
-                <div class="d-flex justify-content-between mb-2 small">
-                    <span class="text-muted">Payment</span>
-                    <span class="text-uppercase fw-600"><?= htmlspecialchars($order['payment_method'] ?? 'COD') ?></span>
+                <div class="mb-2 small">
+                    <div class="text-muted">Payment Method</div>
+                    <div class="text-uppercase fw-600"><?= htmlspecialchars($order['payment_method']) ?></div>
+                    <div class="text-muted mt-1" style="font-size:.75rem"><?= htmlspecialchars($order['payment_details']) ?></div>
                 </div>
                 <div class="d-flex justify-content-between mb-2 small">
                     <span class="text-muted">Status</span>
@@ -117,8 +118,10 @@ $step_labels = ['Order Placed','Processing','Shipped','Delivered'];
                 </div>
                 <hr>
                 <div class="small">
-                    <div class="text-muted mb-1">Delivery Address</div>
-                    <div class="fw-500"><?= nl2br(htmlspecialchars($order['address'])) ?></div>
+                    <div class="text-muted mb-1">Delivery Details</div>
+                    <div class="fw-600"><?= htmlspecialchars($order['province']) ?></div>
+                    <div class="fw-500 mb-2"><?= nl2br(htmlspecialchars($order['address'])) ?></div>
+                    <div class="small text-muted"><i class="bi bi-telephone me-2"></i><?= htmlspecialchars($order['phone']) ?></div>
                 </div>
             </div>
 

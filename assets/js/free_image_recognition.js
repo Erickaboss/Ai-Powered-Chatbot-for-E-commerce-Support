@@ -13,7 +13,7 @@ async function initImageRecognition() {
     try {
         // Load MobileNet (lightweight, fast model)
         imageClassifier = await mobilenet.load();
-        console.log('✅ FREE Image Recognition loaded!');
+        // console.log('✅ FREE Image Recognition loaded!');
         return true;
     } catch (error) {
         console.error('❌ Failed to load image recognition:', error);
@@ -43,7 +43,7 @@ async function classifyImage(imageElement) {
             confidence: predictions[0]?.probability || 0
         };
         
-        console.log('🔍 Image Analysis:', analysis);
+        // console.log('🔍 Image Analysis:', analysis);
         return analysis;
     } catch (error) {
         console.error('Classification error:', error);
@@ -95,46 +95,91 @@ async function handleImageUploadAndAnalysis(file) {
             // Create image element
             const img = document.createElement('img');
             img.onload = async () => {
+                const messages = document.getElementById('chat-messages');
+
                 // Analyze image
                 const analysis = await classifyImage(img);
-                
-                // Display in chat
-                appendMessage(
-                    `<img src="${URL.createObjectURL(file)}" style="max-width: 200px; border-radius: 8px;">`,
-                    'user'
-                );
-                
+
+                // Display image as user message using DOM
+                const userDiv = document.createElement('div');
+                userDiv.className = 'user-msg';
+                const imgDisplay = document.createElement('img');
+                const blobUrl = URL.createObjectURL(file);
+                imgDisplay.src = blobUrl;
+                imgDisplay.style.cssText = 'max-width: 200px; border-radius: 8px;';
+                userDiv.appendChild(imgDisplay);
+                messages.appendChild(userDiv);
+                messages.scrollTop = messages.scrollHeight;
+                URL.revokeObjectURL(blobUrl); // Free memory
+
                 // Show analysis results
                 if (analysis.labels && analysis.labels.length > 0) {
-                    let analysisText = `🔍 I see: <strong>${analysis.topMatch}</strong>`;
-                    analysisText += ` (${(analysis.confidence * 100).toFixed(1)}% confidence)<br><br>`;
-                    analysisText += '<strong>Detected objects:</strong><br>';
-                    analysisText += '<ul style="font-size: 0.9em;">';
-                    
-                    analysis.labels.slice(0, 5).forEach((label, i) => {
-                        analysisText += `<li>${label.label} (${(label.confidence * 100).toFixed(0)}%)</li>`;
+                    const botDiv = document.createElement('div');
+                    botDiv.className = 'bot-msg';
+
+                    const icon = document.createElement('i');
+                    icon.className = 'bi bi-robot';
+                    botDiv.appendChild(icon);
+                    botDiv.appendChild(document.createTextNode(' '));
+
+                    const txt1 = document.createTextNode('🔍 I see: ');
+                    botDiv.appendChild(txt1);
+                    const strong1 = document.createElement('strong');
+                    strong1.textContent = analysis.topMatch;
+                    botDiv.appendChild(strong1);
+                    const txt2 = document.createTextNode(' (' + (analysis.confidence * 100).toFixed(1) + '% confidence)');
+                    botDiv.appendChild(txt2);
+                    botDiv.appendChild(document.createElement('br'));
+                    botDiv.appendChild(document.createElement('br'));
+
+                    const strong2 = document.createElement('strong');
+                    strong2.textContent = 'Detected objects:';
+                    botDiv.appendChild(strong2);
+                    botDiv.appendChild(document.createElement('br'));
+
+                    const ul = document.createElement('ul');
+                    ul.style.fontSize = '0.9em';
+                    analysis.labels.slice(0, 5).forEach(label => {
+                        const li = document.createElement('li');
+                        li.textContent = label.label + ' (' + (label.confidence * 100).toFixed(0) + '%)';
+                        ul.appendChild(li);
                     });
-                    analysisText += '</ul>';
-                    
-                    appendMessage(analysisText, 'bot');
-                    
+                    botDiv.appendChild(ul);
+
+                    messages.appendChild(botDiv);
+                    messages.scrollTop = messages.scrollHeight;
+
                     // Find matching products
                     const products = await findProductsFromImage(analysis);
-                    
+
                     if (products.length > 0) {
-                        let productHtml = `✨ I found ${products.length} matching products!<br><br>`;
+                        const prodDiv = document.createElement('div');
+                        prodDiv.className = 'bot-msg';
+
+                        const prodIcon = document.createElement('i');
+                        prodIcon.className = 'bi bi-robot';
+                        prodDiv.appendChild(prodIcon);
+                        prodDiv.appendChild(document.createTextNode(' '));
+
+                        prodDiv.appendChild(document.createTextNode('✨ I found ' + products.length + ' matching products!'));
+                        prodDiv.appendChild(document.createElement('br'));
+                        prodDiv.appendChild(document.createElement('br'));
+
                         products.slice(0, 3).forEach(product => {
-                            productHtml += `• ${product.name} - RWF ${parseInt(product.price).toLocaleString()}<br>`;
+                            prodDiv.appendChild(document.createTextNode('• ' + product.name + ' - RWF ' + parseInt(product.price).toLocaleString()));
+                            prodDiv.appendChild(document.createElement('br'));
                         });
-                        appendMessage(productHtml, 'bot');
+
+                        messages.appendChild(prodDiv);
+                        messages.scrollTop = messages.scrollHeight;
                     } else {
                         appendMessage("I couldn't find matching products. Try describing what you're looking for!", 'bot');
                     }
                 }
-                
+
                 resolve(analysis);
             };
-            
+
             img.onerror = () => reject(new Error('Failed to load image'));
             img.src = URL.createObjectURL(file);
         } catch (error) {
@@ -185,7 +230,7 @@ function setupFreeImageUpload() {
     inputArea.insertBefore(fileInput, inputArea.firstChild);
     inputArea.insertBefore(uploadBtn, inputArea.firstChild.nextSibling);
     
-    console.log('✅ FREE image upload enabled!');
+    // console.log('✅ FREE image upload enabled!');
 }
 
 // Auto-initialize when page loads
@@ -194,13 +239,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js';
     script.onload = () => {
-        console.log('✅ TensorFlow.js loaded');
+        // console.log('✅ TensorFlow.js loaded');
         
         // Load MobileNet model
         const modelScript = document.createElement('script');
         modelScript.src = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.js';
         modelScript.onload = () => {
-            console.log('✅ MobileNet model loaded');
+            // console.log('✅ MobileNet model loaded');
             setupFreeImageUpload();
         };
         document.head.appendChild(modelScript);

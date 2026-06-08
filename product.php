@@ -1,13 +1,42 @@
 ﻿<?php
 require_once 'includes/header.php';
 $id   = (int)($_GET['id'] ?? 0);
-$stmt = $conn->prepare("SELECT p.*, c.name as cat_name FROM products p LEFT JOIN categories c ON p.category_id=c.id WHERE p.id=?");
+$stmt = $conn->prepare("SELECT p.*, c.name as cat_name FROM products p LEFT JOIN categories c ON p.category_id=c.id WHERE p.id=? AND p.stock>0");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $p = $stmt->get_result()->fetch_assoc();
 if (!$p) { header('Location: products.php'); exit; }
 
-$related = $conn->query("SELECT * FROM products WHERE category_id={$p['category_id']} AND id!=$id AND stock>0 ORDER BY RAND() LIMIT 4");
+$stmt = $conn->prepare("SELECT * FROM products WHERE category_id=? AND id!=? AND stock>0 ORDER BY RAND() LIMIT 4");
+$stmt->bind_param("ii", $p['category_id'], $id);
+$stmt->execute();
+$related = $stmt->get_result();
+
+// ── Track recently viewed product ──
+$viewSid = $_SESSION['chat_session_id'] ?? (isset($_COOKIE['PHPSESSID']) ? $_COOKIE['PHPSESSID'] : '');
+$viewUid = $_SESSION['user_id'] ?? null;
+if ($viewUid || $viewSid) {
+    $vpId = (int)$p['id'];
+    if ($viewUid) {
+        $vUidInt = (int)$viewUid;
+        $stmt = $conn->prepare("INSERT INTO product_views (user_id, session_id, product_id) VALUES (?, ?, ?)");
+        $stmt->bind_param("isi", $vUidInt, $viewSid, $vpId);
+    } else {
+        $stmt = $conn->prepare("INSERT INTO product_views (user_id, session_id, product_id) VALUES (NULL, ?, ?)");
+        $stmt->bind_param("si", $viewSid, $vpId);
+    }
+    $stmt->execute();
+    // Keep only most recent 50 views per user/session
+    if ($viewUid) {
+        $vUidInt = (int)$viewUid;
+        $stmt = $conn->prepare("DELETE pv FROM product_views pv JOIN (SELECT id FROM product_views WHERE user_id=? ORDER BY viewed_at DESC LIMIT 1 OFFSET 49) keep ON pv.id < keep.id");
+        $stmt->bind_param("i", $vUidInt);
+    } else {
+        $stmt = $conn->prepare("DELETE pv FROM product_views pv JOIN (SELECT id FROM product_views WHERE session_id=? ORDER BY viewed_at DESC LIMIT 1 OFFSET 49) keep ON pv.id < keep.id");
+        $stmt->bind_param("s", $viewSid);
+    }
+    $stmt->execute();
+}
 
 // ── Handle review submission ──
 $review_msg = '';
@@ -17,22 +46,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     } else {
         $uid    = (int)$_SESSION['user_id'];
         $rating = (int)$_POST['rating'];
-        $comment = $conn->real_escape_string(trim($_POST['comment']));
+        $comment = trim($_POST['comment']);
         // Check if already reviewed
-        $exists = $conn->query("SELECT id FROM reviews WHERE product_id=$id AND user_id=$uid")->num_rows;
+        $stmt = $conn->prepare("SELECT id FROM reviews WHERE product_id=? AND user_id=?");
+        $stmt->bind_param("ii", $id, $uid);
+        $stmt->execute();
+        $exists = $stmt->get_result()->num_rows;
         if ($exists) {
-            $conn->query("UPDATE reviews SET rating=$rating, comment='$comment' WHERE product_id=$id AND user_id=$uid");
+            $stmt = $conn->prepare("UPDATE reviews SET rating=?, comment=? WHERE product_id=? AND user_id=?");
+            $stmt->bind_param("isii", $rating, $comment, $id, $uid);
+            $stmt->execute();
             $review_msg = 'success:Your review has been updated!';
         } else {
-            $conn->query("INSERT INTO reviews (product_id, user_id, rating, comment) VALUES ($id, $uid, $rating, '$comment')");
+            $stmt = $conn->prepare("INSERT INTO reviews (product_id, user_id, rating, comment) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("iiis", $id, $uid, $rating, $comment);
+            $stmt->execute();
             $review_msg = 'success:Thank you for your review!';
         }
     }
 }
 
 // ── Load reviews ──
-$reviews    = $conn->query("SELECT r.*, u.name as uname FROM reviews r JOIN users u ON r.user_id=u.id WHERE r.product_id=$id ORDER BY r.created_at DESC");
-$reviewStats = $conn->query("SELECT COUNT(*) as total, AVG(rating) as avg_rating FROM reviews WHERE product_id=$id")->fetch_assoc();
+$stmt = $conn->prepare("SELECT r.*, u.name as uname FROM reviews r JOIN users u ON r.user_id=u.id WHERE r.product_id=? ORDER BY r.created_at DESC");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$reviews    = $stmt->get_result();
+$stmt = $conn->prepare("SELECT COUNT(*) as total, AVG(rating) as avg_rating FROM reviews WHERE product_id=?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$reviewStats = $stmt->get_result()->fetch_assoc();
 $avgRating  = round($reviewStats['avg_rating'] ?? 0, 1);
 $totalReviews = (int)($reviewStats['total'] ?? 0);
 
@@ -40,7 +82,10 @@ $totalReviews = (int)($reviewStats['total'] ?? 0);
 $userReview = null;
 if (isset($_SESSION['user_id'])) {
     $uid = (int)$_SESSION['user_id'];
-    $userReview = $conn->query("SELECT * FROM reviews WHERE product_id=$id AND user_id=$uid")->fetch_assoc();
+    $stmt = $conn->prepare("SELECT * FROM reviews WHERE product_id=? AND user_id=?");
+    $stmt->bind_param("ii", $id, $uid);
+    $stmt->execute();
+    $userReview = $stmt->get_result()->fetch_assoc();
 }
 ?>
 
@@ -101,7 +146,7 @@ if (isset($_SESSION['user_id'])) {
             <!-- Delivery info strip -->
             <div class="row g-2 mb-4">
                 <?php foreach ([
-                    ['bi-truck','Free shipping','on orders above RWF 50k'],
+                    ['bi-truck','Free shipping','on all orders'],
                     ['bi-arrow-counterclockwise','7-day returns','hassle-free'],
                     ['bi-shield-check','Secure payment','SSL encrypted'],
                 ] as [$icon,$t,$s]): ?>
@@ -131,7 +176,10 @@ if (isset($_SESSION['user_id'])) {
             <form method="POST" action="wishlist.php" class="mt-2">
                 <input type="hidden" name="product_id" value="<?= $p['id'] ?>">
                 <?php
-                $inWish = $conn->query("SELECT id FROM wishlists WHERE user_id={$_SESSION['user_id']} AND product_id=$id")->num_rows > 0;
+                $stmt = $conn->prepare("SELECT id FROM wishlists WHERE user_id=? AND product_id=?");
+                $stmt->bind_param("ii", $_SESSION['user_id'], $id);
+                $stmt->execute();
+                $inWish = $stmt->get_result()->num_rows > 0;
                 ?>
                 <input type="hidden" name="action" value="<?= $inWish ? 'remove' : 'add' ?>">
                 <button class="btn btn-outline-secondary w-100" style="border-radius:12px;font-size:.88rem">

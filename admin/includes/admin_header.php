@@ -1,6 +1,21 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params(['httponly' => true, 'samesite' => 'Strict', 'secure' => isset($_SERVER['HTTPS'])]);
+    session_start();
+}
 require_once __DIR__ . '/../../config/db.php';
+require_once __DIR__ . '/../../includes/security.php';
+sendSecurityHeaders();
+// Session timeout: 30 minutes inactivity
+$timeout = 1800;
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeout)) {
+    session_unset();
+    session_destroy();
+    header('Location: ' . SITE_URL . '/login.php?timeout=1');
+    exit;
+}
+$_SESSION['last_activity'] = time();
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: ' . SITE_URL . '/login.php'); exit;
 }

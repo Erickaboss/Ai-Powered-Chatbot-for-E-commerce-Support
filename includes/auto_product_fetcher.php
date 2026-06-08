@@ -16,9 +16,9 @@ class ProductImageFetcher {
     public function __construct() {
         global $conn;
         
-        // Use your existing Google CSE credentials
-        $this->apiKey = defined('_GOOGLE_CSE_KEY') ? _GOOGLE_CSE_KEY : null;
-        $this->cx = defined('_GOOGLE_CSE_CX') ? _GOOGLE_CSE_CX : null;
+        // Use constants defined in config/db.php (loaded from secrets.php)
+        $this->apiKey = defined('GOOGLE_CSE_KEY') ? GOOGLE_CSE_KEY : (defined('_GOOGLE_CSE_KEY') ? _GOOGLE_CSE_KEY : null);
+        $this->cx     = defined('GOOGLE_CSE_CX')  ? GOOGLE_CSE_CX  : (defined('_GOOGLE_CSE_CX')  ? _GOOGLE_CSE_CX  : null);
         
         if (!$this->apiKey || !$this->cx) {
             throw new Exception('Google Custom Search API not configured. Check config/secrets.php');
@@ -129,7 +129,8 @@ class ProductImageFetcher {
      */
     public function enhanceDescription(string $productName, string $currentDesc, string $brand = ''): string {
         // If you have Gemini API configured, use it
-        if (defined('_GEMINI_KEY')) {
+        $geminiKey = defined('GEMINI_API_KEY') ? GEMINI_API_KEY : '';
+        if (!empty($geminiKey) && $geminiKey !== 'your-gemini-api-key-here') {
             return $this->enhanceWithGemini($productName, $currentDesc, $brand);
         }
         
@@ -141,7 +142,7 @@ class ProductImageFetcher {
      * Enhance description using Gemini AI
      */
     private function enhanceWithGemini(string $name, string $desc, string $brand): string {
-        $geminiKey = _GEMINI_KEY;
+        $geminiKey = defined('GEMINI_API_KEY') ? GEMINI_API_KEY : (defined('_GEMINI_KEY') ? _GEMINI_KEY : '');
         
         $prompt = "Enhance this product description to be more detailed and professional. " .
                   "Include specifications, features, and benefits. Keep it under 200 words.\n\n" .

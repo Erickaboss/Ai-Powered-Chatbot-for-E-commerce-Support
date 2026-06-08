@@ -75,7 +75,7 @@ function sendDeliveryNotification(int $orderId, mysqli $conn): bool {
     // Log notification in database
     if ($sent) {
         $orderIdSafe = (int)$orderId;
-        $estDate = date('Y-m-d H:i:s', strtotime('+4 weekdays'));
+        $estDate = $conn->real_escape_string(date('Y-m-d H:i:s', strtotime('+4 weekdays')));
         $conn->query("INSERT INTO delivery_notifications (order_id, notified_at, status, estimated_delivery) VALUES ($orderIdSafe, NOW(), 'shipped', '$estDate')");
     }
     

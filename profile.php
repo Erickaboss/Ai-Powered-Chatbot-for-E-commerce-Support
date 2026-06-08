@@ -5,30 +5,43 @@ $uid = $_SESSION['user_id'];
 $msg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name    = $conn->real_escape_string(trim($_POST['name']));
-    $phone   = $conn->real_escape_string(trim($_POST['phone']));
-    $address = $conn->real_escape_string(trim($_POST['address']));
+    $name    = trim($_POST['name']);
+    $phone   = trim($_POST['phone']);
+    $address = trim($_POST['address']);
     if (!empty($_POST['new_password'])) {
-        $row = $conn->query("SELECT password FROM users WHERE id=$uid")->fetch_assoc();
+        $stmt = $conn->prepare("SELECT password FROM users WHERE id=?");
+        $stmt->bind_param("i", $uid);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
         if (!password_verify($_POST['current_password'], $row['password'])) {
             $msg = 'error:Current password is incorrect.';
         } elseif ($_POST['new_password'] !== $_POST['confirm_password']) {
             $msg = 'error:New passwords do not match.';
         } else {
             $hash = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
-            $conn->query("UPDATE users SET name='$name',phone='$phone',address='$address',password='$hash' WHERE id=$uid");
+            $stmt = $conn->prepare("UPDATE users SET name=?, phone=?, address=?, password=? WHERE id=?");
+            $stmt->bind_param("ssssi", $name, $phone, $address, $hash, $uid);
+            $stmt->execute();
             $_SESSION['user_name'] = $name;
             $msg = 'success:Profile and password updated successfully.';
         }
     } else {
-        $conn->query("UPDATE users SET name='$name',phone='$phone',address='$address' WHERE id=$uid");
+        $stmt = $conn->prepare("UPDATE users SET name=?, phone=?, address=? WHERE id=?");
+        $stmt->bind_param("sssi", $name, $phone, $address, $uid);
+        $stmt->execute();
         $_SESSION['user_name'] = $name;
         $msg = 'success:Profile updated successfully.';
     }
 }
 
-$user  = $conn->query("SELECT * FROM users WHERE id=$uid")->fetch_assoc();
-$stats = $conn->query("SELECT COUNT(*) as total, SUM(CASE WHEN status='delivered' THEN 1 ELSE 0 END) as delivered, COALESCE(SUM(total_price),0) as spent FROM orders WHERE user_id=$uid")->fetch_assoc();
+$stmt = $conn->prepare("SELECT * FROM users WHERE id=?");
+$stmt->bind_param("i", $uid);
+$stmt->execute();
+$user  = $stmt->get_result()->fetch_assoc();
+$stmt = $conn->prepare("SELECT COUNT(*) as total, SUM(CASE WHEN status='delivered' THEN 1 ELSE 0 END) as delivered, COALESCE(SUM(total_price),0) as spent FROM orders WHERE user_id=?");
+$stmt->bind_param("i", $uid);
+$stmt->execute();
+$stats = $stmt->get_result()->fetch_assoc();
 ?>
 
 <div class="page-hero">

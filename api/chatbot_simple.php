@@ -7,10 +7,16 @@
  */
 
 header('Content-Type: application/json');
-error_reporting(0);
-ini_set('display_errors', '0');
+if (defined('WP_DEBUG') && WP_DEBUG) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+} else {
+    error_reporting(E_ERROR | E_PARSE);
+    ini_set('display_errors', '0');
+}
 
 if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../config/db.php';
 
 $conn->query("CREATE TABLE IF NOT EXISTS chatbot_memory (
@@ -25,14 +31,63 @@ $conn->query("CREATE TABLE IF NOT EXISTS chatbot_memory (
 
 function normalizeChatSessionId(string $sessionId): string {
     $clean = preg_replace('/[^a-f0-9]/i', '', $sessionId);
-    return strlen($clean) === 32 ? strtolower($clean) : bin2hex(random_bytes(16));
+    if ($clean === '') return bin2hex(random_bytes(16));
+    if (strlen($clean) < 32) $clean = str_pad($clean, 32, '0');
+    return strtolower(substr($clean, 0, 32));
+}
+
+function autoCorrectMessage(string $msg): string {
+    $typos = [
+        '/\bant\b/i'     => 'any',
+        '/\bandroid\b/i' => 'Android',
+        '/\bteh\b/i'     => 'the',
+        '/\byuo\b/i'     => 'you',
+        '/\badn\b/i'     => 'and',
+        '/\bjstu\b/i'    => 'just',
+        '/\bjsut\b/i'    => 'just',
+        '/\bwaht\b/i'    => 'what',
+        '/\bhtat\b/i'    => 'that',
+        '/\btaht\b/i'    => 'that',
+        '/\bhten\b/i'    => 'then',
+        '/\bthna\b/i'    => 'than',
+        '/\bwoudl\b/i'   => 'would',
+        '/\bshoudl\b/i'  => 'should',
+        '/\bcoudl\b/i'   => 'could',
+        '/\bale\b/i'     => 'all',
+        '/\bdont\b/i'    => "don't",
+        '/\bdidnt\b/i'   => "didn't",
+        '/\bcant\b/i'    => "can't",
+        '/\bwont\b/i'    => "won't",
+        '/\bwont\b/i'    => "won't",
+        '/\bisnt\b/i'    => "isn't",
+        '/\barent\b/i'   => "aren't",
+        '/\bwasnt\b/i'   => "wasn't",
+        '/\bwerent\b/i'  => "weren't",
+        '/\bhavent\b/i'  => "haven't",
+        '/\bhasnt\b/i'   => "hasn't",
+        '/\bhadnt\b/i'   => "hadn't",
+        '/\bdoesnt\b/i'  => "doesn't",
+        '/\bpls\b/i'     => 'please',
+        '/\bplz\b/i'     => 'please',
+        '/\bthx\b/i'     => 'thanks',
+        '/\bthnx\b/i'    => 'thanks',
+        '/\bty\b/i'      => 'thank you',
+        '/\bprods\b/i'   => 'products',
+        '/\bprods\b/i'   => 'products',
+        '/\bgonna\b/i'   => 'going to',
+        '/\bwanna\b/i'   => 'want to',
+    ];
+    return preg_replace(array_keys($typos), array_values($typos), $msg);
 }
 
 function resolveAuthenticatedUser($conn): ?int {
     $uid = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
     if ($uid <= 0) return null;
 
-    $res = $conn->query("SELECT id FROM users WHERE id=$uid LIMIT 1");
+    $stmt = $conn->prepare("SELECT id FROM users WHERE id=? LIMIT 1");
+    $stmt->bind_param("i", $uid);
+    $stmt->execute();
+    $res = $stmt->get_result();
     if ($res && $res->num_rows > 0) return $uid;
 
     unset($_SESSION['user_id']);
@@ -54,8 +109,10 @@ if ($action === 'history') {
         $r = $conn->query("SELECT message, response, created_at FROM (SELECT message, response, created_at FROM chatbot_logs WHERE user_id=$uid ORDER BY created_at DESC LIMIT 40) recent ORDER BY created_at ASC");
         if ($r) while ($row = $r->fetch_assoc()) $history[] = $row;
     } elseif (strlen($sid) === 32) {
-        $s = $conn->real_escape_string($sid);
-        $r = $conn->query("SELECT message, response, created_at FROM (SELECT message, response, created_at FROM chatbot_logs WHERE session_id='$s' ORDER BY created_at DESC LIMIT 40) recent ORDER BY created_at ASC");
+        $stmt = $conn->prepare("SELECT message, response, created_at FROM (SELECT message, response, created_at FROM chatbot_logs WHERE session_id=? ORDER BY created_at DESC LIMIT 40) recent ORDER BY created_at ASC");
+        $stmt->bind_param("s", $sid);
+        $stmt->execute();
+        $r = $stmt->get_result();
         if ($r) while ($row = $r->fetch_assoc()) $history[] = $row;
     }
     echo json_encode(['history' => $history]);
@@ -69,10 +126,12 @@ if ($action === 'rate') {
     $logId  = (int)($input['log_id'] ?? 0);
     $rating = (int)($input['rating'] ?? -1);
     $uid2   = resolveAuthenticatedUser($conn);
-    $sid2   = $conn->real_escape_string(preg_replace('/[^a-f0-9]/i', '', $input['session_id'] ?? ''));
+    $sid2   = preg_replace('/[^a-f0-9]/i', '', $input['session_id'] ?? '');
     if ($logId && in_array($rating, [0, 1])) {
-        $ui2 = $uid2 ? (int)$uid2 : 'NULL';
-        $conn->query("INSERT IGNORE INTO chatbot_ratings (log_id, user_id, session_id, rating) VALUES ($logId, $ui2, '$sid2', $rating)");
+        $stmt = $conn->prepare("INSERT IGNORE INTO chatbot_ratings (log_id, user_id, session_id, rating) VALUES (?, ?, ?, ?)");
+        $userIdParam = $uid2 ? (int)$uid2 : null;
+        $stmt->bind_param("iisi", $logId, $userIdParam, $sid2, $rating);
+        $stmt->execute();
     }
     echo json_encode(['ok' => true]);
     exit;
@@ -98,10 +157,10 @@ function analyzeImageWithGemini(string $tmpPath, string $mimeType): ?array {
         'generationConfig' => ['temperature' => 0.4, 'maxOutputTokens' => 256]
     ]);
 
-    $models = ['gemini-2.5-flash-lite', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+    $models = ['gemini-2.5-flash-lite', 'gemini-2.0-flash-lite', 'gemini-2.0-flash', 'gemini-1.5-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-pro'];
     foreach ($models as $model) {
-        $ch = curl_init("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}");
-        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_POST => true, CURLOPT_POSTFIELDS => $payload, CURLOPT_HTTPHEADER => ['Content-Type: application/json'], CURLOPT_TIMEOUT => 15]);
+        $ch = curl_init("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent");
+        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_POST => true, CURLOPT_POSTFIELDS => $payload, CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'X-Goog-Api-Key: ' . $apiKey], CURLOPT_TIMEOUT => 15]);
         $resp = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
@@ -221,8 +280,8 @@ if ($action === 'upload') {
                     ]],
                     'generationConfig' => ['temperature' => 0.2, 'maxOutputTokens' => 512]
                 ]);
-                $ch = curl_init("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}");
-                curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_POST => true, CURLOPT_POSTFIELDS => $payload, CURLOPT_HTTPHEADER => ['Content-Type: application/json'], CURLOPT_TIMEOUT => 15]);
+                $ch = curl_init("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent");
+                curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_POST => true, CURLOPT_POSTFIELDS => $payload, CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'X-Goog-Api-Key: ' . $apiKey], CURLOPT_TIMEOUT => 15]);
                 $resp = curl_exec($ch);
                 $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
@@ -244,7 +303,9 @@ if ($action === 'upload') {
                     $zip->close();
                     if ($xml) {
                         $dom = new DOMDocument();
-                        @$dom->loadXML($xml);
+                        if (!$dom->loadXML($xml)) {
+            error_log('CHATBOT: Failed to parse DOCX XML for file upload');
+        }
                         $xpath = new DOMXPath($dom);
                         $nodes = $xpath->query('//w:t');
                         $parts = [];
@@ -277,11 +338,13 @@ if ($action === 'upload') {
     }
 
     // Save log
-    $sm   = $conn->real_escape_string("📎 [{$ext}: {$file['name']}] " . ($msg ?: 'File uploaded'));
-    $sr   = $conn->real_escape_string($response);
-    $ui   = $uid ? (int)$uid : 'NULL';
-    $s    = $conn->real_escape_string($sid);
-    $conn->query("INSERT INTO chatbot_logs (user_id, session_id, is_guest, message, response, sentiment_score, sentiment_label) VALUES ($ui, '$s', " . ($uid ? 0 : 1) . ", '$sm', '$sr', 0.5, 'neutral')");
+    $sm    = "📎 [{$ext}: {$file['name']}] " . ($msg ?: 'File uploaded');
+    $sr    = $response;
+    $ui    = $uid ? (int)$uid : null;
+    $guest = $uid ? 0 : 1;
+    $stmt  = $conn->prepare("INSERT INTO chatbot_logs (user_id, session_id, is_guest, message, response, response_source, sentiment_score, sentiment_label) VALUES (?, ?, ?, ?, ?, 'image', 0.5, 'neutral')");
+    $stmt->bind_param("isiss", $ui, $sid, $guest, $sm, $sr);
+    $stmt->execute();
     $logId = (int)$conn->insert_id;
 
     echo json_encode(['response' => $response, 'quick_replies' => $quickReplies, 'session_id' => $sid, 'log_id' => $logId]);
@@ -300,7 +363,13 @@ try {
         exit;
     }
 
-    $isDirectGreeting = preg_match('/^\s*(hi|hello|hey|good morning|good afternoon|good evening|muraho|bonjour|salut)\s*[!.?]*\s*$/i', $message);
+    $originalMessage = $message;
+    $message = autoCorrectMessage($message);
+    if ($message !== $originalMessage) {
+        error_log("CHATBOT: Auto-corrected \"$originalMessage\" -> \"$message\"");
+    }
+
+    $isDirectGreeting = preg_match('/^\s*(hi|hello|hey|good morning|morning|good afternoon|good evening|muraho|bonjour|salut)\s*[!.?]*\s*$/i', $message);
     $isDirectAck = preg_match('/^\s*(ok|okay|k|yes|yeah|yep|sure|alright|fine|got it|noted|yego|oui)\s*[!.?]*\s*$/i', $message);
 
     // Resolve authenticated users only from the PHP session cookie.
@@ -312,22 +381,49 @@ try {
     $ctx = loadChatMemory($conn, $user_id ? (int)$user_id : null, $session_id);
     $ctx['customer'] = getCustomerProfile($conn, $user_id ? (int)$user_id : null);
 
+    // ── Feedback handling (thumbs up / down) ──
+    $fbMsg = trim($message);
+    $isThumbsDown = stripos($fbMsg, 'not helpful') !== false || $fbMsg === 'no' || $fbMsg === 'bad' || $fbMsg === 'poor' || stripos($fbMsg, "\xF0\x9F\x91\x8E") !== false;
+    // "no" is NOT feedback when an active guided state is expecting a yes/no answer
+    if (($ctx['conversation_state'] ?? null) !== null && $fbMsg === 'no') $isThumbsDown = false;
+    $isThumbsUp   = !$isThumbsDown && (stripos($fbMsg, 'helpful') !== false || $fbMsg === 'good' || $fbMsg === 'great' || stripos($fbMsg, "\xF0\x9F\x91\x8D") !== false);
+    if ($isThumbsUp || $isThumbsDown) {
+        $rating = $isThumbsUp ? 1 : 0;
+        $logId = (int)($ctx['last_log_id'] ?? 0);
+        $stmtFb = $conn->prepare("INSERT INTO chatbot_feedback (log_id, session_id, user_id, rating) VALUES (?, ?, ?, ?)");
+        $uiFb = $user_id ? (int)$user_id : null;
+        $stmtFb->bind_param("isii", $logId, $session_id, $uiFb, $rating);
+        $stmtFb->execute();
+        $reply = $isThumbsUp
+            ? "🙌 Glad I could help! Let me know if you need anything else."
+            : "😔 Sorry I couldn't help. Please try rephrasing your question or contact support.";
+        echo json_encode(withFeedback([
+            'response' => $reply,
+            'quick_replies' => ['Show me products', 'Browse categories', 'Contact support'],
+            'session_id' => $session_id,
+            'log_id' => $logId,
+        ]));
+        exit;
+    }
+
     // ============================================================
     // STEP 1: ML MODEL — classify intent via Flask SVM
     // ============================================================
-    $intent     = $isDirectGreeting ? 'greeting' : ($isDirectAck ? 'acknowledgement' : 'unknown');
-    $confidence = ($isDirectGreeting || $isDirectAck) ? 1.0 : 0.0;
-    $mlOnline   = (bool)($isDirectGreeting || $isDirectAck);
+    $intent          = $isDirectGreeting ? 'greeting' : ($isDirectAck ? 'acknowledgement' : 'unknown');
+    $confidence      = ($isDirectGreeting || $isDirectAck) ? 1.0 : 0.0;
+    $mlOnline        = (bool)($isDirectGreeting || $isDirectAck);
+    $mlSentiment     = 'neutral';
+    $mlSentimentScore = 0.0;
 
     if (!$isDirectGreeting && !$isDirectAck) {
-        $ch = curl_init('http://127.0.0.1:5001/predict');
+        $ch = curl_init(ML_API_BASE . '/predict/ensemble');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => json_encode(['message' => $message, 'model' => 'best']),
+            CURLOPT_POSTFIELDS     => json_encode(['message' => $message]),
             CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
-            CURLOPT_TIMEOUT        => 3,
-            CURLOPT_CONNECTTIMEOUT => 2,
+            CURLOPT_TIMEOUT        => 5,
+            CURLOPT_CONNECTTIMEOUT => 3,
         ]);
         $flask_resp = curl_exec($ch);
         $http_code  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -336,9 +432,11 @@ try {
         if ($http_code === 200 && $flask_resp) {
             $ml_data = json_decode($flask_resp, true);
             if ($ml_data && isset($ml_data['intent'])) {
-                $intent     = $ml_data['intent'];
-                $confidence = (float)($ml_data['confidence'] ?? 0);
-                $mlOnline   = true;
+                $intent          = $ml_data['intent'];
+                $confidence      = (float)($ml_data['confidence'] ?? 0);
+                $mlSentiment     = $ml_data['sentiment_label'] ?? 'neutral';
+                $mlSentimentScore = (float)($ml_data['sentiment_score'] ?? 0.0);
+                $mlOnline        = true;
             }
         }
     }
@@ -358,6 +456,15 @@ try {
         $intent = 'return_request';
     } elseif (preg_match('/\b(how\s+(can|do)\s+i\s+(buy|purchase|order|place an order)|how\s+to\s+(buy|purchase|order|checkout)|place\s+(an\s+)?order|make\s+(an\s+)?order|complete\s+(my\s+)?purchase|checkout)\b/i', $mlower)) {
         $intent = 'order_place';
+    } elseif (preg_match('/\b(sort(?:ed|ing)?\s+(by|according\s+to)?\s*(price|rating|popularity|name)|sort by)\b/i', $mlower)) {
+        $intent = 'product_search';
+    } elseif (preg_match('/\b(cheapest|lowest price|most expensive|highest price)\b/i', $mlower)) {
+        $intent = 'product_search';
+    }
+
+    // Override product_rating for "rating" in "sorted by rating" context
+    if ($intent === 'product_rating' && preg_match('/\b(sort(?:ed|ing)?\s+(by|according\s+to)?\s*(rating|popularity))|(top rated|best rated|highest rated)\b/i', $mlower)) {
+        $intent = 'product_search';
     }
 
     // ============================================================
@@ -398,53 +505,59 @@ try {
     // ── Update context memory ──
     $detectedCat    = detectCategory($message);
     $detectedBudget = parsePriceFilter($message);
+    $detectedSearch = extractProductSearchTerm($message);
     if ($detectedCat)    { $ctx['last_category'] = $detectedCat; $ctx['page_offset'] = 0; }
     if ($detectedBudget) { $ctx['last_budget']   = $detectedBudget; $ctx['page_offset'] = 0; }
+    if ($detectedSearch) { $ctx['last_search_term'] = $detectedSearch; $ctx['page_offset'] = 0; }
     $ctx['last_intent'] = $intent;
 
+
+    // Append to conversation history (keep last 20 turns)
+    if (!isset($ctx['conversation_history']) || !is_array($ctx['conversation_history'])) {
+        $ctx['conversation_history'] = [];
+    }
+    $ctx['conversation_history'][] = ['role' => 'user', 'text' => $message];
+    $ctx['conversation_history'][] = ['role' => 'bot', 'text' => strip_tags($response)];
+    if (count($ctx['conversation_history']) > 40) {
+        $ctx['conversation_history'] = array_slice($ctx['conversation_history'], -40);
+    }
+
     // ── Save to chatbot_logs ──
+    $ui    = $user_id ? (int)$user_id : null;
+    $guest = $user_id ? 0 : 1;
+    $sourceDb = $usedGemini ? 'gemini' : ($mlOnline && $confidence >= 0.35 ? 'ml' : 'php');
+    $sentLabel = $mlSentiment ?? 'neutral';
+    $sentScore = $mlSentimentScore ?? 0.5;
+    $stmt  = $conn->prepare("INSERT INTO chatbot_logs (user_id, session_id, is_guest, message, response, response_source, sentiment_score, sentiment_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("isisssds", $ui, $session_id, $guest, $message, $response, $sourceDb, $sentScore, $sentLabel);
+    $stmt->execute();
+    $log_id = (int)$conn->insert_id;
+
     $ctx['last_user_message'] = $message;
     $ctx['last_bot_response'] = strip_tags($response);
+    $ctx['last_log_id'] = $log_id;
     unset($ctx['customer']);
     saveChatMemory($conn, $user_id ? (int)$user_id : null, $session_id, $ctx);
 
-    $sm   = $conn->real_escape_string($message);
-    $sr   = $conn->real_escape_string($response);
-    $sid  = $conn->real_escape_string($session_id);
-    $ui   = $user_id ? (int)$user_id : 'NULL';
-    $guest = $user_id ? 0 : 1;
-    $conn->query("INSERT INTO chatbot_logs (user_id, session_id, is_guest, message, response, sentiment_score, sentiment_label)
-                  VALUES ($ui, '$sid', $guest, '$sm', '$sr', 0.5, 'neutral')");
-    $log_id = (int)$conn->insert_id;
-
-    $responseProducts = $result['products'] ?? [];
-    echo json_encode([
+    echo json_encode(withFeedback([
         'response'      => $response,
         'quick_replies' => $quick_replies,
         'session_id'    => $session_id,
         'log_id'        => $log_id,
-        'intent'        => $intent,
-        'confidence'    => $confidence,
-        'response_source' => $responseSource,
-        'used_gemini'   => $usedGemini,
-        'ml_online'     => $mlOnline,
-        'authenticated' => (bool)$user_id,
-        'user_type'     => $user_id ? 'authenticated' : 'guest',
-        'products'      => $responseProducts,
-    ]);
+    ]));
 
 } catch (Throwable $e) {
     error_log('CHATBOT_SIMPLE ERROR: ' . $e->getMessage() . ' | ' . $e->getFile() . ':' . $e->getLine());
     // Even on crash — try to show products
     $fallback = tryShowProducts($conn ?? null);
-    echo json_encode([
+    echo json_encode(withFeedback([
         'response'      => $fallback['response'],
         'quick_replies' => $fallback['quick_replies'],
         'session_id'    => $session_id ?? '',
         'log_id'        => 0,
         'intent'        => 'error',
         'confidence'    => 0,
-    ]);
+    ]));
 }
 exit;
 
@@ -453,9 +566,9 @@ exit;
 // ============================================================
 function detectIntentFallback(string $msg): string {
     $ml = strtolower($msg);
-    if (preg_match('/^\s*(ok|okay|k|yes|yeah|yep|sure|alright|fine|got it|noted|yego|oui)\s*[!.?]*\s*$/i', $msg)) return 'acknowledgement';
+    if (preg_match('/^\s*(ok|okay|k|yes|yeah|yep|sure|alright|fine|got it|noted|yego|ego|oui)\s*[!.?]*\s*$/i', $msg)) return 'acknowledgement';
     if (preg_match('/\b(how\s+(can|do)\s+i\s+(buy|purchase|order|place an order)|how\s+to\s+(buy|purchase|order|checkout)|place\s+(an\s+)?order|make\s+(an\s+)?order|complete\s+(my\s+)?purchase|checkout)\b/i', $ml)) return 'order_place';
-    if (extractOrderReference($msg) || preg_match('/\b(track|order status|where is my order|my order|my orders|order number|commande|commande num|status.*order|order.*status)\b/i', $ml)) return 'order_track';
+    if (extractOrderReference($msg) || preg_match('/\b(track|order status|where is my order|my order|my orders|order number|commande|commande num|status.*order|order.*status|gukurikirana|itegeko)\b/i', $ml)) return 'order_track';
     if (preg_match('/\b(rate|rating|feedback)\b.*\b(chat|bot|chatbot|answer|response)\b|\b(chat|bot|chatbot|answer|response)\b.*\b(rate|rating|feedback)\b/i', $ml)) return 'chatbot_rating';
     if (preg_match('/\b(rating|ratings|review|reviews|stars?|rated|customer feedback)\b/i', $ml)) return 'product_rating';
     if (preg_match('/\b(compare|comparison|versus|vs\.?)\b/i', $ml)) return 'product_compare';
@@ -463,23 +576,31 @@ function detectIntentFallback(string $msg): string {
     if (preg_match('/\b(under|below|less than|within|budget|afford|up to|max|maximum|between|from|range|over|above|more than|at least|minimum|about|around|approximately|approx|roughly)\b/i', $ml) && preg_match('/\d/', $ml)) return 'budget_search';
     if (preg_match('/\b(any|some|something|anything|what do you have|got anything|show me|find me)\b.*\b(products?|items?|things?|options?|choices?)\b/i', $ml) && preg_match('/\d/', $ml)) return 'budget_search';
     if (preg_match('/\b(my budget|i have|i can spend|i want to spend)\b.*\d/i', $ml)) return 'budget_search';
-    if (preg_match('/\b(how much|price of|cost of|what.*price|price.*what|tell me the price)\b/i', $ml)) return 'product_price';
-    if (preg_match('/\b(in stock|available|availability|stock of|can i buy)\b/i', $ml)) return 'stock_check';
+    if (preg_match('/\b(how many|total\s*(products?|items?)|count\s*(products?|items?)|number\s+of\s*products|product\s*count)\b/i', $ml)) return 'store_info';
+    if (preg_match('/\b(tell me about|about\s+(your|the)\s*(store|shop|platform|website)|what is\s*(this|shopai|your platform)|who are you|what do you sell|describe\s*(your|the)\s*(store|shop)|sobanura|ni iki|iki?\s*(ni|cya|ya))\b/i', $ml)) return 'store_info';
+    if (preg_match('/\b(how much|price of|cost of|what.*price|price.*what|tell me the price|angahe|ibiciro bya)\b/i', $ml)) return 'product_price';
+    if (preg_match('/\b(in stock|available|availability|stock of|can i buy|ibihari|hari\s+(muri|mu)\s+stoko|birahari)\b/i', $ml)) return 'stock_check';
     if (preg_match('/\b(browse categories|show categories|all categories|what categories|list categories)\b/i', $ml)) return 'category_search';
-    if (preg_match('/\b(show me|browse|list|all|display)\b.*\b(phones?|laptops?|fashion|groceries|health|sports?|baby|furniture|tv|audio|jewelry|gaming|books?|car|appliance)\b/i', $ml)) return 'category_search';
-    if (preg_match('/\b(show me products|all products|browse products|show products|view products)\b/i', $ml)) return 'product_search';
-    if (preg_match('/\b(show me|find|i want|looking for|do you have|get me|search|i need|buy|purchase)\b/i', $ml)) return 'product_search';
+    if (preg_match('/\b(sort(?:ed|ing)?\s+(by|according\s+to)?\s*(price|rating|popularity|name|cheapest|most expensive)|sort by|ordered by|arrange)\b/i', $ml)) return 'product_search';
+    if (preg_match('/\b(cheapest|lowest price|most expensive|highest price|top rated|best rated|most popular|top selling)\b/i', $ml)) return 'product_search';
+    if (preg_match('/\b(show me more|more products|more items|next page|show more|see more|load more)\b/i', $ml)) return 'product_search';
+    if (preg_match('/\b(similar|related|something like|like this|alternatives|other options|anything else|what else|also have|also available)\b/i', $ml)) return 'product_search';
+    if (preg_match('/\b(show me|browse|list|all|display|ndeba|mbereka|ibyumba|ibicuruzwa)\b.*\b(phones?|laptops?|fashion|groceries|health|sports?|baby|furniture|tv|audio|jewelry|gaming|books?|car|appliance)\b/i', $ml)) return 'category_search';
+    if (preg_match('/\b(?:my\s+)?budget\b/i', $ml)) return 'budget_search';
+    if (preg_match('/\b(cheaper|less expensive|more affordable|budget friendly|under budget)\b/i', $ml) && preg_match('/\d/', $ml)) return 'budget_search';
+    if (preg_match('/\b(show me products|all products|browse products|show products|view products|ibicuruzwa byose)\b/i', $ml)) return 'product_search';
+    if (preg_match('/\b(show me|find|i want|looking for|do you have|get me|search|i need|buy|purchase|i have|ndeba|ndashaka|mbereka|shakisha|shaka|mfasha.*gushaka)\b/i', $ml)) return 'product_search';
     // Brand search — detect known brand names (handles Kinyarwanda like "mpayitza ya tecno")
     $brands = ['samsung','apple','hp','dell','lenovo','asus','acer','lg','sony','hisense','tecno','infinix','xiaomi','huawei','oppo','vivo','itel','nike','adidas','casio','pampers','johnson','lego','graco','motorola','nestle','colgate','ariel','dettol','heinz','pringles','coca-cola','nivea','neutrogena','garnier','dove','oral-b','centrum','vaseline','gillette','maybelline','indomie','lipton','inyange','akabanga','kimbo','philips','ramtons','bruhm','dyson','midea','kenwood','panasonic','jbl','bose','logitech','clarks','levis','zara','converse','fossil'];
     foreach ($brands as $b) { if (stripos($ml, $b) !== false) return 'brand_search'; }
-    if (preg_match('/^(hi|hello|hey|good morning|good afternoon|good evening|muraho|bonjour|salut)\b/i', $ml)) return 'greeting';
-    if (preg_match('/\b(delivery|shipping|how long|when will|arrive|dispatch)\b/i', $ml)) return 'delivery_time';
-    if (preg_match('/\b(payment|pay|momo|airtel|cash|card|visa|mastercard)\b/i', $ml)) return 'payment_methods';
-    if (preg_match('/\b(return|refund|exchange|money back|send back)\b/i', $ml)) return 'return_policy';
-    if (preg_match('/\b(warranty|guarantee|broken|defective)\b/i', $ml)) return 'warranty';
-    if (preg_match('/\b(help|support|contact|problem|issue|complaint)\b/i', $ml)) return 'contact_support';
-    if (preg_match('/\b(thank|thanks|merci|murakoze)\b/i', $ml)) return 'thanks';
-    if (preg_match('/\b(bye|goodbye|see you|au revoir)\b/i', $ml)) return 'goodbye';
+    if (preg_match('/^(hi|hello|hey|good morning|morning|good afternoon|good evening|muraho|bonjour|salut|amakuru|bite|mwiriwe|mwaramutse)\b/i', $ml)) return 'greeting';
+    if (preg_match('/\b(delivery|shipping|how long|when will|arrive|dispatch|gutanga|kohereza)\b/i', $ml)) return 'delivery_time';
+    if (preg_match('/\b(payment|pay|momo|airtel|cash|card|visa|mastercard|kwishyura|uburyo.*kwishyura)\b/i', $ml)) return 'payment_methods';
+    if (preg_match('/\b(return|refund|exchange|money back|send back|gusubiza|kubisubiza)\b/i', $ml)) return 'return_policy';
+    if (preg_match('/\b(warranty|guarantee|broken|defective|icyizere)\b/i', $ml)) return 'warranty';
+    if (preg_match('/\b(help|support|contact|problem|issue|complaint|mfasha|ubufasha|ikibazo)\b/i', $ml)) return 'contact_support';
+    if (preg_match('/\b(thank|thanks|merci|murakoze|urakoze)\b/i', $ml)) return 'thanks';
+    if (preg_match('/\b(bye|goodbye|see you|au revoir|muramuke|nzagaruka|mwirirwe)\b/i', $ml)) return 'goodbye';
     return 'product_search';
 }
 
@@ -490,7 +611,8 @@ function isLocalCommerceIntent(string $intent): bool {
         'order_track', 'order_history', 'order_place', 'delivery_time', 'shipping_fee',
         'payment_methods', 'return_policy', 'warranty', 'contact_support',
         'support_ticket', 'chatbot_rating', 'account_help', 'place_order',
-        'guest_order_guide', 'return_request'
+        'guest_order_guide', 'return_request',
+        'store_info', 'bot_identity', 'platform_info'
     ], true);
 }
 
@@ -531,15 +653,26 @@ function parsePriceFilter(string $text): ?array {
         }
     }
 
-    if (preg_match('/(?:under|below|less than|within|budget|up to|max|maximum|at most|cheaper than|moins de|jusqu|munsi ya|ntarenze|atarengeje|my budget is|i have|i can spend)\s*(?:rwf|frw|amafaranga|francs?)?\s*' . $num . '/iu', $normalized, $m)
+    if (preg_match('/(?:under|below|less than|within|budget|up to|max|maximum|at most|cheaper than|about|around|approximately|approx|roughly|only|moins de|jusqu|munsi ya|ntarenze|atarengeje|my budget is|i have|i can spend)\s*(?:rwf|frw|amafaranga|francs?)?\s*' . $num . '/iu', $normalized, $m)
         || preg_match('/(?:rwf|frw|amafaranga|francs?)?\s*' . $num . '\s*(?:or less|and below|max|maximum|budget)/iu', $normalized, $m)) {
         $max = parseMoneyAmount($m[1], $m[2] ?? '');
         if ($max > 0) {
+            $qual = detectPriceQualifier($normalized);
+            if ($qual === 'around') {
+                $range = max(1, (int)($max * 0.2));
+                return [
+                    'min' => (int)($max - $range),
+                    'max' => (int)($max + $range),
+                    'exact' => false,
+                    'label' => 'around RWF ' . number_format($max),
+                ];
+            }
+            $label = $qual === 'over' ? 'over' : 'under';
             return [
                 'min' => null,
                 'max' => $max,
                 'exact' => false,
-                'label' => 'under RWF ' . number_format($max),
+                'label' => $label . ' RWF ' . number_format($max),
             ];
         }
     }
@@ -552,6 +685,18 @@ function parsePriceFilter(string $text): ?array {
                 'max' => null,
                 'exact' => false,
                 'label' => 'from RWF ' . number_format($min),
+            ];
+        }
+    }
+
+    if (preg_match('/\bon\s+(?:rwf|frw|amafaranga|francs?)?\s*' . $num . '/iu', $normalized, $m)) {
+        $amount = parseMoneyAmount($m[1], $m[2] ?? '');
+        if ($amount > 0) {
+            return [
+                'min' => $amount,
+                'max' => $amount,
+                'exact' => true,
+                'label' => 'at exactly RWF ' . number_format($amount),
             ];
         }
     }
@@ -642,25 +787,38 @@ function isOrderConversation(string $message, array $ctx = []): bool {
 }
 
 function getOrderWithItems($conn, int $userId, ?int $orderId = null): ?array {
-    $where = "o.user_id=" . (int)$userId;
-    if ($orderId) $where .= " AND o.id=" . (int)$orderId;
-
-    $orderRes = $conn->query("SELECT o.*, u.name AS customer_name, u.email AS customer_email
-                              FROM orders o
-                              JOIN users u ON u.id=o.user_id
-                              WHERE $where
-                              ORDER BY o.created_at DESC, o.id DESC
-                              LIMIT 1");
+    if ($orderId) {
+        $stmtOrd = $conn->prepare("SELECT o.*, u.name AS customer_name, u.email AS customer_email
+                                    FROM orders o
+                                    JOIN users u ON u.id=o.user_id
+                                    WHERE o.user_id=? AND o.id=?
+                                    ORDER BY o.created_at DESC, o.id DESC
+                                    LIMIT 1");
+        $stmtOrd->bind_param("ii", $userId, $orderId);
+    } else {
+        $stmtOrd = $conn->prepare("SELECT o.*, u.name AS customer_name, u.email AS customer_email
+                                    FROM orders o
+                                    JOIN users u ON u.id=o.user_id
+                                    WHERE o.user_id=?
+                                    ORDER BY o.created_at DESC, o.id DESC
+                                    LIMIT 1");
+        $stmtOrd->bind_param("i", $userId);
+    }
+    $stmtOrd->execute();
+    $orderRes = $stmtOrd->get_result();
     if (!$orderRes || $orderRes->num_rows === 0) return null;
 
     $order = $orderRes->fetch_assoc();
     $oid = (int)$order['id'];
     $items = [];
-    $itemsRes = $conn->query("SELECT oi.quantity, oi.price, p.name, p.image
-                              FROM order_items oi
-                              JOIN products p ON p.id=oi.product_id
-                              WHERE oi.order_id=$oid
-                              ORDER BY oi.id ASC");
+    $stmtItems = $conn->prepare("SELECT oi.quantity, oi.price, p.name, p.image
+                                  FROM order_items oi
+                                  JOIN products p ON p.id=oi.product_id
+                                  WHERE oi.order_id=?
+                                  ORDER BY oi.id ASC");
+    $stmtItems->bind_param("i", $oid);
+    $stmtItems->execute();
+    $itemsRes = $stmtItems->get_result();
     if ($itemsRes) {
         while ($item = $itemsRes->fetch_assoc()) $items[] = $item;
     }
@@ -731,7 +889,10 @@ function formatOrderDetails(array $order): array {
 }
 
 function formatRecentOrders($conn, int $userId): array {
-    $res = $conn->query("SELECT id, total_price, status, created_at FROM orders WHERE user_id=$userId ORDER BY created_at DESC, id DESC LIMIT 5");
+    $stmtOrd2 = $conn->prepare("SELECT id, total_price, status, created_at FROM orders WHERE user_id=? ORDER BY created_at DESC, id DESC LIMIT 5");
+    $stmtOrd2->bind_param("i", $userId);
+    $stmtOrd2->execute();
+    $res = $stmtOrd2->get_result();
     if (!$res || $res->num_rows === 0) {
         return [
             'response' => "📦 I do not see any orders on your account yet. When you place an order, I will be able to track it here.",
@@ -759,7 +920,9 @@ function defaultChatMemory(): array {
     return [
         'last_category' => null,
         'last_budget' => null,
-        'last_products' => [],
+        'last_search_term' => null,
+        'last_search_sort' => null,
+        'last_shown_products' => [],
         'last_intent' => null,
         'last_order_id' => null,
         'last_user_message' => null,
@@ -767,6 +930,7 @@ function defaultChatMemory(): array {
         'page_offset' => 0,
         'conversation_state' => null,
         'conversation_data' => [],
+        'conversation_history' => [],
     ];
 }
 
@@ -779,9 +943,10 @@ function handleGuidedSelling(string $message, $conn, array &$ctx): ?array {
     $state = $ctx['conversation_state'] ?? null;
     $data  = $ctx['conversation_data'] ?? [];
 
-    // Detect buying intent to START the flow
-    $buyingIntent = preg_match('/\b(help me find|help me choose|recommend|suggest|advise|what.*good|what.*best|i want to buy|i need to buy|i am looking|guide me|ndashaka|nshaka|mfasha)\b/i', $ml);
-    if (!$state && $buyingIntent && !detectCategory($message) && !parsePriceFilter($message)) {
+    // Guided buying flow for English queries without existing context
+    $buyingIntent = preg_match('/\b(help me find|help me choose|recommend|suggest|advise|what.*good|what.*best|i want to buy|i need to buy|i am looking|guide me)\b/i', $ml);
+    $ctxHasProduct = !empty($ctx['last_search_term']) || !empty($ctx['last_category']);
+    if (!$state && $buyingIntent && !detectCategory($message) && !parsePriceFilter($message) && !$ctxHasProduct) {
         $ctx['conversation_state'] = 'awaiting_category';
         return [
             'response' => "🛍️ I'd love to help you find the perfect product!<br><br>What category are you interested in? We have:<br>• 📱 Phones & Tablets<br>• 💻 Laptops & Computers<br>• 📺 TVs & Audio<br>• 🏠 Home Appliances<br>• 👔 Men's Fashion<br>• 👗 Women's Fashion<br>• 🛒 Groceries & Food<br>• 💄 Beauty & Health<br>• ⚽ Sports & Fitness<br>• 🧸 Baby & Kids<br>• 🛋️ Furniture<br>• 🚗 Car Accessories<br>• 📚 Books & Stationery<br>• ⌚ Watches & Jewelry<br>• 🎮 Gaming",
@@ -826,15 +991,92 @@ function handleGuidedSelling(string $message, $conn, array &$ctx): ?array {
                 $title = $cat ? "$cat under " . priceFilterLabel($budget) : "Products " . priceFilterLabel($budget);
                 return formatProductList($products, $title);
             }
+            $ctx['conversation_state'] = 'awaiting_similar_confirm';
+            $ctx['conversation_data'] = [
+                'similar_search_term' => $cat,
+                'similar_category' => $cat,
+                'original_message' => $message,
+            ];
             return [
-                'response' => "I couldn't find products matching <strong>$cat</strong> " . priceFilterLabel($budget) . ". Try a different budget or category?",
-                'quick_replies' => ['Change budget', 'Change category', 'Show me all products'],
+                'response' => "Thank you for your inquiry. Unfortunately, the product you requested is not currently available in our database. Would you like me to suggest similar products that are available?",
+                'quick_replies' => ['Yes, show me similar', 'No, thanks'],
             ];
         }
         // No budget detected — ask again
         return [
             'response' => "What's your budget? For example: <em>under 200k</em>, <em>between 50k and 150k</em>, <em>around 100k</em>",
             'quick_replies' => ['Under 100k', 'Under 300k', 'No budget limit'],
+        ];
+    }
+
+    if ($state === 'awaiting_similar_confirm') {
+        $affirmative = preg_match('/\b(yes|yeah|sure|ok|okay|please|why not|go ahead|show me|let me see|absolutely|definitely)\b/i', $ml);
+        if ($affirmative) {
+            $searchTerm = $data['similar_search_term'] ?? null;
+            $cat = $data['similar_category'] ?? null;
+            $suggestions = [];
+            if ($cat) {
+                $suggestions = queryProducts($conn, $cat, null, null, 5);
+            }
+            if (empty($suggestions) && $searchTerm) {
+                $suggestions = queryProducts($conn, null, null, $searchTerm, 5);
+            }
+            $ctx['conversation_state'] = null;
+            if (!empty($suggestions)) {
+                $title = "Similar Products" . ($cat ? " in $cat" : "");
+                return formatProductList($suggestions, $title);
+            }
+            return [
+                'response' => "Unfortunately, I couldn't find similar products either. Try browsing our categories or describing what you need in different words.",
+                'quick_replies' => ['Browse categories', 'Show me products', 'Contact support'],
+            ];
+        }
+        if (preg_match('/\b(no|nope|nah|not|never|cancel|stop|don\'t|dont)\b/i', $ml)) {
+            $ctx['conversation_state'] = null;
+            return [
+                'response' => "No problem! Is there anything else I can help you with?",
+                'quick_replies' => ['Browse categories', 'Show me products', 'Contact support'],
+            ];
+        }
+        // If user types a new product query (has extractable search term, category, or budget),
+        // clear the waiting state and let the main flow handle it normally
+        $newSearch = extractProductSearchTerm($message) || detectCategory($message) || parsePriceFilter($message) || parseBudget($message);
+        if ($newSearch) {
+            $ctx['conversation_state'] = null;
+            unset($ctx['conversation_data']);
+            return null;
+        }
+        return [
+            'response' => "Would you like me to suggest similar products that are available? Just say <em>yes</em> or <em>no</em>.",
+            'quick_replies' => ['Yes, show me similar', 'No, thanks'],
+        ];
+    }
+
+    if ($state === 'awaiting_compare') {
+        $terms = extractComparisonTerms($message);
+        if (count($terms) >= 2) {
+            $ctx['conversation_state'] = null;
+            return formatProductComparison($conn, $message, $ctx);
+        }
+        // Check if user gave one product name — store it and wait for second
+        $single = extractProductSearchTerm($message);
+        if ($single && empty($data['compare_first'])) {
+            $ctx['conversation_data']['compare_first'] = $single;
+            return [
+                'response' => "Got it — <strong>" . htmlspecialchars($single) . "</strong>. Now tell me the second product to compare it with.",
+                'quick_replies' => ['Browse categories', 'Show me products', 'Cancel'],
+            ];
+        }
+        if ($single && !empty($data['compare_first'])) {
+            // Combine both into a comparison query
+            $combined = $data['compare_first'] . ' vs ' . $single;
+            $ctx['conversation_state'] = null;
+            unset($ctx['conversation_data']['compare_first']);
+            return formatProductComparison($conn, $combined, $ctx);
+        }
+        return [
+            'response' => "Please tell me two products to compare, for example: <em>iPhone 15 and Samsung Galaxy S24</em>.",
+            'quick_replies' => ['Compare iPhone 15 and Samsung Galaxy S24', 'Cancel', 'Browse categories'],
         ];
     }
 
@@ -849,8 +1091,11 @@ function memoryOwnerKey(?int $userId, string $sessionId): string {
 
 function loadChatMemory($conn, ?int $userId, string $sessionId): array {
     $memory = defaultChatMemory();
-    $ownerKey = $conn->real_escape_string(memoryOwnerKey($userId, $sessionId));
-    $res = $conn->query("SELECT memory_json FROM chatbot_memory WHERE owner_key='$ownerKey' LIMIT 1");
+    $ownerKey = memoryOwnerKey($userId, $sessionId);
+    $stmt = $conn->prepare("SELECT memory_json FROM chatbot_memory WHERE owner_key=? LIMIT 1");
+    $stmt->bind_param("s", $ownerKey);
+    $stmt->execute();
+    $res = $stmt->get_result();
 
     if ($res && $row = $res->fetch_assoc()) {
         $saved = json_decode($row['memory_json'], true);
@@ -866,20 +1111,25 @@ function loadChatMemory($conn, ?int $userId, string $sessionId): array {
 }
 
 function saveChatMemory($conn, ?int $userId, string $sessionId, array $memory): void {
-    $ownerKey = $conn->real_escape_string(memoryOwnerKey($userId, $sessionId));
-    $safeSession = $conn->real_escape_string(preg_replace('/[^a-f0-9]/i', '', $sessionId));
-    $safeJson = $conn->real_escape_string(json_encode($memory, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-    $ui = $userId ? (int)$userId : 'NULL';
+    $ownerKey = memoryOwnerKey($userId, $sessionId);
+    $safeSession = preg_replace('/[^a-f0-9]/i', '', $sessionId);
+    $safeJson = json_encode($memory, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $ui = $userId ? (int)$userId : null;
 
-    $conn->query("INSERT INTO chatbot_memory (owner_key, user_id, session_id, memory_json)
-                  VALUES ('$ownerKey', $ui, '$safeSession', '$safeJson')
+    $stmt = $conn->prepare("INSERT INTO chatbot_memory (owner_key, user_id, session_id, memory_json)
+                  VALUES (?, ?, ?, ?)
                   ON DUPLICATE KEY UPDATE user_id=VALUES(user_id), session_id=VALUES(session_id), memory_json=VALUES(memory_json)");
+    $stmt->bind_param("siss", $ownerKey, $ui, $safeSession, $safeJson);
+    $stmt->execute();
 }
 
 function getCustomerProfile($conn, ?int $userId): ?array {
     if (!$userId) return null;
     $uid = (int)$userId;
-    $res = $conn->query("SELECT id, name, email FROM users WHERE id=$uid LIMIT 1");
+    $stmtCust = $conn->prepare("SELECT id, name, email FROM users WHERE id=? LIMIT 1");
+    $stmtCust->bind_param("i", $uid);
+    $stmtCust->execute();
+    $res = $stmtCust->get_result();
     return ($res && $res->num_rows) ? $res->fetch_assoc() : null;
 }
 
@@ -897,18 +1147,18 @@ function detectCategory(string $msg): ?string {
     // Order matters: more specific patterns first
     $map = [
         // Smartphones & Tablets
-        'phone|smartphone|mobile|iphone|samsung.*phone|tecno|infinix|xiaomi|huawei|oppo|vivo|itel|tablet|ipad' => 'Smartphones & Tablets',
+        '\bphone[s]?\b|\bsmartphone[s]?\b|mobile[s]?|iphone[s]?|samsung.*\bphone[s]?\b|tecno|infinix|xiaomi|huawei|oppo|vivo|itel|tablet|ipad' => 'Smartphones & Tablets',
         // Laptops & Computers
-        'laptop|computer|pc|dell|hp.*laptop|lenovo|asus|acer|macbook|desktop|monitor|keyboard|mouse|chromebook' => 'Laptops & Computers',
+        'laptop|computer|\bpc\b|dell|hp.*laptop|lenovo|asus|acer|macbook|desktop|monitor|keyboard|mouse|chromebook' => 'Laptops & Computers',
         // TV & Audio
-        'tv|television|speaker|headphone|audio|sound|bose|jbl|hisense.*tv|lg.*tv|sony.*tv|samsung.*tv|earphone|earbuds|subwoofer|home theater' => 'TV & Audio',
+        'tv|television|speaker|headphone|audio|sound|bose|jbl|hisense.*tv|lg.*tv|sony.*tv|samsung.*tv|earphone|earbuds|subwoofer|home theater|\blg\b' => 'TV & Audio',
         // Home Appliances
         'fridge|refrigerator|washing machine|microwave|cooker|air conditioner|vacuum|kettle|blender|appliance|heater|mixer|iron|toaster|dishwasher|water dispenser' => 'Home Appliances',
         // Fashion Men (check before generic fashion)
-        'men.*shirt|men.*shoe|men.*suit|men.*trouser|men.*polo|men.*jacket|men.*fashion|men.*cloth|men.*jeans|men.*belt|men.*sneaker|men.*sandal|men.*hoodie|men.*blazer' => 'Fashion Men',
+        '\bmen\b.*shirt|\bmen\b.*shoe|\bmen\b.*suit|\bmen\b.*trouser|\bmen\b.*polo|\bmen\b.*jacket|\bmen\b.*fashion|\bmen\b.*cloth|\bmen\b.*jeans|\bmen\b.*belt|\bmen\b.*sneaker|\bmen\b.*sandal|\bmen\b.*hoodie|\bmen\b.*blazer' => 'Fashion Men',
         // Fashion Women (check before generic fashion)
-        'women.*dress|women.*shoe|women.*blouse|women.*skirt|women.*fashion|women.*cloth|ladies|female.*fashion|women.*handbag|women.*heels|women.*ankara|women.*top' => 'Fashion Women',
-        // Generic fashion fallback — try to detect gender from context
+        'fashion.*women|women.*dress|women.*shoe|women.*blouse|women.*skirt|women.*fashion|women.*cloth|\bwomen\b|ladies|female.*fashion|women.*handbag|women.*heels|women.*ankara|women.*top' => 'Fashion Women',
+        // Generic fashion fallback
         'shirt|pants|dress|blazer|clothing|clothes|jeans|suit|hoodie|polo|belt|backpack|handbag|sneaker|sandal|perfume|ankara|fashion' => 'Fashion Men',
         // Groceries & Food
         'grocery|groceries|food|milk|rice|oil|snack|beverage|drink|noodle|coffee|tea|sugar|flour|ketchup|yogurt|detergent|soap|toothpaste|cereal|pasta|juice|water|biscuit|chocolate' => 'Groceries & Food',
@@ -917,13 +1167,13 @@ function detectCategory(string $msg): ?string {
         // Sports & Fitness
         'sport|fitness|gym|yoga|running|football|bicycle|dumbbell|protein|exercise|resistance|jump rope|cycling|treadmill|basketball|tennis|swimming|hiking' => 'Sports & Fitness',
         // Baby & Kids
-        'baby|kid|toy|diaper|stroller|children|infant|toddler|lego|puzzle|baby monitor|kids clothing|nursery|feeding bottle|pram|crib' => 'Baby & Kids',
+        'baby|kid|\btoy\b|diaper|stroller|children|infant|toddler|lego|puzzle|baby monitor|kids clothing|nursery|feeding bottle|pram|crib' => 'Baby & Kids',
         // Furniture & Decor
-        'furniture|bed|table|chair|sofa|decor|cabinet|shelf|mattress|wardrobe|curtain|lamp|mirror|couch|desk|bookshelf|rug|pillow|bedsheet|duvet' => 'Furniture & Decor',
+        'furniture|\bbed\b|table|chair|sofa|decor|cabinet|shelf|mattress|wardrobe|curtain|lamp|mirror|couch|desk|bookshelf|rug|pillow|bedsheet|duvet' => 'Furniture & Decor',
         // Car Accessories
         'car|automotive|vehicle|tyre|tire|car accessory|dashboard|seat cover|car charger|car mat|steering|windshield|car speaker|car camera' => 'Car Accessories',
         // Books & Stationery
-        'book|stationery|pen|notebook|pencil|school supply|office supply|calculator|textbook|novel|magazine|diary|folder|stapler|printer' => 'Books & Stationery',
+        'book|stationery|\bpen\b|notebook|pencil|school supply|office supply|calculator|textbook|novel|magazine|diary|folder|stapler|printer' => 'Books & Stationery',
         // Jewelry & Watches
         'jewelry|jewellery|watch|ring|necklace|bracelet|earring|gold|silver|pendant|bangle|anklet|brooch|cufflink' => 'Jewelry & Watches',
         // Gaming & Electronics
@@ -933,6 +1183,64 @@ function detectCategory(string $msg): ?string {
         if (preg_match('/(' . $pattern . ')/i', $ml)) return $cat;
     }
     return null;
+}
+
+// ============================================================
+// SUBCATEGORY FILTER MAP — shared by product_search and category_search
+// ============================================================
+function getSubcategoryMap(): array {
+    return [
+        'TV & Audio' => [
+            'tv|television|\btv\b' => 'tv',
+            'audio|soundbar' => 'audio',
+            'speaker|speakers|bluetooth speaker|portable speaker' => 'speaker',
+            'headphone|headphones|earphone|earbuds|earphone' => 'headphone',
+        ],
+        'Smartphones & Tablets' => [
+            '\bphone[s]?\b|\bsmartphone[s]?\b|mobile[s]?|iphone' => 'phone',
+            'tablet|ipad' => 'tablet',
+        ],
+        'Laptops & Computers' => [
+            'laptop|notebook|macbook|chromebook' => 'laptop',
+            'desktop|computer|\bpc\b|workstation|\ball.in.one\b' => 'computer',
+            'monitor|screen|display' => 'monitor',
+            'keyboard' => 'keyboard',
+            'mouse' => 'mouse',
+        ],
+        'Groceries & Food' => [
+            'grocery|groceries' => 'grocery',
+            '\bfood\b|snack|beverage|drink|noodle|chocolate|biscuit' => 'food',
+        ],
+        'Health & Beauty' => [
+            '\bhealth\b|medicine|vitamin|supplement' => 'health',
+            'beauty|skincare|makeup|cosmetic|lipstick|serum|moisturizer|lotion' => 'beauty',
+            'haircare|shampoo|conditioner|hair oil' => 'haircare',
+        ],
+        'Sports & Fitness' => [
+            '\bsport\b|football|basketball|tennis|running|swimming|cycling|hiking' => 'sports',
+            'fitness|gym|yoga|exercise|dumbbell|treadmill' => 'fitness',
+        ],
+        'Baby & Kids' => [
+            'baby|infant|toddler|diaper|stroller|pram|crib|nursery|baby monitor|feeding bottle' => 'baby',
+            'kid|children|\btoy\b|lego|puzzle|kids clothing' => 'kids',
+        ],
+        'Furniture & Decor' => [
+            'furniture|sofa|couch|table|chair|desk|bed|mattress|wardrobe|cabinet|shelf|bookshelf' => 'furniture',
+            'decor|curtain|lamp|mirror|rug|pillow|bedsheet|duvet' => 'decor',
+        ],
+        'Books & Stationery' => [
+            'book|textbook|novel|magazine|diary|\bpen\b|pencil|notebook|folder|stapler' => 'book',
+            'stationery|office supply|school supply|calculator|printer' => 'stationery',
+        ],
+        'Jewelry & Watches' => [
+            'jewelry|jewellery|ring|necklace|bracelet|earring|pendant|bangle|brooch' => 'jewelry',
+            '\bwatch|wristwatch' => 'watch',
+        ],
+        'Gaming & Electronics' => [
+            'game|gaming|console|playstation|xbox|nintendo|controller|gaming headset|gaming chair|gaming mouse|gaming keyboard|vr headset' => 'gaming',
+            'electronics|gpu|graphics card' => 'electronics',
+        ],
+    ];
 }
 
 // ============================================================
@@ -946,10 +1254,10 @@ function detectPriceQualifier(string $message): string {
     $ml = strtolower($message);
     if (preg_match('/\b(under|below|less than|cheaper than|max|maximum|up to|at most|moins de|munsi ya|ntarenze|atarengeje)\b/i', $ml)) return 'under';
     if (preg_match('/\b(over|above|more than|at least|minimum|arenze)\b/i', $ml)) return 'over';
-    if (preg_match('/\b(about|around|approximately|approx|roughly|nearly|close to|~)\b/i', $ml)) return 'around';
+    if (preg_match('/\b(about|around|approximately|approx|roughly|nearly|close to|~|only)\b/i', $ml)) return 'around';
     if (preg_match('/\b(exactly|exact|precisely|igiciro\s*cya|yamafrw|ya\s*frw|ya\s*rwf|coûte|coute|vaut|prix\s*de)\b/i', $ml)) return 'exact';
     if (preg_match('/\b(between|from.*to|range)\b/i', $ml)) return 'range';
-    if (preg_match('/\b(for|at)\s+(?:rwf|frw|amafaranga|francs?)?\s*\d/i', $ml)) return 'exact';
+    if (preg_match('/\b(for|at|on)\s+(?:rwf|frw|amafaranga|francs?)?\s*\d/i', $ml)) return 'exact';
     return 'none';
 }
 
@@ -1000,25 +1308,38 @@ function normalizePriceFilter($priceFilter, bool $exactPrice = false, string $qu
 function extractProductSearchTerm(string $message): ?string {
     $text = strtolower($message);
     $text = preg_replace('/(?:rwf|frw|amafaranga|francs?)?\s*(?<![\p{L}\p{N}])\d[\d,]*(?:\.\d+)?\s*(?:k|m|million|millions|milio|miliyoni|thousand|ibihumbi)?(?![\p{L}\p{N}])/iu', ' ', $text);
-    $text = preg_replace('/\b(under|below|less than|within|budget|afford|up to|max|maximum|between|from|range|over|above|more than|at least|minimum|about|around|approximately|approx|roughly|my budget is|i have|i can spend|i want to spend|for|with)\b/iu', ' ', $text);
+    $text = preg_replace('/\b(under|below|less than|within|budget|afford|up to|max|maximum|between|from|range|over|above|more than|at least|minimum|about|around|approximately|approx|roughly|my budget is|i have|i can spend|i want to spend|for|with|cheaper|cheapest|more expensive|premium|affordable|cheap|inexpensive|higher price|lower price)\b/iu', ' ', $text);
     $text = preg_replace('/[^\p{L}\p{N}\s-]+/u', ' ', $text);
 
     $stopwords = [
-        'show','me','find','search','looking','want','need','please','the','and','or',
-        'you','have','get','buy','purchase','can','how','much','price','cost','what',
+        'i','show','me','find','search','looking','want','need','please','the','and','or','by',
+        'you','your','have','get','buy','purchase','can','how','much','price','cost','what',
         'which','available','availability','stock','products','product','items','item',
-        'cheap','affordable','best','top','popular','recommend','suggest','give','tell',
+        'cheap','cheaper','cheapest','affordable','best','top','popular','recommend','suggest','give','tell',
         'see','well','image','photo','picture','this','that','these','those','only',
         'any','some','something','anything','thing','things','option','options','choice','choices',
-        'about','around','approximately','approx','roughly',
-        'nshaka','ndashaka','shaka','igera','kugeza','amafaranga','amavuta',
+        'about','around','approximately','approx','roughly','on','hi','hello','hey','greetings',
+        'nshaka','ndashaka','shaka','igera','kugeza','amafaranga','amavuta','angahe','ibiciro','bya','ibihari','birahari','hari','muri','mu','stoko','ndeba','mbereka','ibyumba','ibicuruzwa','ndega','mfasha','fasha',
         'murakoze','yego','oya','bite','icya','ibindi','nkunda',
-        'mfasha','fasha','kigali','rwanda'
+        'mfasha','fasha','kigali','rwanda',
+        'muraho','mwaramutse','mwiriwe','bonjour','salut','sava',
+        'sort','sorted','sorting','rating','rated','popularity','ordered','arrange','arranged',
+        'it','its','we','they','them','he','she','him','her','his',
+        'do','does','did','done','doing','has','had','having','is','am','are','was','were','be','been','being',
+        'to','at','in','on','of','for','with','from','no','not','but','if','so',
+        'all','each','every','both','few','more','most','other','such',
+        'too','very','just','now','here','there','then','than','also',
+        'yes','no','ok','okay','sure','fine','good','great','nice',
+        'tell','ask','help','support','please','thanks','thank',
+        'like','love','prefer','need','want','wish',
+        'dont','don\'t','doesnt','doesn\'t','cant','can\'t','wont','won\'t',
+        'isnt','isn\'t','wasnt','wasn\'t','werent','weren\'t',
+        'money','cash','budget','price','prices','cost','costs','cheap','cheaper','cheapest',
     ];
     $genericProductWords = [
         'phone','phones','smartphone','smartphones','mobile','mobiles','tablet','tablets',
         'laptop','laptops','computer','computers','pc','tv','television','speaker',
-        'headphone','headphones','audio','fashion','clothes','clothing','shoe','shoes',
+        'headphone','headphones','audio','fashion','clothes','clothing',
         'shirt','shirts','dress','dresses','grocery','groceries','food','beauty','health',
         'sports','sport','baby','kids','furniture','appliance','appliances','book','books',
         'jewelry','jewellery','watch','watches','gaming','electronics'
@@ -1050,8 +1371,11 @@ function formatProductRatingList($conn, array $products, string $title): array {
     foreach ($products as $p) {
         $pid = (int)$p['id'];
         $stats = ['total' => 0, 'avg_rating' => 0];
-        $res = $conn->query("SELECT COUNT(*) AS total, AVG(rating) AS avg_rating FROM reviews WHERE product_id=$pid");
-        if ($res && $row = $res->fetch_assoc()) $stats = $row;
+        $stmtRat = $conn->prepare("SELECT COUNT(*) AS total, AVG(rating) AS avg_rating FROM reviews WHERE product_id=?");
+        $stmtRat->bind_param("i", $pid);
+        $stmtRat->execute();
+        $ratRes = $stmtRat->get_result();
+        if ($ratRes && $row = $ratRes->fetch_assoc()) $stats = $row;
         $avg = $stats['avg_rating'] ? round((float)$stats['avg_rating'], 1) : 0;
         $total = (int)($stats['total'] ?? 0);
         $link = SITE_URL . '/product.php?id=' . $pid;
@@ -1075,12 +1399,12 @@ function extractComparisonTerms(string $message): array {
     return array_slice($terms, 0, 3);
 }
 
-function formatProductComparison($conn, string $message): array {
+function formatProductComparison($conn, string $message, array &$ctx = []): array {
     $terms = extractComparisonTerms($message);
     if (count($terms) < 2) {
         return [
-            'response' => "Tell me two products to compare, for example: <em>Compare Samsung Galaxy A14 and Samsung Galaxy A24</em>.",
-            'quick_replies' => ['Compare Samsung Galaxy A14 and Samsung Galaxy A24', 'Show me products', 'Browse categories'],
+            'response' => "Tell me two products to compare. For example:<br>• <em>iPhone 15 vs Samsung Galaxy S24</em><br>• <em>Compare HP laptop and Dell laptop</em>",
+            'quick_replies' => ['Browse categories', 'Show me products', 'Cancel'],
         ];
     }
 
@@ -1091,9 +1415,10 @@ function formatProductComparison($conn, string $message): array {
     }
 
     if (count($products) < 2) {
+        $ctx['conversation_state'] = 'awaiting_compare';
         return [
-            'response' => "I could not find enough matching products to compare. Please use exact product names from the store, for example: <em>Compare Samsung Galaxy A14 and Samsung Galaxy A24</em>.",
-            'quick_replies' => ['Compare Samsung Galaxy A14 and Samsung Galaxy A24', 'Show me products', 'Browse categories'],
+            'response' => "I could not find enough matching products to compare. Try using exact product names, for example: <em>iPhone 15 vs Samsung Galaxy S24</em>.",
+            'quick_replies' => ['Browse categories', 'Show me products', 'Cancel'],
         ];
     }
 
@@ -1104,8 +1429,11 @@ function formatProductComparison($conn, string $message): array {
     foreach ($products as $p) {
         $pid = (int)$p['id'];
         $stats = ['total' => 0, 'avg_rating' => 0];
-        $res = $conn->query("SELECT COUNT(*) AS total, AVG(rating) AS avg_rating FROM reviews WHERE product_id=$pid");
-        if ($res && $row = $res->fetch_assoc()) $stats = $row;
+        $stmtRat2 = $conn->prepare("SELECT COUNT(*) AS total, AVG(rating) AS avg_rating FROM reviews WHERE product_id=?");
+        $stmtRat2->bind_param("i", $pid);
+        $stmtRat2->execute();
+        $ratRes2 = $stmtRat2->get_result();
+        if ($ratRes2 && $row = $ratRes2->fetch_assoc()) $stats = $row;
         $rating = !empty($stats['avg_rating']) ? round((float)$stats['avg_rating'], 1) . "/5" : "No reviews";
         $link = SITE_URL . '/product.php?id=' . $pid;
         $out .= "<tr>";
@@ -1129,13 +1457,13 @@ function formatProductComparison($conn, string $message): array {
  */
 function queryProductsByName($conn, string $searchTerm, $maxPrice = null, bool $exactPrice = false): array {
     if (!$conn || strlen($searchTerm) < 2) return [];
-    $safe = $conn->real_escape_string($searchTerm);
+    $safe = $conn->real_escape_string(addcslashes($searchTerm, '%_'));
     $words = preg_split('/\s+/', strtolower(trim($searchTerm)));
     $wordClauses = [];
     foreach ($words as $w) {
         $w = trim($w);
         if (strlen($w) < 2) continue;
-        $ws = $conn->real_escape_string($w);
+        $ws = $conn->real_escape_string(addcslashes($w, '%_'));
         $wordClauses[] = "LOWER(p.name) LIKE '%$ws%'";
     }
     if (empty($wordClauses)) return [];
@@ -1164,23 +1492,13 @@ function queryProductsByName($conn, string $searchTerm, $maxPrice = null, bool $
     return $rows;
 }
 
-function queryProducts($conn, ?string $catFragment, $maxPrice, ?string $searchTerm, int $limit = 10, int $offset = 0, bool $exactPrice = false): array {
+function queryProducts($conn, ?string $catFragment, $maxPrice, ?string $searchTerm, int $limit = 10, int $offset = 0, bool $exactPrice = false, string $sort = 'price'): array {
     if (!$conn) return [];
     $where = ['p.stock > 0'];
     $price = normalizePriceFilter($maxPrice, $exactPrice);
     if ($catFragment) {
-        $safe = $conn->real_escape_string($catFragment);
+        $safe = $conn->real_escape_string(addcslashes($catFragment, '%_'));
         $where[] = "c.name LIKE '%$safe%'";
-    }
-    if (false) {
-        if ($exactPrice) {
-            // Exact price: within ±10% of the requested amount
-            $low  = (int)($maxPrice * 0.90);
-            $high = (int)($maxPrice * 1.10);
-            $where[] = "p.price BETWEEN $low AND $high";
-        } else {
-            $where[] = "p.price <= $maxPrice";
-        }
     }
     if ($price) {
         if ($price['min'] !== null && $price['max'] !== null && (int)$price['min'] === (int)$price['max']) {
@@ -1191,25 +1509,64 @@ function queryProducts($conn, ?string $catFragment, $maxPrice, ?string $searchTe
         }
     }
     if ($searchTerm && strlen($searchTerm) >= 2) {
-        $safe = $conn->real_escape_string($searchTerm);
-        $tokenStopwords = ['show','find','search','looking','want','need','please','with','under','below','between','from','range','budget','price','cost','products','product','items','item','rwf','frw','any','some','something','anything','about','around','approximately','approx','roughly','only'];
+        $safe = $conn->real_escape_string(addcslashes($searchTerm, '%_'));
+        // Handle plural → singular: if search term ends in 's', also try without the 's'
+        $singular = preg_match('/s$/', $safe) ? $conn->real_escape_string(addcslashes(rtrim($safe, 's'), '%_')) : null;
+        $tokenStopwords = ['show','find','search','looking','want','need','please','with','under','below','between','from','range','budget','price','cost','products','product','items','item','rwf','frw','any','some','something','anything','about','around','approximately','approx','roughly','only','angahe','ibiciro','bya','ibihari','birahari','hari','muri','mu','stoko','ndeba','mbereka','ibyumba','ibicuruzwa','ndega'];
         $tokens = preg_split('/\s+/', strtolower(preg_replace('/[^\p{L}\p{N}\s-]+/u', ' ', $searchTerm)));
         $tokenClauses = [];
         foreach ($tokens as $token) {
             $token = trim($token);
-            if (strlen($token) < 3 || is_numeric($token) || in_array($token, $tokenStopwords, true)) continue;
-            $tok = $conn->real_escape_string($token);
-            $tokenClauses[] = "(p.name LIKE '%$tok%' OR p.brand LIKE '%$tok%' OR p.description LIKE '%$tok%' OR c.name LIKE '%$tok%')";
+            if (strlen($token) < 2 || is_numeric($token) || in_array($token, $tokenStopwords, true)) continue;
+            $tok = $conn->real_escape_string(addcslashes($token, '%_'));
+            // For tokens with concatenated digits (e.g. "pop7" → "pop 7"),
+            // also match the space-delimited variant since DB stores model names with spaces
+            // Also extract the alphabetic prefix alone (e.g. "oppo16" → "oppo") to match
+            // products like "Oppo A16" where a letter separates brand from number
+            $splitClause = '';
+            if (preg_match('/([a-zA-Z])(\d)/', $token)) {
+                $splitTok = preg_replace('/([a-zA-Z])(\d)/', '$1 $2', $token);
+                $splitTok = $conn->real_escape_string(addcslashes($splitTok, '%_'));
+                $alphaPrefix = preg_replace('/\d.*$/', '', $token);
+                $splitClause = $catFragment
+                    ? " OR (p.name LIKE '%$splitTok%' OR p.brand LIKE '%$splitTok%')"
+                    : " OR (p.name LIKE '%$splitTok%' OR p.brand LIKE '%$splitTok%' OR c.name LIKE '%$splitTok%')";
+                if (strlen($alphaPrefix) >= 2) {
+                    $alphaEsc = $conn->real_escape_string(addcslashes($alphaPrefix, '%_'));
+                    $splitClause .= $catFragment
+                        ? " OR (p.name LIKE '%$alphaEsc%' OR p.brand LIKE '%$alphaEsc%')"
+                        : " OR (p.name LIKE '%$alphaEsc%' OR p.brand LIKE '%$alphaEsc%' OR c.name LIKE '%$alphaEsc%')";
+                }
+            }
+            $tokenClauses[] = $catFragment
+                ? "(p.name LIKE '%$tok%' OR p.brand LIKE '%$tok%' OR p.description LIKE '%$tok%')" . $splitClause
+                : "(p.name LIKE '%$tok%' OR p.brand LIKE '%$tok%' OR p.description LIKE '%$tok%' OR c.name LIKE '%$tok%')" . $splitClause;
         }
         $searchClauses = ["(p.name LIKE '%$safe%' OR p.brand LIKE '%$safe%' OR p.description LIKE '%$safe%')"];
+        // Also match singular form (e.g. "iphone" from "iphones")
+        if ($singular && $singular !== $safe && strlen($singular) >= 3) {
+            $searchClauses[] = "(p.name LIKE '%$singular%' OR p.brand LIKE '%$singular%' OR p.description LIKE '%$singular%')";
+        }
         if (!empty($tokenClauses)) {
             $searchClauses[] = '(' . implode(' AND ', array_slice($tokenClauses, 0, 5)) . ')';
         }
         $where[] = '(' . implode(' OR ', $searchClauses) . ')';
     }
-    $orderBy = ($price && !empty($price['exact']) && $price['max'])
-        ? "ABS(p.price - " . (int)$price['max'] . ") ASC"
-        : "p.price ASC";
+    $sortMap = [
+        'price_asc'    => 'p.price ASC',
+        'price_desc'   => 'p.price DESC',
+        'rating'       => 'p.avg_rating DESC, p.review_count DESC',
+        'popularity'   => 'p.review_count DESC, p.avg_rating DESC',
+        'name'         => 'p.name ASC',
+    ];
+    $orderBy = $sortMap[$sort] ?? 'p.price ASC';
+    if ($sort === 'price' || !isset($sortMap[$sort])) {
+        $orderBy = ($price && !empty($price['exact']) && $price['max'])
+            ? "ABS(p.price - " . (int)$price['max'] . ") ASC"
+            : ($price && $price['min'] !== null && $price['max'] !== null && $price['min'] !== $price['max']
+                ? "ABS(p.price - " . (int)(($price['min'] + $price['max']) / 2) . ") ASC"
+                : "p.price ASC");
+    }
     $sql = "SELECT p.id, p.name, p.brand, p.price, p.stock, p.description, p.image, c.name AS category
             FROM products p LEFT JOIN categories c ON p.category_id = c.id
             WHERE " . implode(' AND ', $where) . "
@@ -1221,42 +1578,57 @@ function queryProducts($conn, ?string $catFragment, $maxPrice, ?string $searchTe
 }
 
 // ============================================================
+// FEEDBACK — append thumbs up/down quick replies
+// ============================================================
+function withFeedback(array $result): array {
+    $last = array_slice($result['quick_replies'], -2);
+    if ($last !== ['👍 Helpful', '👎 Not helpful']) {
+        $result['quick_replies'][] = '👍 Helpful';
+        $result['quick_replies'][] = '👎 Not helpful';
+    }
+    return $result;
+}
+
+function saveResponseLog($conn, ?int $userId, string $sessionId, string $message, string $response, string $source, array &$ctx): int {
+    $ui    = $userId ? (int)$userId : null;
+    $guest = $userId ? 0 : 1;
+    $stmt = $conn->prepare("INSERT INTO chatbot_logs (user_id, session_id, is_guest, message, response, response_source, sentiment_score, sentiment_label) VALUES (?, ?, ?, ?, ?, ?, 0.5, 'neutral')");
+    $stmt->bind_param("isisss", $ui, $sessionId, $guest, $message, $response, $source);
+    $stmt->execute();
+    $log_id = (int)$conn->insert_id;
+    $ctx['last_log_id'] = $log_id;
+    $ctx['last_user_message'] = $message;
+    $ctx['last_bot_response'] = strip_tags($response);
+    unset($ctx['customer']);
+    saveChatMemory($conn, $userId ? (int)$userId : null, $sessionId, $ctx);
+    return $log_id;
+}
+
+// ============================================================
 // FORMAT PRODUCT LIST
 // ============================================================
 function formatProductList(array $products, string $title): array {
     if (empty($products)) {
         return [
-            'response'      => "😔 No products found matching your request. Try a different search or browse our categories.",
+            'response'      => "Thank you for your inquiry. Unfortunately, I couldn't find products matching your request. Try browsing our categories or describe what you need differently.",
             'quick_replies' => ['Browse categories', 'Show me products', 'Contact support'],
             'products'      => [],
         ];
     }
-    $out = "✅ <strong>$title</strong><br><br>";
+    $out = "✅ " . strip_tags($title) . "\n\n";
     $structured = [];
     foreach ($products as $p) {
         $stock    = (int)$p['stock'] > 0 ? "✅ In Stock ({$p['stock']})" : "❌ Out of Stock";
-        $link     = SITE_URL . '/product.php?id=' . (int)$p['id'];
-        $imgFile  = !empty($p['image']) ? trim((string)$p['image']) : 'placeholder.jpg';
-        $imgUrl   = preg_match('/^https?:\/\//i', $imgFile)
-            ? $imgFile
-            : SITE_URL . '/assets/images/products/' . $imgFile;
+        $name     = htmlspecialchars($p['name']);
+        $brand    = !empty($p['brand']) ? " (" . htmlspecialchars($p['brand']) . ")" : "";
+        $price    = "RWF " . number_format((float)$p['price']);
 
-        $out .= "<div class='chat-product-card' data-product-id='{$p['id']}'>";
-        $out .= "<a href='$link' class='chat-product-img-link'><img src='$imgUrl' alt='" . htmlspecialchars($p['name']) . "' class='chat-product-img' onerror=\"this.src='" . SITE_URL . "/assets/images/placeholder.jpg'\"></a>";
-        $out .= "<div class='chat-product-body'>";
-        $out .= "<a href='$link' class='chat-product-name'>" . htmlspecialchars($p['name']) . "</a>";
-        if (!empty($p['brand'])) $out .= " <span class='chat-product-brand'>({$p['brand']})</span>";
-        $out .= "<div class='chat-product-price'>RWF " . number_format((float)$p['price']) . "</div>";
-        $out .= "<span class='chat-product-stock'>" . ((int)$p['stock'] > 0 ? "✅ In Stock ({$p['stock']})" : "❌ Out of Stock") . "</span>";
+        $prodUrl = SITE_URL . '/product.php?id=' . (int)$p['id'];
+        $out .= "• <a href='$prodUrl'>$name</a>$brand — $price | $stock\n";
         if (!empty($p['description'])) {
-            $out .= "<div class='chat-product-desc'>" . htmlspecialchars(mb_substr(strip_tags($p['description']), 0, 75)) . "...</div>";
+            $desc = htmlspecialchars(mb_substr(strip_tags($p['description']), 0, 90));
+            $out .= "  " . $desc . "\n";
         }
-        $out .= "<div class='chat-product-actions'>";
-        $out .= "<a href='$link' class='chat-product-btn view-btn'>View Details</a>";
-        if ((int)$p['stock'] > 0) {
-            $out .= "<a href='" . SITE_URL . "/cart.php?action=add&id=" . (int)$p['id'] . "' class='chat-product-btn cart-btn'>🛒 Add to Cart</a>";
-        }
-        $out .= "</div></div></div>";
 
         $structured[] = [
             'id'     => (int)$p['id'],
@@ -1266,14 +1638,14 @@ function formatProductList(array $products, string $title): array {
             'price_formatted' => 'RWF ' . number_format((float)$p['price']),
             'stock'  => (int)$p['stock'],
             'in_stock' => (int)$p['stock'] > 0,
-            'image'  => $imgUrl,
             'description' => strip_tags($p['description'] ?? ''),
+            'category' => $p['category'] ?? '',
         ];
     }
     $qr = array_map(fn($p) => $p['name'], array_slice($products, 0, 3));
     $qr[] = 'Show me more';
     $qr[] = 'Browse categories';
-    return ['response' => $out, 'quick_replies' => $qr, 'products' => $structured];
+    return withFeedback(['response' => $out, 'quick_replies' => $qr, 'products' => $structured]);
 }
 
 // ============================================================
@@ -1283,10 +1655,7 @@ function tryShowProducts($conn): array {
     if (!$conn) {
         return ['response' => '👋 Welcome to ShopAI Rwanda! How can I help you today?', 'quick_replies' => ['Show me products', 'Browse categories', 'Contact support']];
     }
-    $res  = $conn->query("SELECT p.id, p.name, p.brand, p.price, p.stock, p.description, c.name AS category FROM products p LEFT JOIN categories c ON p.category_id=c.id WHERE p.stock>0 ORDER BY RAND() LIMIT 8");
-    $rows = [];
-    if ($res) while ($r = $res->fetch_assoc()) $rows[] = $r;
-    return formatProductList($rows, 'Featured Products from ShopAI Rwanda');
+    return ['response' => '😔 Something went wrong. Please try again.', 'quick_replies' => ['Show me products', 'Browse categories']];
 }
 
 // ============================================================
@@ -1376,7 +1745,7 @@ STORE FACTS:
 - 1,161 products across 15 categories
 - Currency: RWF (Rwandan Franc)
 - Delivery: Kigali 1-2 business days | Other provinces 2-4 business days
-- Free shipping on orders above RWF 50,000 | Standard shipping: RWF 2,000
+- Free shipping on all orders
 - Payment: Cash on Delivery, MTN Mobile Money, Airtel Money, Bank Transfer, Visa/Mastercard
 - Returns: 7 days after delivery (unused, original packaging)
 - Warranty: Electronics 1-2 years, Appliances 1-3 years
@@ -1389,15 +1758,17 @@ $customerContext
 LANGUAGE INSTRUCTION: The customer is writing in $langHint. You MUST respond in $langHint. If Kinyarwanda, use simple clear Kinyarwanda. If French, respond in French. If English, respond in English.
 
 RULES:
-1. Answer only the exact thing the customer asked.
-2. Do not add menus, extra categories, product suggestions, policies, delivery info, or support details unless the customer specifically asks for them.
-3. If the customer greets you, reply with a short greeting only.
-4. If the customer asks about one topic, answer that topic only.
-5. Keep response under 80 words unless the customer asks for a list.
-6. Product, price, stock, and category answers must be grounded in the database context above.
-7. If STRICT RELEVANT PRODUCTS are provided, mention ONLY those products and never add products outside the requested price range.
-8. If the user is a guest, do not provide order/account details; tell them to log in.
-9. Do NOT make up products not in the catalog above.";
+1. You ONLY answer questions about the ShopAI Rwanda e-commerce platform — products, orders, delivery, payments, returns, warranty, store policies, price, stock, categories, or account help.
+2. If the customer asks about ANYTHING outside the store (weather, news, sports, general knowledge, calculations, jokes, translations, advice, etc.), politely decline: I'm sorry, I can only help you with questions related to shopping on ShopAI Rwanda.
+3. Answer only the exact thing the customer asked.
+4. Do not add menus, extra categories, product suggestions, policies, delivery info, or support details unless the customer specifically asks for them.
+5. If the customer greets you, reply with a short greeting only.
+6. If the customer asks about one topic, answer that topic only.
+7. Keep response under 80 words unless the customer asks for a list.
+8. Product, price, stock, and category answers must be grounded in the database context above.
+9. If STRICT RELEVANT PRODUCTS are provided, mention ONLY those products and never add products outside the requested price range.
+10. If the user is a guest, do not provide order/account details; tell them to log in.
+11. Do NOT make up products not in the catalog above.";
 
     $payload = json_encode([
         'contents' => [[
@@ -1418,7 +1789,7 @@ RULES:
         ]
     ]);
 
-    $models = ['gemini-2.5-flash-lite', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+    $models = ['gemini-2.5-flash-lite', 'gemini-2.0-flash-lite', 'gemini-2.0-flash', 'gemini-1.5-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-pro'];
     foreach ($models as $model) {
         $ch = curl_init("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}");
         curl_setopt_array($ch, [
@@ -1447,21 +1818,94 @@ RULES:
 function buildResponse(string $intent, string $message, ?int $user_id, $conn, array &$ctx = []): array {
     $ml = strtolower(trim($message));
 
-    if (preg_match('/^\s*(hi|hello|hey|good morning|good afternoon|good evening|muraho|bonjour|salut)\s*[!.?]*\s*$/i', $message)) {
+    if (preg_match('/^\s*(hi|hello|hey|good morning|morning|good afternoon|good evening|muraho|bonjour|salut)\s*[!.?]*\s*$/i', $message)) {
         $customerName = trim((string)($ctx['customer']['name'] ?? ''));
         $helloName = $customerName !== '' ? ' ' . htmlspecialchars($customerName) : '';
-        $accountLine = $user_id ? "You're signed in, so I can use your saved chat and order history." : "You're chatting as a guest; log in for order tracking and personalized history.";
+
+        // ── Welcome back vs new visitor logic ──
+        $greeting = "Hello";
+        $personalizedLine = '';
+        if ($user_id && $customerName) {
+            // Check if returning customer (has past orders)
+            $orderCheck = $conn->query("SELECT COUNT(*) as cnt, COALESCE(SUM(total_price),0) as spent FROM orders WHERE user_id=" . (int)$user_id . " AND status != 'cancelled'");
+            if ($orderCheck && $row = $orderCheck->fetch_assoc()) {
+                if ((int)$row['cnt'] > 0) {
+                    $greeting = "Welcome back";
+                    $personalizedLine = " You have <strong>{$row['cnt']} order(s)</strong> (RWF " . number_format((float)$row['spent']) . " total).";
+                }
+            }
+            // Check segment (reuse $row from order check above)
+            $spent = $row ? (float)$row['spent'] : 0;
+            if ($spent >= 500000) {
+                $personalizedLine .= " 🏆 You're a <strong>VIP customer</strong>!";
+            } elseif ($spent >= 200000) {
+                $personalizedLine .= " ⭐ You're a <strong>Regular customer</strong>!";
+            }
+            // Recently viewed products
+            $rvRes = $conn->query("SELECT p.name FROM product_views pv JOIN products p ON p.id=pv.product_id WHERE pv.user_id=" . (int)$user_id . " ORDER BY pv.viewed_at DESC LIMIT 3");
+            if ($rvRes && $rvRes->num_rows > 0) {
+                $rvNames = [];
+                while ($rv = $rvRes->fetch_assoc()) $rvNames[] = $rv['name'];
+                $personalizedLine .= "<br><small>Recently viewed: " . implode(', ', $rvNames) . "</small>";
+            }
+        }
+
+        $accountLine = $user_id
+            ? "You're signed in$personalizedLine"
+            : "You're chatting as a guest; log in for order tracking and personalized history.";
+
         return [
-            'response'      => "👋 <strong>Hello$helloName! Welcome to ShopAI Rwanda.</strong><br>$accountLine<br>I can help with products, prices, orders, delivery, payments, returns, warranty, and support.",
-            'quick_replies' => ['Show me products', 'Track my order', 'Delivery info', 'Payment methods'],
+            'response'      => "👋 <strong>$greeting$helloName! Welcome to ShopAI Rwanda.</strong><br>$accountLine<br>I can help with products, prices, orders, delivery, payments, returns, warranty, and support.",
+            'quick_replies' => $user_id
+                ? ['Show me products', 'Track my order', 'My orders', 'Show me recently viewed']
+                : ['Show me products', 'How to order', 'Delivery info', 'Payment methods'],
         ];
     }
 
-    if (preg_match('/^\s*(ok|okay|k|yes|yeah|yep|sure|alright|fine|got it|noted|yego|oui)\s*[!.?]*\s*$/i', $message)) {
+    // ── Recently viewed products query ──
+    if (preg_match('/\b(recently viewed|viewed recently|viewed products|products i viewed|browsing history|my history|what did i (view|see|look at) recently)\b/i', $ml)) {
+        if ($user_id) {
+            $rvRes = $conn->query("
+                SELECT p.id, p.name, p.brand, p.price, p.stock, p.description, c.name AS category
+                FROM product_views pv
+                JOIN products p ON p.id = pv.product_id
+                LEFT JOIN categories c ON p.category_id = c.id
+                WHERE pv.user_id=" . (int)$user_id . "
+                ORDER BY pv.viewed_at DESC LIMIT 8
+            ");
+            $rvProducts = [];
+            if ($rvRes) while ($r = $rvRes->fetch_assoc()) $rvProducts[] = $r;
+            if (!empty($rvProducts)) {
+                return formatProductList($rvProducts, 'Recently Viewed Products');
+            }
+            return [
+                'response' => "📭 You haven't viewed any products yet. Start browsing!",
+                'quick_replies' => ['Show me products', 'Browse categories'],
+            ];
+        }
+        // Guest: check session memory for recently viewed
+        $lastProducts = $ctx['last_products'] ?? [];
+        if (!empty($lastProducts)) {
+            $rvProducts = queryProducts($conn, null, null, implode(' ', array_slice($lastProducts, 0, 3)), 8);
+            if (!empty($rvProducts)) {
+                return formatProductList($rvProducts, 'Recently Viewed This Session');
+            }
+        }
         return [
-            'response'      => "Okay.",
-            'quick_replies' => [],
+            'response' => "📭 No recently viewed products yet. Log in to sync across devices!",
+            'quick_replies' => ['Login', 'Show me products', 'Browse categories'],
         ];
+    }
+
+    // If an active guided state is pending, let the state machine handle "yes"/"ok" etc.
+    $gsState = $ctx['conversation_state'] ?? null;
+    if (!in_array($gsState, ['awaiting_similar_confirm', 'awaiting_compare', 'awaiting_category', 'awaiting_budget'], true)) {
+        if (preg_match('/^\s*(ok|okay|k|yes|yeah|yep|sure|alright|fine|got it|noted|yego|oui)\s*[!.?]*\s*$/i', $message)) {
+            return [
+                'response'      => "Okay.",
+                'quick_replies' => [],
+            ];
+        }
     }
 
     if (preg_match('/\b(what did i ask before|what was my last question|previous question|last thing i asked|ibyo nabajije mbere)\b/i', $message)) {
@@ -1488,7 +1932,7 @@ function buildResponse(string $intent, string $message, ?int $user_id, $conn, ar
     }
 
     if ($intent === 'product_compare' || preg_match('/\b(compare|comparison|versus|vs\.?)\b/i', $ml)) {
-        return formatProductComparison($conn, $message);
+        return formatProductComparison($conn, $message, $ctx);
     }
 
     if (preg_match('/\b(start|request|open|create|make)\b.*\b(return|refund|exchange)\b|\b(return|refund|exchange)\b.*\b(request|item|order|product)\b/i', $ml)) {
@@ -1564,14 +2008,15 @@ function buildResponse(string $intent, string $message, ?int $user_id, $conn, ar
         // Use context to paginate — increment offset by 8 each time
         $cat    = $ctx['last_category'] ?? null;
         $budget = $ctx['last_budget'] ?? null;
+        $search = $ctx['last_search_term'] ?? null;
         $ctx['page_offset'] = ($ctx['page_offset'] ?? 0) + 8;
-        $products = queryProducts($conn, $cat, $budget, null, 8, $ctx['page_offset']);
+        $products = queryProducts($conn, $cat, $budget, $search, 8, $ctx['page_offset']);
         // If no more results, reset and start from beginning
         if (empty($products)) {
             $ctx['page_offset'] = 0;
-            $products = queryProducts($conn, $cat, $budget, null, 8, 0);
+            $products = queryProducts($conn, $cat, $budget, $search, 8, 0);
         }
-        $title = $cat ? "More $cat Products" : "More Products";
+        $title = $search ? "More " . ucwords($search) . " in $cat" : ($cat ? "More $cat Products" : "More Products");
         if ($budget) $title .= " " . priceFilterLabel($budget);
         return formatProductList($products, $title);
     }
@@ -1585,13 +2030,13 @@ function buildResponse(string $intent, string $message, ?int $user_id, $conn, ar
     if (preg_match('/^(track my order|track order|my orders?)$/i', $ml)) $intent = 'order_track';
 
     // ── Pre-check: budget in message always wins ──
-    if (preg_match('/\b(under|below|less than|within|budget|up to|max|between|from|range|over|above|more than|at least|minimum|maximum|i have|i can spend|i want to spend)\b/i', $ml) && preg_match('/\d/', $ml)) {
+    if (preg_match('/\b(under|below|less than|within|budget|up to|max|between|from|range|over|above|more than|at least|minimum|maximum|about|around|approximately|approx|roughly|i have|i can spend|i want to spend)\b/i', $ml) && preg_match('/\d/', $ml)) {
         $intent = 'budget_search';
     }
 
     // ── Pre-check: French or Kinyarwanda → route to Gemini immediately ──
     $isKinyarwanda = preg_match('/\b(muraho|mwaramutse|mwiriwe|ndashaka|nshaka|ibicuruzwa|igiciro|bingahe|murakoze|yego|oya|bite|amakuru|kugura|gufata|ibintu|amafaranga|ninde|iki|aho|igihe|uburyo|gusura|gutura)\b/i', $message);
-    $isFrench      = preg_match('/\b(bonjour|merci|produit|prix|livraison|commande|paiement|retour|aide|comment|combien|quoi|quel|acheter|vendre|disponible|stock|garantie|remboursement|frais|gratuit|je veux|je cherche|montrez|avez-vous|pouvez-vous)\b/i', $message);
+    $isFrench      = preg_match('/\b(bonjour|merci|produit|prix|livraison|commande|paiement|retour|aide|comment|combien|quoi|quel|acheter|vendre|disponible|garantie|remboursement|frais|gratuit|je veux|je cherche|montrez|avez-vous|pouvez-vous)\b/i', $message);
 
     if (($isKinyarwanda || $isFrench) && $intent !== 'budget_search') {
         // Try to find products first if there's a category/budget
@@ -1642,10 +2087,39 @@ function buildResponse(string $intent, string $message, ?int $user_id, $conn, ar
         case 'professional_greeting':
             $customerName = trim((string)($ctx['customer']['name'] ?? ''));
             $helloName = $customerName !== '' ? ' ' . htmlspecialchars($customerName) : '';
-            $accountLine = $user_id ? "You're signed in, so I can use your saved chat and order history." : "You're chatting as a guest; log in for order tracking and personalized history.";
+
+            $greeting = "Hello";
+            $personalizedLine = '';
+            if ($user_id && $customerName) {
+                $orderCheck = $conn->query("SELECT COUNT(*) as cnt, COALESCE(SUM(total_price),0) as spent FROM orders WHERE user_id=" . (int)$user_id . " AND status != 'cancelled'");
+                if ($orderCheck && $row = $orderCheck->fetch_assoc()) {
+                    if ((int)$row['cnt'] > 0) {
+                        $greeting = "Welcome back";
+                        $personalizedLine = " You have <strong>{$row['cnt']} order(s)</strong> (RWF " . number_format((float)$row['spent']) . " total).";
+                    }
+                }
+                // Reuse $row from the order query above
+                if (!empty($row)) {
+                    $spent = (float)$row['spent'];
+                    if ($spent >= 500000) $personalizedLine .= " 🏆 You're a <strong>VIP customer</strong>!";
+                    elseif ($spent >= 200000) $personalizedLine .= " ⭐ You're a <strong>Regular customer</strong>!";
+                }
+                $rvRes = $conn->query("SELECT p.name FROM product_views pv JOIN products p ON p.id=pv.product_id WHERE pv.user_id=" . (int)$user_id . " ORDER BY pv.viewed_at DESC LIMIT 3");
+                if ($rvRes && $rvRes->num_rows > 0) {
+                    $rvNames = [];
+                    while ($rv = $rvRes->fetch_assoc()) $rvNames[] = $rv['name'];
+                    $personalizedLine .= "<br><small>Recently viewed: " . implode(', ', $rvNames) . "</small>";
+                }
+            }
+
+            $accountLine = $user_id
+                ? "You're signed in.$personalizedLine"
+                : "You're chatting as a guest; log in for order tracking and personalized history.";
             return [
-                'response'      => "👋 <strong>Hello$helloName! Welcome to ShopAI Rwanda.</strong><br>$accountLine<br>I can help with products, prices, orders, delivery, payments, returns, warranty, and support.",
-                'quick_replies' => ['Show me products', 'Track my order', 'Delivery info', 'Payment methods'],
+                'response'      => "👋 <strong>$greeting$helloName! Welcome to ShopAI Rwanda.</strong><br>$accountLine<br>I can help with products, prices, orders, delivery, payments, returns, warranty, and support.",
+                'quick_replies' => $user_id
+                    ? ['Show me products', 'Track my order', 'My orders', 'Show me recently viewed']
+                    : ['Show me products', 'How to order', 'Delivery info', 'Payment methods'],
             ];
 
         case 'acknowledgement':
@@ -1670,24 +2144,31 @@ function buildResponse(string $intent, string $message, ?int $user_id, $conn, ar
             ];
 
         case 'product_compare':
-            return formatProductComparison($conn, $message);
+            $terms = extractComparisonTerms($message);
+            if (count($terms) < 2) {
+                $ctx['conversation_state'] = 'awaiting_compare';
+            }
+            return formatProductComparison($conn, $message, $ctx);
 
         // ── BUDGET SEARCH ──
         case 'budget_search':
+            $budgetQual = detectPriceQualifier($message);
             $strictPriceFilter = parsePriceFilter($message);
             if ($strictPriceFilter) {
                 $cat = detectCategory($message);
-                $searchTerm = extractProductSearchTerm($message);
+                if (!$cat) {
+                    $cat = $ctx['last_category'] ?? null;
+                }
+                $searchTerm = extractProductSearchTerm($message) ?: ($ctx['last_search_term'] ?? null);
                 $products = queryProducts($conn, $cat, $strictPriceFilter, $searchTerm, 12, 0);
-                $qualifier = detectPriceQualifier($message);
-                $title = ($searchTerm ? ucwords($searchTerm) : ($cat ? "$cat" : "Products")) . " " . priceFilterLabel($strictPriceFilter, $qualifier);
+                $title = ($searchTerm ? ucwords($searchTerm) : ($cat ? "$cat" : "Products")) . " " . priceFilterLabel($strictPriceFilter, $budgetQual);
                 $result = formatProductList($products, $title);
                 if (empty($products)) {
                     if ($searchTerm) {
-                        $result['response'] = "No <strong>" . htmlspecialchars($searchTerm) . "</strong> products found <strong>" . htmlspecialchars(priceFilterLabel($strictPriceFilter, $qualifier)) . "</strong>.<br>Try a different search or browse all categories.";
+                        $result['response'] = "No <strong>" . htmlspecialchars($searchTerm) . "</strong> products found <strong>" . htmlspecialchars(priceFilterLabel($strictPriceFilter, $budgetQual)) . "</strong>.<br>Try a different search or browse all categories.";
                         $result['quick_replies'] = ['Try a higher budget', 'Browse categories'];
                     } else {
-                        $result['response'] = "No " . ($cat ? htmlspecialchars($cat) : "products") . " found <strong>" . htmlspecialchars(priceFilterLabel($strictPriceFilter, $qualifier)) . "</strong>.<br>Try a different search or browse all categories.";
+                        $result['response'] = "No " . ($cat ? htmlspecialchars($cat) : "products") . " found <strong>" . htmlspecialchars(priceFilterLabel($strictPriceFilter, $budgetQual)) . "</strong>.<br>Try a different search or browse all categories.";
                         $result['quick_replies'] = ['Browse categories', 'Show me products', 'Show me phones under 500k'];
                     }
                 }
@@ -1696,10 +2177,30 @@ function buildResponse(string $intent, string $message, ?int $user_id, $conn, ar
             $budgetFull = parseBudgetFull($message);
             $budget     = $budgetFull ? $budgetFull['amount'] : null;
             $exactPrice = $budgetFull ? $budgetFull['exact'] : false;
-            $cat        = detectCategory($message);
-            $qualifier  = detectPriceQualifier($message);
+            $cat           = detectCategory($message);
+            $msgHasNewCat  = $cat !== null;
+            if (!$cat) {
+                $cat = $ctx['last_category'] ?? null;
+            }
+            $qualifier  = $budgetQual;
+            // Unqualified budget — treat as "around" (range ±20%)
+            if ($qualifier === 'none' && $budget && $budget >= 500) {
+                $range = max(1, (int)($budget * 0.2));
+                $amount = (int)$budget;
+                $budget = ['min' => $amount - $range, 'max' => $amount + $range, 'exact' => false, 'label' => 'around RWF ' . number_format($amount)];
+                $qualifier = 'around';
+            }
             // If user mentioned a specific product name, prioritize that over category
-            $searchTerm = extractProductSearchTerm($message);
+            $searchTerm = extractProductSearchTerm($message) ?: ($ctx['last_search_term'] ?? null);
+            // ── Context-aware search term refinement ──
+            if ($searchTerm && $ctx['last_search_term'] && !$msgHasNewCat) {
+                $stripped = trim($searchTerm);
+                $isSizeModifier = preg_match('/^\d+(?:\.\d+)?\s*[a-zA-Z]{1,3}$/i', $stripped);
+                $isNumericOnly = preg_match('/^\d+(?:\.\d+)?$/', $stripped);
+                if ($isSizeModifier || $isNumericOnly) {
+                    $searchTerm = $ctx['last_search_term'] . ' ' . $stripped;
+                }
+            }
             if ($searchTerm) {
                 // Try exact product name match first
                 $exactProducts = queryProductsByName($conn, $searchTerm, $budget, $exactPrice);
@@ -1710,9 +2211,9 @@ function buildResponse(string $intent, string $message, ?int $user_id, $conn, ar
                     return $result;
                 }
             }
-            if ($budget && $budget >= 500) {
-                $products = queryProducts($conn, $cat, $budget, $searchTerm, 12, 0, $exactPrice);
-                $label = buildPriceLabel(null, $budget, $exactPrice, $qualifier);
+            if ($budget) {
+                $products = queryProducts($conn, $cat, $budget, $searchTerm, 12, 0, is_array($budget) ? false : $exactPrice);
+                $label = is_array($budget) ? priceFilterLabel($budget) : buildPriceLabel(null, $budget, $exactPrice, $qualifier);
                 $title = ($searchTerm ? ucwords($searchTerm) : ($cat ? "$cat" : "Products")) . " " . $label;
                 $result = formatProductList($products, $title);
                 if (empty($products)) {
@@ -1743,61 +2244,341 @@ function buildResponse(string $intent, string $message, ?int $user_id, $conn, ar
             // Check if message also has a budget
             $budget = parsePriceFilter($message) ?: parseBudget($message);
             $cat    = detectCategory($message);
+            $qual   = detectPriceQualifier($message);
+            // Use context category from previous query for follow-ups without a new category
+            if (!$cat) {
+                $cat = $ctx['last_category'] ?? null;
+            }
+
+            // Unqualified budget (e.g. "300k") — treat as "around" (range ±20%)
+            if (is_numeric($budget) && $budget > 0 && $qual === 'none') {
+                $amount = (int)$budget;
+                $range = max(1, (int)($amount * 0.2));
+                $budget = ['min' => $amount - $range, 'max' => $amount + $range, 'exact' => false, 'label' => 'around RWF ' . number_format($amount)];
+            }
+
+            // Track whether a special handler already set the search term (relative price, similar, etc.)
+            $handlerSetSearchTerm = false;
+
+            // Detect sort requests
+            $sort = 'price';
+            $lastSort = $ctx['last_search_sort'] ?? null;
+            if (preg_match('/\b(sort\s+by\s+price|cheapest|lowest\s+price|price\s+low\s+to\s+high|price\s+asc(?:ending)?)\b/i', $ml)) {
+                $sort = 'price_asc';
+            } elseif (preg_match('/\b(most expensive|highest price|price\s+high\s+to\s+low|price\s+desc(?:ending)?|expensive first)\b/i', $ml)) {
+                $sort = 'price_desc';
+            } elseif (preg_match('/\b(sort\s+by\s+rating|top rated|highest rated|best rated|best reviewed)\b/i', $ml)) {
+                $sort = 'rating';
+            } elseif (preg_match('/\b(most popular|best seller|top selling|popular|trending)\b/i', $ml)) {
+                $sort = 'popularity';
+            } elseif (preg_match('/\b(sort\s+by\s+name|alphabetical|a to z|a-z)\b/i', $ml)) {
+                $sort = 'name';
+            } elseif ($lastSort && preg_match('/\b(sort|order|arrange|re.?sort)\b/i', $ml)) {
+                $sort = $lastSort;
+            }
+
+            // Handle "show me more" pagination
+            $offset = 0;
+            if (preg_match('/\b(show me more|more products|more items|next page|show more|see more|load more)\b/i', $ml)) {
+                $offset = (int)($ctx['page_offset'] ?? 0) + 10;
+                $cat = $cat ?: ($ctx['last_category'] ?? null);
+                $budget = $budget ?: ($ctx['last_budget'] ?? null);
+            }
+
+            // Handle relative price queries (cheaper / more expensive)
+            if (preg_match('/\b(cheaper|cheapest|less expensive|more affordable|lower price|under budget)\b/i', $ml) && !$budget && !empty($ctx['last_shown_products'])) {
+                $prices = array_column($ctx['last_shown_products'], 'price');
+                $maxPrice = !empty($prices) ? min($prices) : 0;
+                if ($maxPrice > 0) {
+                    $budget = ['min' => null, 'max' => (int)$maxPrice, 'exact' => false, 'label' => 'under RWF ' . number_format($maxPrice)];
+                }
+                $searchTerm = $ctx['last_search_term'] ?? null;
+                $handlerSetSearchTerm = true;
+            }
+            if (preg_match('/\b(more expensive|premium|higher price|expensive|high.?end)\b/i', $ml) && !$budget && !empty($ctx['last_shown_products'])) {
+                $prices = array_column($ctx['last_shown_products'], 'price');
+                $minPrice = !empty($prices) ? max($prices) : 0;
+                if ($minPrice > 0) {
+                    $budget = ['min' => (int)$minPrice, 'max' => null, 'exact' => false, 'label' => 'from RWF ' . number_format($minPrice)];
+                }
+                $searchTerm = $ctx['last_search_term'] ?? null;
+                $handlerSetSearchTerm = true;
+            }
+
+            // Handle "similar" / "something like" queries — only check message for explicit category, not context
+            $messageCat = detectCategory($message);
+            if (preg_match('/\b(similar|related|something like|like this|alternatives|other options|what else|also have|also available)\b/i', $ml) && !$messageCat && !empty($ctx['last_shown_products'])) {
+                $lastCat = $ctx['last_category'] ?? null;
+                if (!$lastCat && !empty($ctx['last_shown_products'])) {
+                    $firstProduct = $ctx['last_shown_products'][0] ?? null;
+                    if ($firstProduct && !empty($firstProduct['category'])) {
+                        $lastCat = $firstProduct['category'];
+                    }
+                }
+                if ($lastCat) $cat = $lastCat;
+                $searchTerm = $ctx['last_search_term'] ?? null;
+                $handlerSetSearchTerm = true;
+            }
+
+            // Determine search term — only extract from message if a special handler didn't already set it
+            // If current message has a budget or new category, start fresh (don't mix old context term)
+            // MUST run before the conversational guard so the guard can check for extractable product terms
+            $searchTermFromHandler = isset($handlerSetSearchTerm) && $handlerSetSearchTerm;
+            $hasNewFilter = $budget || (!empty($cat) && $cat !== ($ctx['last_category'] ?? null));
+            if (!$searchTermFromHandler) {
+                $searchTerm = extractProductSearchTerm($message);
+                if (!$searchTerm && !$hasNewFilter) {
+                    $searchTerm = $ctx['last_search_term'] ?? null;
+                }
+                // ── Context-aware search term refinement ──
+                // If the extracted term is just a size/measurement/quantity modifier
+                // (e.g. "2L", "500ml", "2kg", "3", "1.5") and the previous conversation
+                // had a more specific product term, merge them together so the brand
+                // and product name carry over.
+                $savedContextSearchTerm = null;
+                if ($searchTerm && $ctx['last_search_term'] && !$hasNewFilter) {
+                    $stripped = trim($searchTerm);
+                    $isSizeModifier = preg_match('/^\d+(?:\.\d+)?\s*[a-zA-Z]{1,3}$/i', $stripped);
+                    $isNumericOnly = preg_match('/^\d+(?:\.\d+)?$/', $stripped);
+                    if ($isSizeModifier || $isNumericOnly) {
+                        $savedContextSearchTerm = $ctx['last_search_term'];
+                        $searchTerm = $ctx['last_search_term'] . ' ' . $stripped;
+                    }
+                }
+            }
 
             // ── Guard: detect conversational messages that are NOT product queries ──
-            // If no category detected AND no budget AND message looks conversational → use Gemini
-            $productTriggers = ['show','find','search','looking','want','need','get','buy','purchase','price','stock','available','recommend','suggest','cheap','affordable','best','top','popular'];
+            // If no category, no budget, no extractable search term, and message looks conversational → use Gemini
+            $productTriggers = ['show','find','search','looking','want','need','get','buy','purchase','price','stock','available','recommend','suggest','cheap','affordable','best','top','popular','shoe','shoes'];
             $hasProductTrigger = false;
             foreach ($productTriggers as $trigger) {
                 if (stripos($ml, $trigger) !== false) { $hasProductTrigger = true; break; }
             }
 
-            if (!$cat && !$budget && !$hasProductTrigger) {
-                // This is a conversational message — route to Gemini
-                    $geminiReply = askGeminiForQuery($message, $conn, $user_id ? (int)$user_id : null, $ctx);
+            if (!$cat && !$budget && !$searchTerm && !$hasProductTrigger && $sort === 'price' && !($lastSort && preg_match('/\b(sort|order|arrange)\b/i', $ml))) {
+                // This is a conversational message — route to Gemini if available
+                $geminiReply = askGeminiForQuery($message, $conn, $user_id ? (int)$user_id : null, $ctx);
                 if ($geminiReply) {
                     return ['response' => $geminiReply, 'quick_replies' => ['Show me products', 'Browse categories', 'Contact support']];
                 }
+                // Gemini unavailable — detect complaint/sentiment for empathetic fallback
+                $complaintWords = ['terrible','hate','bad','worst','awful','horrible','poor','angry','frustrat','disappoint','unhappy','sad','annoyed','useless','waste','broken','damage','defect','issue','problem','complaint'];
+                $isComplaint = false;
+                foreach ($complaintWords as $w) {
+                    if (stripos($ml, $w) !== false) { $isComplaint = true; break; }
+                }
+                if ($isComplaint) {
+                    return [
+                        'response'      => "I'm sorry to hear you're unhappy. Please tell me more about the issue so I can help — or contact our support team at ericniringiyimana123@gmail.com or call +250782977559.",
+                        'quick_replies' => ['Contact support', 'Show me products', 'Browse categories'],
+                    ];
+                }
+                // General conversational fallback with onboarding
                 return [
-                    'response'      => "Please clarify what you need.",
-                    'quick_replies' => [],
+                    'response'      => "Hi! I'm the ShopAI Rwanda assistant. I can help you with:<br><br>• 🔍 Searching products (e.g. <em>\"show me phones\"</em>)<br>• 💰 Price & budget (e.g. <em>\"laptops under 500k\"</em>)<br>• 📦 Stock availability (e.g. <em>\"is Samsung in stock?\"</em>)<br>• 🚚 Delivery, payments, returns & more<br><br>What would you like to know?",
+                    'quick_replies' => ['Show me products', 'Browse categories', 'Delivery info', 'Contact support'],
                 ];
             }
 
-            $searchTerm = extractProductSearchTerm($message);
+            // If search term IS just the category name (e.g. "fashion women" → Fashion Women), drop it
+            // Only nullify if every token is a generic category/product word (e.g. "fashion", "women")
+            // so that specific product searches like "iphone se" are not incorrectly nullified
+            if ($searchTerm && $cat && detectCategory($searchTerm) === $cat) {
+                $genericWords = [
+                    'phone','phones','smartphone','smartphones','mobile','mobiles','tablet','tablets',
+                    'laptop','laptops','computer','computers','pc','tv','television','speaker',
+                    'headphone','headphones','audio','fashion','clothes','clothing',
+                    'shirt','shirts','dress','dresses','grocery','groceries','food','beauty','health',
+                    'sports','sport','baby','kids','furniture','appliance','appliances','book','books',
+                    'jewelry','jewellery','watch','watches','gaming','electronics',
+                    'women','woman','men','male','female','boys','girls','home','office',
+                ];
+                $tokens = array_filter(explode(' ', strtolower($searchTerm)));
+                $allGeneric = true;
+                foreach ($tokens as $t) {
+                    if (!in_array($t, $genericWords, true)) { $allGeneric = false; break; }
+                }
+                if ($allGeneric) {
+                    $searchTerm = null;
+                }
+            }
 
-            $products = queryProducts($conn, $cat, $budget, $searchTerm ?: null, 10);
+            // Subcategory filtering: for combined categories, detect specific sub-type from message
+            $subcategoryFilter = null;
+            if ($cat && !$searchTermFromHandler && !$searchTerm) {
+                $subcatMap = getSubcategoryMap();
+                if (isset($subcatMap[$cat])) {
+                    foreach ($subcatMap[$cat] as $pattern => $term) {
+                        if (preg_match('/\b' . $pattern . '\b/i', $message)) {
+                            $subcategoryFilter = $term;
+                            break;
+                        }
+                    }
+                }
+            }
+            $finalSearchTerm = $subcategoryFilter ?? $searchTerm;
 
-            // If no results with search term, try category only
-            if (empty($products) && $cat && !$searchTerm) {
+            $products = queryProducts($conn, $cat, $budget, $finalSearchTerm ?: null, 10, $offset, false, $sort);
+
+            // If NO results and search term exists, try semantic search (all-MiniLM-L6-v2 + FAISS)
+            if (empty($products) && $searchTerm) {
+                $semanticResp = @file_get_contents(ML_API_BASE . '/semantic-search', false, stream_context_create([
+                    'http' => [
+                        'method'  => 'POST',
+                        'header'  => 'Content-Type: application/json',
+                        'content' => json_encode([
+                            'query'       => $searchTerm,
+                            'top_k'       => 8,
+                            'min_similarity' => 0.25,
+                            'budget_max'  => is_array($budget) ? ($budget['max'] ?? null) : (is_numeric($budget) ? (int)$budget : null),
+                        ]),
+                        'timeout' => 5,
+                    ],
+                ]));
+                if ($semanticResp === false) {
+                    error_log('CHATBOT: Semantic search (ML API) unreachable at ' . ML_API_BASE . '/semantic-search');
+                }
+                if ($semanticResp !== false) {
+                    $semanticData = json_decode($semanticResp, true);
+                    if (!empty($semanticData['results'])) {
+                        $existingIds = array_map(fn($p) => (int)$p['id'], $products);
+                        foreach ($semanticData['results'] as $sr) {
+                            if (!in_array((int)$sr['id'], $existingIds, true)) {
+                                $products[] = $sr;
+                                $existingIds[] = (int)$sr['id'];
+                            }
+                        }
+                        $products = array_slice($products, 0, 10);
+                    }
+                }
+            }
+
+            // If no results with search term, try category only (drop generic subcategory term)
+            // Don't retry for exact price queries ("on X") — user explicitly asked for that price
+            $isExactPrice = is_array($budget) && !empty($budget['exact']);
+            if (empty($products) && $cat && $offset === 0 && !$isExactPrice && (!$finalSearchTerm || ($subcategoryFilter && $finalSearchTerm === $subcategoryFilter))) {
                 $products = queryProducts($conn, $cat, $budget, null, 10);
             }
-            // If still no results, ask for clarification — don't dump random products
+
+            // If no results with merged size modifier — retry with just the context term
+            if (empty($products) && $savedContextSearchTerm) {
+                $products = queryProducts($conn, $cat, $budget, $savedContextSearchTerm, 10, 0, false, $sort);
+                if (!empty($products)) {
+                    $finalSearchTerm = $savedContextSearchTerm;
+                    $title = ucwords($finalSearchTerm) . " in $cat";
+                    if ($budget) $title .= " " . priceFilterLabel($budget);
+                    $result = formatProductList($products, $title);
+                    $result['response'] = "ℹ️ The specific size/quantity you requested isn't available. Here are matching products:<br><br>" . $result['response'];
+                    $ctx['last_search_term'] = $finalSearchTerm;
+                    $ctx['last_category'] = $cat;
+                    $ctx['last_budget'] = $budget;
+                    $ctx['last_search_sort'] = $sort;
+                    $ctx['page_offset'] = 0;
+                    $ctx['last_shown_products'] = $result['products'] ?? [];
+                    return $result;
+                }
+            }
+
+            // If no results — ask if they want similar product suggestions
             if (empty($products)) {
+                $ctx['conversation_state'] = 'awaiting_similar_confirm';
+                $ctx['conversation_data'] = [
+                    'similar_search_term' => $finalSearchTerm,
+                    'similar_category' => $cat,
+                    'original_message' => $message,
+                ];
                 return [
-                    'response'      => "😔 I couldn't find products matching <em>\"" . htmlspecialchars($message) . "\"</em>.<br><br>Try being more specific, e.g.:<br>• <em>Show me Samsung phones</em><br>• <em>Laptops under 500k</em><br>• <em>Browse categories</em>",
-                    'quick_replies' => ['Browse categories', 'Show me phones', 'Show me laptops', 'Contact support'],
+                    'response' => "Thank you for your inquiry. Unfortunately, the product you requested is not currently available in our database. Would you like me to suggest similar products that are available?",
+                    'quick_replies' => ['Yes, show me similar', 'No, thanks'],
                 ];
             }
-            $title = $cat ? "$cat Products" : "Products matching your search";
+
+            $title = $finalSearchTerm ? ucwords($finalSearchTerm) . ($cat ? " in $cat" : "") : ($cat ? "$cat Products" : "Products");
             if ($budget) $title .= " " . priceFilterLabel($budget);
-            return formatProductList($products, $title);
+            $result = formatProductList($products, $title);
+
+            // Add proactive upgrades after product list
+            if (!empty($products) && count($products) >= 3 && $cat) {
+                $shownIds = array_map(fn($p) => (int)$p['id'], $products);
+                $midPrice = (float)$products[(int)(count($products)/2)]['price'];
+                $upsellBudget = ['min' => (int)($midPrice * 1.3), 'max' => (int)($midPrice * 3), 'exact' => false, 'label' => 'premium'];
+                $upsell = queryProducts($conn, $cat, $upsellBudget, $finalSearchTerm, 5);
+                if (!empty($upsell)) {
+                    $upsell = array_filter($upsell, fn($u) => !in_array((int)$u['id'], $shownIds, true));
+                    $upsell = array_slice(array_values($upsell), 0, 2);
+                }
+                if (!empty($upsell)) {
+                    $sugText = "<br><br>💡 <strong>Premium upgrades available:</strong> ";
+                    $links = [];
+                    foreach ($upsell as $u) {
+                        $links[] = "<a href='" . SITE_URL . "/product.php?id=" . (int)$u['id'] . "'>" . htmlspecialchars($u['name']) . "</a> (RWF " . number_format((float)$u['price']) . ")";
+                    }
+                    $sugText .= implode(', ', $links);
+                    $result['response'] .= $sugText;
+                }
+            }
+
+            // Save to context memory (use finalSearchTerm so follow-ups work with subcategories)
+            $ctx['last_category'] = $cat;
+            $ctx['last_budget'] = $budget;
+            $ctx['last_search_term'] = $finalSearchTerm;
+            $ctx['last_search_sort'] = $sort;
+            $ctx['page_offset'] = $offset;
+            $ctx['last_shown_products'] = $result['products'] ?? [];
+
+            return $result;
 
         // ── CATEGORY SEARCH ──
         case 'category_search':
-            $cat = detectCategory($message);
-            if ($cat) {
-                // Show products from that specific category using exact DB name
-                $products = queryProducts($conn, $cat, null, null, 10);
-                return formatProductList($products, "$cat Products");
+            // If message is explicitly a category-browse request, skip context
+            if (preg_match('/^(browse categories|show categories|all categories|list categories|view categories)$/i', trim($message))) {
+                $cat = null;
+            } else {
+                $cat = detectCategory($message) ?: ($ctx['last_category'] ?? null);
             }
-            // Show all categories with counts
-            $res  = $conn->query("SELECT c.name, COUNT(p.id) as total, MIN(p.price) as min_p, MAX(p.price) as max_p FROM categories c LEFT JOIN products p ON p.category_id=c.id AND p.stock>0 GROUP BY c.id, c.name ORDER BY c.name");
+            $searchTerm = extractProductSearchTerm($message) ?: ($ctx['last_search_term'] ?? null);
+            $ctxBudget = $ctx['last_budget'] ?? null;
+            if ($cat) {
+                $budget = parsePriceFilter($message) ?: parseBudget($message) ?: $ctxBudget;
+                // Subcategory filtering for combined categories
+                $subcategoryFilter = null;
+                if (!$searchTerm) {
+                    $subcatMap = getSubcategoryMap();
+                    if (isset($subcatMap[$cat])) {
+                        foreach ($subcatMap[$cat] as $pattern => $term) {
+                            if (preg_match('/\b' . $pattern . '\b/i', $message)) {
+                                $subcategoryFilter = $term;
+                                break;
+                            }
+                        }
+                    }
+                }
+                // Use subcategory filter, or a meaningful word from message (not null) for context follow-ups
+                $finalSearchTerm = $subcategoryFilter ?? $searchTerm;
+                if (!$finalSearchTerm) {
+                    $words = array_diff(preg_split('/\s+/', strtolower(trim($message))), ['show','me','browse','list','all','display','i','want','need','get','find','looking','for','the','a','an','some','any']);
+                    $words = array_values(array_filter($words, fn($w) => strlen($w) > 2));
+                    if (!empty($words)) $finalSearchTerm = $words[0];
+                }
+                $products = queryProducts($conn, $cat, $budget, $finalSearchTerm ?: null, 10);
+                $title = $finalSearchTerm ? ucwords($finalSearchTerm) . " in $cat" : "$cat Products";
+                if ($budget) $title .= " " . priceFilterLabel($budget);
+                $result = formatProductList($products, $title);
+                $ctx['last_category'] = $cat;
+                $ctx['last_budget'] = $budget;
+                $ctx['last_search_term'] = $finalSearchTerm;
+                $ctx['last_shown_products'] = $result['products'] ?? [];
+                return $result;
+            }
+            // Show all categories with counts and clickable links
+            $res  = $conn->query("SELECT c.id, c.name, COUNT(p.id) as total, MIN(p.price) as min_p, MAX(p.price) as max_p FROM categories c LEFT JOIN products p ON p.category_id=c.id AND p.stock>0 GROUP BY c.id, c.name ORDER BY c.name");
             $out  = "📂 <strong>Browse our 15 categories:</strong><br><br>";
             $qr   = [];
             if ($res) {
                 while ($r = $res->fetch_assoc()) {
-                    $out .= "• <strong>" . htmlspecialchars($r['name']) . "</strong> — " . $r['total'] . " products";
+                    $catName = htmlspecialchars($r['name']);
+                    $catUrl  = SITE_URL . '/products.php?category=' . (int)$r['id'];
+                    $out .= "• <a href='$catUrl'><strong>$catName</strong></a> — " . $r['total'] . " products";
                     if ($r['min_p']) $out .= " | RWF " . number_format($r['min_p']) . " – " . number_format($r['max_p']);
                     $out .= "<br>";
                     $qr[] = $r['name'];
@@ -1814,26 +2595,51 @@ function buildResponse(string $intent, string $message, ?int $user_id, $conn, ar
                 if (stripos($ml, $b) !== false) { $found = $b; break; }
             }
             if ($found) {
-                $products = queryProducts($conn, null, null, $found, 10);
-                return formatProductList($products, ucfirst($found) . " Products");
+                $ctxCat = $ctx['last_category'] ?? null;
+                $ctxBudget = $ctx['last_budget'] ?? null;
+                $budget = parsePriceFilter($message) ?: parseBudget($message) ?: $ctxBudget;
+                $extraTerm = extractProductSearchTerm($message);
+                $searchTerm = $found . ($extraTerm ? " $extraTerm" : "");
+                $products = queryProducts($conn, $ctxCat, $budget, $searchTerm, 10);
+                $title = ucfirst($found) . " Products";
+                if ($extraTerm) $title .= " - " . ucwords($extraTerm);
+                if ($budget) $title .= " " . priceFilterLabel($budget);
+                $result = formatProductList($products, $title);
+                $ctx['last_category'] = $ctxCat;
+                $ctx['last_budget'] = $budget;
+                $ctx['last_search_term'] = $searchTerm;
+                $ctx['last_shown_products'] = $result['products'] ?? [];
+                return $result;
             }
-            // No brand found — fall back to category/product search
-            $cat      = detectCategory($message);
-            $products = queryProducts($conn, $cat, null, null, 8);
-            if (empty($products)) $products = queryProducts($conn, null, null, null, 8);
-            return formatProductList($products, $cat ? "$cat Products" : "Featured Products from ShopAI Rwanda");
+            // No brand found — fall back to category/product search with search term
+            $cat        = detectCategory($message) ?: ($ctx['last_category'] ?? null);
+            $budget     = parsePriceFilter($message) ?: parseBudget($message) ?: ($ctx['last_budget'] ?? null);
+            $searchTerm = extractProductSearchTerm($message);
+            $products   = queryProducts($conn, $cat, $budget, $searchTerm ?: null, 8);
+            if (empty($products)) $products = queryProducts($conn, null, null, $searchTerm ?: null, 8);
+            $title = $searchTerm ? ucwords($searchTerm) . ($cat ? " in $cat" : "") : ($cat ? "$cat Products" : "Featured Products from ShopAI Rwanda");
+            $result = formatProductList($products, $title);
+            $ctx['last_category'] = $cat;
+            $ctx['last_budget'] = $budget;
+            $ctx['last_search_term'] = $searchTerm;
+            $ctx['last_shown_products'] = $result['products'] ?? [];
+            return $result;
 
         // ── PRICE INQUIRY ──
         case 'product_rating':
-            $term = extractProductSearchTerm($message);
-            $cat = detectCategory($message);
+            $term = extractProductSearchTerm($message) ?: ($ctx['last_search_term'] ?? null);
+            $cat = detectCategory($message) ?: ($ctx['last_category'] ?? null);
             $products = $term ? queryProducts($conn, $cat, null, $term, 5) : [];
             if (empty($products) && $cat && !$term) $products = queryProducts($conn, $cat, null, null, 5);
             return formatProductRatingList($conn, $products, $term ? "Ratings for $term" : "Product Ratings");
 
         case 'product_price':
-            $term       = extractProductSearchTerm($message);
-            $products   = $term ? queryProducts($conn, null, null, $term, 5) : [];
+            $term       = extractProductSearchTerm($message) ?: ($ctx['last_search_term'] ?? null);
+            $cat        = detectCategory($message) ?: ($ctx['last_category'] ?? null);
+            $products   = $term ? queryProducts($conn, $cat, null, $term, 5) : [];
+            if (empty($products) && $cat) {
+                $products = queryProducts($conn, $cat, null, null, 5);
+            }
             if (empty($products)) {
                 return ['response' => "Please specify which product you want the price for. Example: <em>price of Samsung Galaxy A54</em>", 'quick_replies' => ['Show me products', 'Browse categories']];
             }
@@ -1850,8 +2656,12 @@ function buildResponse(string $intent, string $message, ?int $user_id, $conn, ar
 
         // ── STOCK CHECK ──
         case 'stock_check':
-            $term3      = extractProductSearchTerm($message);
-            $products   = $term3 ? queryProducts($conn, null, null, $term3, 5) : [];
+            $term3      = extractProductSearchTerm($message) ?: ($ctx['last_search_term'] ?? null);
+            $cat        = detectCategory($message) ?: ($ctx['last_category'] ?? null);
+            $products   = $term3 ? queryProducts($conn, $cat, null, $term3, 5) : [];
+            if (empty($products) && $cat) {
+                $products = queryProducts($conn, $cat, null, null, 5);
+            }
             if (empty($products)) {
                 return ['response' => "Please specify which product you want to check. Example: <em>Is Samsung Galaxy A54 in stock?</em>", 'quick_replies' => ['Show me products', 'Browse categories']];
             }
@@ -1874,7 +2684,7 @@ function buildResponse(string $intent, string $message, ?int $user_id, $conn, ar
         case 'delivery_time':
         case 'shipping_fee':
             return [
-                'response'      => "🚚 <strong>Delivery Information:</strong><br>• <strong>Kigali:</strong> 1–2 business days<br>• <strong>Other provinces:</strong> 2–4 business days<br>• <strong>Free shipping</strong> on orders above RWF 50,000<br>• Standard shipping: <strong>RWF 2,000</strong>",
+                'response'      => "🚚 <strong>Delivery Information:</strong><br>• <strong>Kigali:</strong> 1–2 business days<br>• <strong>Other provinces:</strong> 2–4 business days<br>• <strong>Free shipping</strong> on all orders 🎉",
                 'quick_replies' => ['Payment methods', 'Return policy', 'Show me products'],
             ];
 
@@ -1937,25 +2747,41 @@ function buildResponse(string $intent, string $message, ?int $user_id, $conn, ar
 
         // ── DEFAULT: respond precisely to what was asked ──
         default:
-            // Try to find products matching the exact message
-            $cat      = detectCategory($message);
-            $budget   = parsePriceFilter($message) ?: parseBudget($message);
+            // Try to find products matching the exact message (with context fallback)
+            $cat      = detectCategory($message) ?: ($ctx['last_category'] ?? null);
+            $budget   = parsePriceFilter($message) ?: parseBudget($message) ?: ($ctx['last_budget'] ?? null);
 
             // Only search if message has clear product-related keywords
-            $productTriggers2 = ['show','find','search','looking','want','need','get','buy','purchase','price','stock','available','recommend','suggest','cheap','affordable','best','top','popular'];
+            $productTriggers2 = ['show','find','search','looking','want','need','get','buy','purchase','price','stock','available','recommend','suggest','cheap','affordable','best','top','popular','shoe','shoes'];
             $hasProductTrigger2 = false;
             foreach ($productTriggers2 as $trigger) {
                 if (stripos($ml, $trigger) !== false) { $hasProductTrigger2 = true; break; }
             }
 
             if (($cat || $budget || $hasProductTrigger2) && strlen($ml) >= 4) {
-                $searchTerm = extractProductSearchTerm($message);
+                $searchTerm = extractProductSearchTerm($message) ?: ($ctx['last_search_term'] ?? null);
                 $products   = queryProducts($conn, $cat, $budget, $searchTerm ?: null, 10);
                 if (!empty($products)) {
                     $title = $cat ? "$cat Products" : "Products matching your search";
                     if ($budget) $title .= " " . priceFilterLabel($budget);
-                    return formatProductList($products, $title);
+                    $result = formatProductList($products, $title);
+                    $ctx['last_category'] = $cat;
+                    $ctx['last_budget'] = $budget;
+                    $ctx['last_search_term'] = $searchTerm;
+                    $ctx['last_shown_products'] = $result['products'] ?? [];
+                    return $result;
                 }
+                // No results — ask if they want similar product suggestions
+                $ctx['conversation_state'] = 'awaiting_similar_confirm';
+                $ctx['conversation_data'] = [
+                    'similar_search_term' => $searchTerm,
+                    'similar_category' => $cat,
+                    'original_message' => $message,
+                ];
+                return [
+                    'response' => "Thank you for your inquiry. Unfortunately, the product you requested is not currently available in our database. Would you like me to suggest similar products that are available?",
+                    'quick_replies' => ['Yes, show me similar', 'No, thanks'],
+                ];
             }
 
             // Not a product query — use Gemini for conversational/complex/multilingual queries

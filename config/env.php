@@ -67,3 +67,7 @@ class EnvLoader {
 
 // Auto-load on include
 EnvLoader::load();
+
+// Define ML API URL after env is loaded so .env can override it
+defined('ML_API_BASE') || define('ML_API_BASE', getenv('ML_API_URL') ?: 'http://127.0.0.1:5000');
+

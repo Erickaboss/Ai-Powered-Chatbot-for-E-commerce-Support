@@ -1,10 +1,19 @@
 <?php
 require_once 'config/db.php';
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once 'includes/security.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params(['httponly' => true, 'samesite' => 'Strict', 'secure' => !empty($_SERVER['HTTPS'])]);
+    session_start();
+}
+sendSecurityHeaders();
 if (isset($_SESSION['user_id'])) { header('Location: index.php'); exit; }
 
 $error = $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? null)) {
+        $error = 'Invalid session token. Please try again.';
+    }
+    else {
     $name  = trim($_POST['name']  ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
@@ -31,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $success = 'Account created! <a href="login.php" class="fw-600">Login here →</a>';
         }
+    }
     }
 }
 ?>
@@ -61,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if (!$success): ?>
         <form method="POST">
+            <?= csrfField() ?>
             <div class="mb-3">
                 <label class="form-label small fw-600">Full Name <span class="text-danger">*</span></label>
                 <div class="input-group">
@@ -116,6 +127,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body>
 </html>

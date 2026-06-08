@@ -7,8 +7,11 @@ $msg   = '';
 $valid = false;
 
 if ($token) {
-    $safeToken = $conn->real_escape_string($token);
-    $row = $conn->query("SELECT * FROM password_resets WHERE token='$safeToken' AND used=0 AND expires_at > NOW() LIMIT 1")->fetch_assoc();
+    $safeToken = $token;
+    $stmt = $conn->prepare("SELECT * FROM password_resets WHERE token=? AND used=0 AND expires_at > NOW() LIMIT 1");
+    $stmt->bind_param("s", $safeToken);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
     if ($row) $valid = true;
     else $msg = 'error:This reset link is invalid or has expired. Please request a new one.';
 }
@@ -22,9 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid) {
         $msg = 'error:Passwords do not match.';
     } else {
         $hash      = password_hash($pass, PASSWORD_DEFAULT);
-        $safeEmail = $conn->real_escape_string($row['email']);
-        $conn->query("UPDATE users SET password='$hash' WHERE email='$safeEmail'");
-        $conn->query("UPDATE password_resets SET used=1 WHERE token='$safeToken'");
+        $safeEmail = $row['email'];
+        $stmt = $conn->prepare("UPDATE users SET password=? WHERE email=?");
+        $stmt->bind_param("ss", $hash, $safeEmail);
+        $stmt->execute();
+        $stmt = $conn->prepare("UPDATE password_resets SET used=1 WHERE token=?");
+        $stmt->bind_param("s", $safeToken);
+        $stmt->execute();
         $msg = 'success:Password reset successfully! You can now login.';
         $valid = false;
     }
@@ -64,5 +71,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid) {
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body></html>

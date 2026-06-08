@@ -1,0 +1,248 @@
+{
+  "intents": [
+    {
+      "tag": "image_upload_product",
+      "patterns": [
+        "i have a picture of a product", "i want to upload an image", "i have a photo",
+        "can i upload a picture", "i have a screenshot", "i took a photo of a product",
+        "i have an image of what i want", "upload photo", "send picture",
+        "i have a document about a product", "i have a pdf", "i have a file",
+        "here is a picture", "look at this image", "check this photo",
+        "i found this product online", "i saw this product", "i have a screenshot of a product",
+        "nfite ifoto", "nshaka kohereza ifoto", "nfite ikirangantego cy'igicuruzwa",
+        "j'ai une photo", "j'ai une image", "je veux envoyer une photo",
+        "voici une image", "regardez cette photo", "j'ai un document",
+        "can you identify this product", "what product is this", "do you have this item",
+        "is this product in your store", "can you find this product for me",
+        "i want to buy something like this", "find me a similar product",
+        "match this product to your catalog", "search for this product image"
+      ],
+      "responses": [
+        "📸 Great! I can analyze your image. Upload it using the 📎 paperclip button and I'll search our catalog for matching products.",
+        "Perfect! Click the 📎 attachment icon to upload your image or document. I'll identify the product and check if we have it in stock.",
+        "I can help! Use the 📎 button to upload your photo. I'll analyze it and show you matching products from our store.",
+        "Excellent! Upload your image using the paperclip icon. I'll use AI vision to identify the product and find it in our 1,161+ product catalog."
+      ]
+    },
+    {
+      "tag": "budget_based_search",
+      "patterns": [
+        "i have 50000 rwf", "my budget is 200k", "i can spend 100000",
+        "show me products under 50000", "what can i buy with 100k",
+        "products under 200000 rwf", "affordable products", "cheap products",
+        "budget products", "i only have 30000", "i have limited budget",
+        "what can i get for 50k", "products within my budget",
+        "j'ai 50000 rwf", "mon budget est 200k", "produits pas chers",
+        "nfite amafaranga 50000", "ibicuruzwa bya hasi", "ibicuruzwa bitagura",
+        "show me phones under 100k", "laptops under 500k", "cheap phones",
+        "most affordable", "lowest price products", "least expensive",
+        "products between 50k and 200k", "between 100000 and 500000",
+        "i want to spend less than 100k", "under 50k products",
+        "what can i buy with 200000 francs", "products for 100000 rwf",
+        "best value for money", "good quality cheap", "budget friendly options",
+        "affordable electronics", "cheap furniture", "inexpensive fashion",
+        "products i can afford", "within my price range", "price range 50k to 300k"
+      ],
+      "responses": [
+        "💰 Perfect! I can find products within your budget. Tell me your exact budget and preferred category (phones, laptops, fashion, etc.) and I'll show you the best options.",
+        "Great! I'll search our entire catalog for products in your price range. What's your budget and what category interests you?",
+        "Budget shopping made easy! Tell me how much you have and what you're looking for. I'll show you all available options in that price range.",
+        "I can help you find the best products for your budget! Just tell me your maximum amount and preferred category, and I'll display matching items."
+      ]
+    },
+    {
+      "tag": "product_recommendation_budget",
+      "patterns": [
+        "recommend something under 100k", "suggest a phone for 200k", "best laptop under 500k",
+        "what's the best value phone", "recommend a product for my budget",
+        "i need a good product under 150k", "suggest something affordable",
+        "what should i buy with 300k", "best product for the price",
+        "recommend based on my budget", "suggest products in my price range",
+        "je veux un produit sous 200k", "recommande moi quelque chose",
+        "ndashaka igicuruzwa kiri munsi ya 200k", "sobanura ikintu kijyanye na budget",
+        "best phone under 100k", "best laptop for 500k", "best tv under 300k",
+        "quality products on a budget", "good deals under 200k",
+        "what's worth buying under 150k", "best bang for buck under 100k"
+      ],
+      "responses": [
+        "💡 I can recommend the best products for your budget! Tell me your budget amount and what category you're interested in (phones, laptops, fashion, home appliances, etc.) and I'll suggest top options.",
+        "Excellent! I'll find the best value products in your price range. What's your budget and what are you looking for?",
+        "I'll recommend products that give you the best value for your money. Just tell me your budget and preferred category!",
+        "Let me find the perfect product for your budget! Tell me how much you want to spend and what you need."
+      ]
+    },
+    {
+      "tag": "multilingual_complex_query",
+      "patterns": [
+        "je veux un téléphone pas cher", "mufite ibikoresho byo gukora sport",
+        "je cherche une robe pour ma mère", "ndashaka gufasha mu kinyarwanda",
+        "parlez vous francais", "do you speak kinyarwanda",
+        "i need help in french", "pouvez vous m'aider",
+        "muraho mwandika mu kinyarwanda", "urasobanura mu kinyarwanda",
+        "ndashaka gufasha mu kinyarwanda", "urasobanura mu rurimi rw'ikinyarwanda",
+        "je ne comprends pas l'anglais", "i speak french only",
+        "ndavuga ikinyarwanda gusa", "je parle seulement francais",
+        "help me find a gift for my friend", "i need something special",
+        "recommend a product for a gift", "what's good for a present",
+        "je veux un cadeau pour mon ami", "ndashaka impano nziza",
+        "something for my family", "products for my home",
+        "je cherche des produits pour ma maison", "nshaka ibicuruzwa by'inzu"
+      ],
+      "responses": [
+        "🌍 I speak English, French, and Kinyarwanda! Tell me what you're looking for and I'll help you in your preferred language.",
+        "Oui! Je parle français, anglais et kinyarwanda. Que puis-je faire pour vous? / Yes! I speak all three languages. What can I help you with?",
+        "Yego! Ndavuga Ikinyarwanda, Igifaransa na Icyongereza. Nakugirira iki? / I speak all three languages - just ask in your preferred language!",
+        "I can help in English, French, or Kinyarwanda! What are you looking for?"
+      ]
+    },
+    {
+      "tag": "guest_ordering_guide",
+      "patterns": [
+        "how do i order as a guest", "can i order without account", "how to place order",
+        "guide me to order", "how to buy", "steps to order", "ordering process",
+        "how does ordering work", "i want to buy but i am not registered",
+        "can i shop without login", "do i need an account to buy",
+        "how to purchase", "buying guide", "order guide", "purchase guide",
+        "comment commander", "comment acheter", "guide d'achat",
+        "nshaka kugura", "uburyo bwo kugura", "gura nta konti",
+        "how to order step by step", "walk me through ordering",
+        "explain how to buy", "what are the steps to place an order",
+        "i am new how do i buy", "first time buyer guide",
+        "how do i checkout", "checkout process explained",
+        "can guests order", "guest checkout", "order without account"
+      ],
+      "responses": [
+        "📋 Here's how to place an order: 1) Browse products and find what you want. 2) Create a free account or login. 3) Add items to your cart. 4) Go to checkout, enter your delivery address. 5) Choose your payment method (COD, MoMo, Airtel, Card, Bank Transfer). 6) Confirm your order. You'll receive a confirmation email instantly!",
+        "To order: Register → Browse → Add to Cart → Checkout → Pay → Done! You can also order directly through me by typing 'I want [product name]'.",
+        "Ordering is simple! Create a free account, find your product, add to cart, and checkout. Need help? Just tell me what you want to buy!",
+        "🛒 Complete ordering guide: 1. Create account (free) 2. Search products 3. Add to cart 4. Enter address 5. Select payment 6. Confirm. I can help with each step!"
+      ]
+    },
+    {
+      "tag": "product_category_all_15",
+      "patterns": [
+        "show me all categories", "what categories do you have", "list all categories",
+        "what sections do you have", "show me the store", "take me to the store",
+        "show me everything", "show me all items", "i want to see everything",
+        "show me the full catalog", "all product categories",
+        "smartphones and tablets", "laptops and computers", "tv and audio",
+        "home appliances", "fashion for men", "fashion for women",
+        "groceries and food", "health and beauty", "sports and outdoors",
+        "baby and kids", "furniture and home", "car accessories",
+        "books and media", "jewelry and watches", "gaming and electronics",
+        "what do you sell", "what products do you have", "product categories",
+        "browse by category", "shop by category", "category list"
+      ],
+      "responses": [
+        "📦 We have 15 amazing categories with 1,161+ products:\n\n1. 📱 Smartphones & Tablets\n2. 💻 Laptops & Computers\n3. 📺 TV & Audio\n4. 🏠 Home Appliances\n5. 👔 Fashion Men\n6. 👗 Fashion Women\n7. 🛒 Groceries & Food\n8. 💄 Health & Beauty\n9. ⚽ Sports & Outdoors\n10. 👶 Baby & Kids\n11. 🛋️ Furniture & Home\n12. 🚗 Car Accessories\n13. 📚 Books & Media\n14. 💎 Jewelry & Watches\n15. 🎮 Gaming & Electronics\n\nWhich category interests you?",
+        "We have 15 categories! Smartphones, Laptops, TV, Home Appliances, Fashion (Men/Women), Groceries, Health & Beauty, Sports, Baby & Kids, Furniture, Car Accessories, Books, Jewelry, and Gaming. What would you like to explore?",
+        "Our store has 15 categories with over 1,161 products. From electronics to fashion, home goods to sports equipment. Which category would you like to browse?"
+      ]
+    },
+    {
+      "tag": "product_full_description",
+      "patterns": [
+        "tell me about this product", "product details", "product description",
+        "what are the specs", "product specifications", "features of",
+        "describe this product", "more details about", "product info",
+        "what does it include", "what comes in the box", "product features",
+        "specifications of samsung", "specs of iphone", "details of laptop",
+        "describe samsung galaxy", "tell me about iphone", "laptop specifications",
+        "what is the description of", "full details of", "complete info about",
+        "donnez moi les details", "description du produit", "caracteristiques",
+        "sobanura iyi product", "amakuru yuzuye", "ibiranga iyi product",
+        "quantity available", "stock information", "how many in stock",
+        "product availability", "is it in stock", "stock status"
+      ],
+      "responses": [
+        "📝 I can give you full product details! Just tell me the product name and I'll show you the complete description, price, stock, specifications, and all other information.",
+        "Sure! Which product would you like details about? I have complete information for all 1,161+ products in our catalog including specs, price, stock, and full descriptions.",
+        "I'll show you the full product description including specs, price, stock availability, and brand information. Which product interests you?"
+      ]
+    },
+    {
+      "tag": "platform_knowledge_professional",
+      "patterns": [
+        "tell me about this store", "about this platform", "what is this website",
+        "tell me about your store", "what do you sell", "store information",
+        "platform overview", "about your shop", "what is this shop",
+        "how many products do you have", "what categories do you have",
+        "tell me about the platform", "store details", "shop info",
+        "what services do you offer", "what can i find here",
+        "parlez moi de votre boutique", "informations sur la boutique",
+        "mbwira ibyerekeye iyi sitasiyo", "iyi sitasiyo irakora iki",
+        "how many categories", "list all categories", "all product categories",
+        "what brands do you carry", "which brands are available",
+        "professional overview", "business information", "company details"
+      ],
+      "responses": [
+        "🏪 Welcome to AI-Powered Chatbot For E-commerce Support! We are Rwanda's leading AI-powered e-commerce platform with:\n\n✅ 1,161+ Products across 15 Categories\n✅ 24/7 AI Shopping Assistant (English, French, Kinyarwanda)\n✅ Fast Delivery: Kigali 1-2 days, Provinces 2-4 days\n✅ Multiple Payment Options: COD, MTN MoMo, Airtel Money, Card, Bank Transfer\n✅ Free Shipping on orders above RWF 50,000\n✅ 7-Day Return Policy\n✅ Professional Customer Support\n\nOur 15 Categories: Smartphones, Laptops, TV & Audio, Home Appliances, Fashion (Men/Women), Groceries, Health & Beauty, Sports, Baby & Kids, Furniture, Car Accessories, Books, Jewelry, Gaming.\n\nHow can I help you today?",
+        "We are Rwanda's AI-powered e-commerce store with 1,161+ products in 15 categories. Shop phones, laptops, fashion, groceries, beauty products and more. Delivery in 1-4 business days across Rwanda.",
+        "Our store has 15 product categories with over 1,161 items. We accept MTN MoMo, Airtel Money, Cash on Delivery, Bank Transfer, and Visa/Mastercard. Free shipping on orders above RWF 50,000!"
+      ]
+    },
+    {
+      "tag": "ml_model_performance",
+      "patterns": [
+        "how accurate is the chatbot", "chatbot accuracy", "model performance",
+        "how well does the ai work", "chatbot reliability", "prediction accuracy",
+        "model metrics", "performance metrics", "accuracy score",
+        "how good is the model", "model quality", "ai performance",
+        "what's the accuracy", "precision and recall", "f1 score",
+        "model statistics", "training results", "model evaluation"
+      ],
+      "responses": [
+        "🤖 Our AI chatbot uses 4 trained machine learning models with 85%+ accuracy:\n\n✅ MLP Neural Network: 96%+ accuracy (Best)\n✅ Random Forest: 94%+ accuracy\n✅ Logistic Regression: 92%+ accuracy\n✅ SVM: 91%+ accuracy\n\nFor complex queries, we use Google Gemini API for intelligent responses. All responses are grounded in our live database - we never invent products!",
+        "Our chatbot achieves 85%+ accuracy across all models. The MLP Neural Network (our best model) reaches 96%+ accuracy. We're trained on 1,500+ conversation patterns across 17 intent categories.",
+        "The chatbot has been trained on comprehensive datasets with multiple ML algorithms. Performance metrics show 85%+ average accuracy with professional-grade reliability."
+      ]
+    },
+    {
+      "tag": "admin_dashboard_access",
+      "patterns": [
+        "admin dashboard", "admin panel", "admin access", "admin login",
+        "analytics dashboard", "performance dashboard", "ml dashboard",
+        "view analytics", "see statistics", "chatbot metrics",
+        "conversation analytics", "user analytics", "order analytics",
+        "model performance dashboard", "ml metrics", "training results"
+      ],
+      "responses": [
+        "📊 Admin Dashboard Features:\n\n✅ Chatbot Analytics: Real-time conversation metrics, satisfaction ratings, top questions\n✅ ML Performance: Model accuracy, precision, recall, F1 scores, confusion matrices\n✅ Conversation Viewer: Session details, intent distribution, confidence scores\n✅ Order Management: Track orders, manage inventory, view customer data\n✅ Support Tickets: Handle customer issues, track resolutions\n✅ Reports: Export data, generate insights, performance trends\n\nAccess via admin panel with proper credentials.",
+        "The admin dashboard provides comprehensive monitoring of chatbot performance, ML model metrics, conversation analytics, and business intelligence.",
+        "Administrators can access real-time analytics, ML performance metrics, conversation logs, and business insights through the secure admin panel."
+      ]
+    },
+    {
+      "tag": "document_upload_analysis",
+      "patterns": [
+        "i have a document", "upload a pdf", "upload a word document",
+        "i have a summary", "product summary document", "product information document",
+        "analyze my document", "extract text from document", "read my document",
+        "i have a file about a product", "document with product info",
+        "j'ai un document", "j'ai un pdf", "j'ai un fichier",
+        "nfite inyandiko", "nfite pdf", "nfite dosiye"
+      ],
+      "responses": [
+        "📄 I can analyze documents! Upload your PDF or Word document using the 📎 paperclip button. I'll extract the information and help you find matching products or answer questions about it.",
+        "Great! Use the 📎 attachment button to upload your document (PDF, DOCX). I'll read it and extract the key information to help you.",
+        "I can read documents! Upload your file and I'll analyze it to help you find products or answer questions about the content."
+      ]
+    },
+    {
+      "tag": "professional_presentation",
+      "patterns": [
+        "professional overview", "business presentation", "company information",
+        "store capabilities", "what can you do", "system features",
+        "advanced features", "ai capabilities", "chatbot features",
+        "multilingual support", "language support", "supported languages",
+        "image recognition", "vision capabilities", "ai features",
+        "payment options", "delivery options", "service features"
+      ],
+      "responses": [
+        "🎯 Professional Platform Overview:\n\n🤖 AI CAPABILITIES:\n• 4 ML Models (85%+ accuracy)\n• Google Gemini Integration\n• Image Recognition & Product Matching\n• Document Analysis (PDF, DOCX)\n• Multilingual Support (EN/FR/KW)\n• Real-time Streaming Responses\n• Voice Input Support\n\n📦 STORE FEATURES:\n• 1,161+ Products in 15 Categories\n• Real-time Inventory Management\n• 5 Payment Methods\n• Free Shipping (>50k RWF)\n• 1-4 Day Delivery Across Rwanda\n• 7-Day Return Policy\n• 24/7 Customer Support\n\n📊 ADMIN FEATURES:\n• Real-time Analytics Dashboard\n• ML Performance Monitoring\n• Conversation Analytics\n• Order Management System\n• Support Ticket System\n• Comprehensive Reporting\n\nReady for professional deployment!",
+        "Our platform offers enterprise-grade AI chatbot capabilities with comprehensive e-commerce features, professional analytics, and multilingual support.",
+        "We provide a complete AI-powered e-commerce solution with advanced ML models, image recognition, multilingual support, and professional admin tools."
+      ]
+    }
+  ]
+}

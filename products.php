@@ -1,7 +1,7 @@
 ﻿<?php
 require_once 'includes/header.php';
 
-$where = "WHERE p.stock >= 0";
+$where = "WHERE p.stock > 0";
 if (!empty($_GET['search'])) {
     $s = $conn->real_escape_string($_GET['search']);
     $where .= " AND (p.name LIKE '%$s%' OR p.description LIKE '%$s%' OR p.brand LIKE '%$s%')";

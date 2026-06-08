@@ -271,7 +271,8 @@ function askStreamingMLModel(string $message): ?array {
         'model' => 'best',
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-    $ch = curl_init('http://localhost:5001/predict');
+    $flaskUrl = defined('ML_API_BASE') ? ML_API_BASE . '/predict/ensemble' : 'http://localhost:5000/predict/ensemble';
+    $ch = curl_init($flaskUrl);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
@@ -492,7 +493,7 @@ function getMLResponse(string $intent, string $message, ?int $userId, $conn, str
         case 'shipping_fee':
             $tag = $intent === 'shipping_fee' ? 'shipping_fee' : 'delivery_time';
             $responses = $intentResponses[$tag] ?? ($intentResponses['delivery_info'] ?? [
-                "📦 Delivery: Kigali 1–2 days, other provinces 2–4 days. Free shipping over RWF 50,000.",
+                "📦 Delivery: Kigali 1–2 days, other provinces 2–4 days. Free shipping on all orders!",
             ]);
             $response = $responses[array_rand($responses)];
             $quickReplies = ['Payment methods', 'Track order', 'Show me products'];
@@ -599,7 +600,7 @@ function askGeminiFast(string $message, ?int $userId, $conn, string $sessionId, 
     
     // Use fastest model
     $model = 'gemini-2.0-flash';
-    $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
+    $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
     
     $payload = json_encode([
         'system_instruction' => ['parts' => [['text' => $context['system']]]],
@@ -617,8 +618,8 @@ function askGeminiFast(string $message, ?int $userId, $conn, string $sessionId, 
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => $payload,
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-        CURLOPT_TIMEOUT => 10, // Faster timeout
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'X-Goog-Api-Key: ' . $apiKey],
+        CURLOPT_TIMEOUT => 10,
         CURLOPT_CONNECTTIMEOUT => 5,
     ]);
     
@@ -685,15 +686,22 @@ function buildGeminiContext(string $message, ?int $userId, $conn, string $sessio
     // User context
     $userCtx = '';
     if ($userId) {
-        $u = $conn->query("SELECT name FROM users WHERE id=$userId")->fetch_assoc();
-        $oc = $conn->query("SELECT COUNT(*) as c FROM orders WHERE user_id=$userId")->fetch_assoc();
+        $stmt = $conn->prepare("SELECT name FROM users WHERE id=?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $u = $stmt->get_result()->fetch_assoc();
+        $stmt2 = $conn->prepare("SELECT COUNT(*) as c FROM orders WHERE user_id=?");
+        $stmt2->bind_param("i", $userId);
+        $stmt2->execute();
+        $oc = $stmt2->get_result()->fetch_assoc();
         $userCtx = "\nCUSTOMER: {$u['name']} | Orders: {$oc['c']}";
     }
     
     // History (last 6 for speed)
-    $hist = $conn->query("SELECT message,response FROM chatbot_logs 
-                         WHERE session_id='" . $conn->real_escape_string($sessionId) . "' 
-                         ORDER BY created_at DESC LIMIT 6");
+    $stmt = $conn->prepare("SELECT message,response FROM chatbot_logs WHERE session_id=? ORDER BY created_at DESC LIMIT 6");
+    $stmt->bind_param("s", $sessionId);
+    $stmt->execute();
+    $hist = $stmt->get_result();
     
     $history = [];
     if ($hist) {

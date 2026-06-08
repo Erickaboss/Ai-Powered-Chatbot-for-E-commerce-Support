@@ -1,59 +1,164 @@
-<?php require_once 'includes/admin_header.php'; ?>
 <?php
 // ── Google Custom Search credentials (set in config/secrets.php) ──
-// GOOGLE_CSE_KEY  = your Google API key
-// GOOGLE_CSE_CX   = your Custom Search Engine ID
+// Handle AJAX requests BEFORE any HTML output
+if (isset($_GET['action']) || (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']))) {
+    require_once __DIR__ . '/../config/db.php';
+    $gKey    = defined('GOOGLE_CSE_KEY')  ? GOOGLE_CSE_KEY  : '';
+    $gCx     = defined('GOOGLE_CSE_CX')   ? GOOGLE_CSE_CX   : '';
+    $gemKey  = defined('GEMINI_API_KEY')  ? GEMINI_API_KEY  : '';
+
+    // ── Helper: search via free image APIs ──
+    function searchImagesViaFreeAPIs(string $query): array {
+        $results = [];
+
+        // Method 1: Unsplash Source (free, no API key, returns real product images)
+        $encodedQuery = urlencode($query);
+        $unsplashImages = [
+            [
+                'url'   => "https://source.unsplash.com/300x300/?" . $encodedQuery,
+                'thumb' => "https://source.unsplash.com/60x60/?" . $encodedQuery,
+                'title' => $query . " (Unsplash)",
+            ],
+            [
+                'url'   => "https://source.unsplash.com/300x300/?" . urlencode($query . " product"),
+                'thumb' => "https://source.unsplash.com/60x60/?" . urlencode($query . " product"),
+                'title' => $query . " product (Unsplash)",
+            ],
+        ];
+        $results = array_merge($results, $unsplashImages);
+
+        // Method 2: Picsum placeholder with product name overlay
+        $results[] = [
+            'url'   => "https://via.placeholder.com/300x300/0f3460/ffffff?text=" . urlencode(substr($query, 0, 20)),
+            'thumb' => "https://via.placeholder.com/60x60/0f3460/ffffff?text=IMG",
+            'title' => $query . " (placeholder)",
+        ];
+
+        return $results;
+    }
+
+    // ── Helper: search via Gemini (asks for product image search terms, then uses Unsplash) ──
+    function searchImagesViaGemini(string $query, string $gemKey): array {
+        // Use Gemini to get better search keywords, then fetch from Unsplash
+        $prompt = "For the product \"$query\", give me 3 short image search keywords (2-3 words each) " .
+                  "that would find good product photos. Return ONLY a JSON array of strings. " .
+                  "Example: [\"samsung galaxy phone\", \"android smartphone\", \"mobile device\"]";
+
+        $models = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+        foreach ($models as $model) {
+            $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$gemKey}";
+            $ch = curl_init($apiUrl);
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode(['contents' => [['parts' => [['text' => $prompt]]]]]),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            ]);
+            $resp = curl_exec($ch);
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($code !== 200) continue;
+            $data = json_decode($resp, true);
+            $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            if (preg_match('/\[.*?\]/s', $text, $m)) {
+                $keywords = json_decode($m[0], true);
+                if (is_array($keywords) && !empty($keywords)) {
+                    $results = [];
+                    foreach (array_slice($keywords, 0, 3) as $kw) {
+                        $enc = urlencode($kw);
+                        $results[] = [
+                            'url'   => "https://source.unsplash.com/300x300/?" . $enc,
+                            'thumb' => "https://source.unsplash.com/60x60/?" . $enc,
+                            'title' => $kw,
+                        ];
+                    }
+                    return $results;
+                }
+            }
+        }
+        return [];
+    }
+
+    // ── AJAX: search images for a product name ──
+    if (isset($_GET['action']) && $_GET['action'] === 'search') {
+        header('Content-Type: application/json');
+        $query = trim($_GET['q'] ?? '');
+        if (empty($query)) {
+            echo json_encode(['error' => 'Missing search query']);
+            exit;
+        }
+
+        // Try Google Custom Search first
+        if (!empty($gKey) && !empty($gCx)) {
+            // Try with image search
+            $url = "https://www.googleapis.com/customsearch/v1?" . http_build_query([
+                'key'        => $gKey,
+                'cx'         => $gCx,
+                'q'          => $query . ' product',
+                'searchType' => 'image',
+                'num'        => 6,
+                'safe'       => 'active',
+            ]);
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10, CURLOPT_SSL_VERIFYPEER => false]);
+            $resp     = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            $data = json_decode($resp, true);
+
+            if ($httpCode === 200 && !empty($data['items'])) {
+                $results = array_map(fn($i) => [
+                    'url'   => $i['link'],
+                    'thumb' => $i['image']['thumbnailLink'] ?? $i['link'],
+                    'title' => $i['title'] ?? '',
+                ], $data['items']);
+                echo json_encode(['results' => $results, 'source' => 'google_cse']);
+                exit;
+            }
+            // Log actual error for debugging
+            $apiError = $data['error']['message'] ?? "HTTP $httpCode — no items returned";
+            error_log("CSE search failed for '$query': $apiError");
+        }
+
+        // Fallback 1: Gemini-enhanced Unsplash search
+        if (!empty($gemKey)) {
+            $results = searchImagesViaGemini($query, $gemKey);
+            if (!empty($results)) {
+                echo json_encode(['results' => $results, 'source' => 'gemini+unsplash']);
+                exit;
+            }
+        }
+
+        // Fallback 2: Direct Unsplash free images (no API key needed)
+        $results = searchImagesViaFreeAPIs($query);
+        echo json_encode(['results' => $results, 'source' => 'unsplash']);
+        exit;
+    }
+
+    // ── AJAX: save chosen image URL to DB ──
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_url') {
+        header('Content-Type: application/json');
+        $id  = (int)($_POST['id'] ?? 0);
+        $url = trim($_POST['url'] ?? '');
+        if ($id && filter_var($url, FILTER_VALIDATE_URL)) {
+            $safe = $conn->real_escape_string($url);
+            $stmt = $conn->prepare("UPDATE products SET image=? WHERE id=?");
+            $stmt->bind_param("si", $safe, $id);
+            $stmt->execute();
+            echo json_encode(['ok' => true]);
+        } else {
+            echo json_encode(['error' => 'Invalid data']);
+        }
+        exit;
+    }
+}
+
+require_once 'includes/admin_header.php';
+
 $gKey = defined('GOOGLE_CSE_KEY') ? GOOGLE_CSE_KEY : '';
 $gCx  = defined('GOOGLE_CSE_CX')  ? GOOGLE_CSE_CX  : '';
-
-$msg = '';
-
-// ── AJAX: search images for a product name ──
-if (isset($_GET['action']) && $_GET['action'] === 'search') {
-    header('Content-Type: application/json');
-    $query = trim($_GET['q'] ?? '');
-    if (empty($query) || empty($gKey) || empty($gCx)) {
-        echo json_encode(['error' => 'Missing query or API credentials']);
-        exit;
-    }
-    $url = "https://www.googleapis.com/customsearch/v1?key={$gKey}&cx={$gCx}&q="
-         . urlencode($query . ' product')
-         . "&searchType=image&num=6&imgSize=medium&safe=active";
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10]);
-    $resp = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    $data  = json_decode($resp, true);
-    if ($httpCode !== 200) {
-        $errMsg = $data['error']['message'] ?? $resp;
-        echo json_encode(['error' => "API Error ($httpCode): $errMsg"]);
-        exit;
-    }
-    $items = $data['items'] ?? [];
-    $results = array_map(fn($i) => [
-        'url'   => $i['link'],
-        'thumb' => $i['image']['thumbnailLink'] ?? $i['link'],
-        'title' => $i['title'] ?? '',
-    ], $items);
-    echo json_encode(['results' => $results]);
-    exit;
-}
-
-// ── AJAX: save chosen image URL to DB ──
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_url') {
-    header('Content-Type: application/json');
-    $id  = (int)($_POST['id'] ?? 0);
-    $url = trim($_POST['url'] ?? '');
-    if ($id && filter_var($url, FILTER_VALIDATE_URL)) {
-        $safe = $conn->real_escape_string($url);
-        $conn->query("UPDATE products SET image='$safe' WHERE id=$id");
-        echo json_encode(['ok' => true]);
-    } else {
-        echo json_encode(['error' => 'Invalid data']);
-    }
-    exit;
-}
 
 // ── Load products that still need images ──
 $filter = $_GET['filter'] ?? 'missing';

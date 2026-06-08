@@ -17,15 +17,28 @@ $cat_icons = ['bi-phone','bi-laptop','bi-tv','bi-house-door','bi-person','bi-bag
               'bi-basket','bi-heart-pulse','bi-bicycle','bi-emoji-smile','bi-lamp',
               'bi-car-front','bi-book','bi-gem','bi-controller'];
 
-// Build WHERE
-$where_parts = ["1=1"];
-if ($active_cat) $where_parts[] = "p.category_id = $active_cat";
-if ($search)     $where_parts[] = "(p.name LIKE '%$search%')";
-if ($view === 'remaining') $where_parts[] = "p.stock > 0";
-$where = "WHERE " . implode(" AND ", $where_parts);
+// Build WHERE using prepared statement
+$where_clauses = ["1=1"];
+$where_params = [];
+$where_types = '';
+
+if ($active_cat) {
+    $where_clauses[] = "p.category_id = ?";
+    $where_params[] = $active_cat;
+    $where_types .= 'i';
+}
+if ($search) {
+    $where_clauses[] = "(p.name LIKE ?)";
+    $where_params[] = '%' . $search . '%';
+    $where_types .= 's';
+}
+if ($view === 'remaining') {
+    $where_clauses[] = "p.stock > 0";
+}
+$where = "WHERE " . implode(" AND ", $where_clauses);
 
 // Get products with shipped quantity
-$products = $conn->query("
+$stmtProd = $conn->prepare("
     SELECT p.*, c.name as cat_name,
            COALESCE(SUM(oi.quantity), 0) as shipped_qty
     FROM products p
@@ -36,6 +49,11 @@ $products = $conn->query("
     GROUP BY p.id
     ORDER BY c.id, p.name
 ");
+if (!empty($where_params)) {
+    $stmtProd->bind_param($where_types, ...$where_params);
+}
+$stmtProd->execute();
+$products = $stmtProd->get_result();
 
 $total_products = $products ? $products->num_rows : 0;
 

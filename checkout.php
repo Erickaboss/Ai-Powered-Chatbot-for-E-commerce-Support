@@ -1,72 +1,147 @@
-﻿<?php
+<?php
 require_once 'includes/header.php';
+require_once 'includes/inventory.php';
+require_once 'includes/security.php';
+sendSecurityHeaders();
 if (!isset($_SESSION['user_id'])) { header('Location: login.php'); exit; }
 $uid = $_SESSION['user_id'];
 
 // Fetch cart
-$items = $conn->query("SELECT ci.quantity, p.id as pid, p.name, p.price, p.stock
+$stmtItems = $conn->prepare("SELECT ci.quantity, p.id as pid, p.name, p.price, p.stock
     FROM cart c JOIN cart_items ci ON c.id=ci.cart_id JOIN products p ON ci.product_id=p.id
-    WHERE c.user_id=$uid");
+    WHERE c.user_id=?");
+$stmtItems->bind_param("i", $uid);
+$stmtItems->execute();
+$items = $stmtItems->get_result();
+$stmtItems->close();
 $rows = $items->fetch_all(MYSQLI_ASSOC);
 if (empty($rows)) { header('Location: cart.php'); exit; }
 
 $subtotal = array_sum(array_map(fn($r) => $r['price'] * $r['quantity'], $rows));
-$shipping = $subtotal >= 50000 ? 0 : 2000;
+$shipping = 0;
 $grand    = $subtotal + $shipping;
 $error    = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $address = trim($_POST['address'] ?? '');
-    $payment = $_POST['payment'] ?? '';
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? null)) {
+        $error = 'Invalid session token. Please refresh and try again.';
+    }
+    else {
+    $address  = trim($_POST['address'] ?? '');
+    $payment  = $_POST['payment'] ?? '';
+    $phone    = trim($_POST['phone'] ?? '');
+    $province = trim($_POST['province'] ?? '');
 
     // Payment-specific fields
     $momo_number   = trim($_POST['momo_number']   ?? '');
     $airtel_number = trim($_POST['airtel_number'] ?? '');
-    $card_number   = trim($_POST['card_number']   ?? '');
     $card_name     = trim($_POST['card_name']     ?? '');
     $card_expiry   = trim($_POST['card_expiry']   ?? '');
-    $card_cvv      = trim($_POST['card_cvv']      ?? '');
     $bank_name     = trim($_POST['bank_name']     ?? '');
     $bank_ref      = trim($_POST['bank_ref']      ?? '');
 
-    if (!$address || !$payment) {
-        $error = 'Please fill in all required fields.';
+    if (!$address || !$payment || !$phone) {
+        $error = 'Please fill in all required fields (Address, Phone, and Payment Method).';
     } elseif ($payment === 'momo'   && !$momo_number)   { $error = 'Please enter your MTN MoMo number.'; }
     elseif ($payment === 'airtel'   && !$airtel_number) { $error = 'Please enter your Airtel Money number.'; }
-    elseif ($payment === 'card'     && (!$card_number || !$card_name || !$card_expiry || !$card_cvv)) { $error = 'Please fill in all card details.'; }
+    elseif ($payment === 'card'     && (!$card_name || !$card_expiry)) { $error = 'Please fill in cardholder name and expiry.'; }
     elseif ($payment === 'bank'     && !$bank_ref)      { $error = 'Please enter your bank transfer reference.'; }
     else {
+        foreach ($rows as $r) {
+            if ((int)$r['quantity'] > (int)$r['stock']) {
+                $error = htmlspecialchars($r['name']) . ' has only ' . (int)$r['stock'] . ' units available. Please update your cart.';
+                break;
+            }
+        }
+    }
+
+    if (!$error) {
         // Build payment note
         $pay_note = match($payment) {
-            'momo'   => "MTN MoMo: $momo_number",
-            'airtel' => "Airtel Money: $airtel_number",
-            'card'   => "Card: **** **** **** " . substr(preg_replace('/\s+/','',$card_number), -4) . " ($card_name)",
+    'momo'   => "MTN MoMo: $momo_number",
+    'airtel' => "Airtel Money: $airtel_number",
+    'card'   => "Card: **** $card_name, exp $card_expiry",
             'bank'   => "Bank Transfer — Ref: $bank_ref" . ($bank_name ? " via $bank_name" : ''),
             default  => 'Cash on Delivery',
         };
 
-        $grand_safe   = (float)$grand;
-        $address_safe = $conn->real_escape_string($address);
-        $payment_safe = $conn->real_escape_string($payment);
-        $note_safe    = $conn->real_escape_string($pay_note);
+        $grand_safe    = (float)$grand;
+        $address_safe  = $conn->real_escape_string($address);
+        $payment_safe  = $conn->real_escape_string($payment);
+        $phone_safe    = $conn->real_escape_string($phone);
+        $province_safe = $conn->real_escape_string($province);
+        $note_safe     = $conn->real_escape_string($pay_note);
 
-        $conn->query("INSERT INTO orders (user_id, total_price, address, payment_method, status)
-                      VALUES ($uid, $grand_safe, '$address_safe', '$payment_safe', 'pending')");
-        $order_id = (int)$conn->insert_id;
+        $orderColumns = [];
+        if ($columnsResult = $conn->query("SHOW COLUMNS FROM orders")) {
+            while ($column = $columnsResult->fetch_assoc()) {
+                $orderColumns[$column['Field']] = true;
+            }
+        }
 
-        if (!$order_id) {
-            $error = 'Could not place order. Please try again. (' . $conn->error . ')';
-        } else {
+        $insertColumns = ['user_id', 'total_price', 'shipping_fee', 'address', 'payment_method', 'status'];
+        $insertValues  = [$uid, $grand_safe, $shipping, $address, $payment, 'pending'];
+
+        if (isset($orderColumns['phone'])) {
+            $insertColumns[] = 'phone';
+            $insertValues[]  = $phone;
+        }
+        if (isset($orderColumns['province'])) {
+            $insertColumns[] = 'province';
+            $insertValues[]  = $province;
+        }
+        if (isset($orderColumns['payment_details'])) {
+            $insertColumns[] = 'payment_details';
+            $insertValues[]  = $pay_note;
+        }
+
+        try {
+            $conn->begin_transaction();
+            $placeholders = implode(', ', array_fill(0, count($insertValues), '?'));
+            $otypes = '';
+            foreach ($insertValues as $v) {
+                if (is_int($v)) $otypes .= 'i';
+                elseif (is_float($v)) $otypes .= 'd';
+                else $otypes .= 's';
+            }
+            $stmtOrder = $conn->prepare("INSERT INTO orders (" . implode(', ', $insertColumns) . ") VALUES ($placeholders)");
+            $stmtOrder->bind_param($otypes, ...$insertValues);
+            if (!$stmtOrder->execute()) {
+                throw new Exception('Order insert failed: ' . $stmtOrder->error);
+            }
+            $order_id = (int)$conn->insert_id;
+            $stmtOrder->close();
+
+            if (!$order_id) {
+                throw new Exception('Order insert failed: ' . $conn->error);
+            }
+
             foreach ($rows as $r) {
                 $p = (float)$r['price'];
-                $conn->query("INSERT INTO order_items (order_id, product_id, quantity, price)
-                              VALUES ($order_id, {$r['pid']}, {$r['quantity']}, $p)");
-                $conn->query("UPDATE products SET stock=stock-{$r['quantity']} WHERE id={$r['pid']}");
+                $stmtOI = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
+                $stmtOI->bind_param("iiid", $order_id, $r['pid'], $r['quantity'], $p);
+                if (!$stmtOI->execute()) {
+                    throw new Exception("Order item insert failed for product {$r['pid']}: " . $stmtOI->error);
+                }
+                $stmtOI->close();
+                if (!applyPurchasedInventory($conn, (int)$r['pid'], (int)$r['quantity'])) {
+                    throw new Exception("Inventory retirement failed for product {$r['pid']} order $order_id");
+                }
             }
-            $conn->query("DELETE ci FROM cart_items ci JOIN cart c ON ci.cart_id=c.id WHERE c.user_id=$uid");
+            $stmtClean = $conn->prepare("DELETE ci FROM cart_items ci JOIN cart c ON ci.cart_id=c.id WHERE c.user_id=?");
+            $stmtClean->bind_param("i", $uid);
+            if (!$stmtClean->execute()) {
+                throw new Exception('Cart cleanup failed: ' . $stmtClean->error);
+            }
+            $stmtClean->close();
+            $conn->commit();
 
             require_once 'includes/mailer.php';
-            $user = $conn->query("SELECT name, email FROM users WHERE id=$uid")->fetch_assoc();
+            $stmtUser = $conn->prepare("SELECT name, email FROM users WHERE id=?");
+            $stmtUser->bind_param("i", $uid);
+            $stmtUser->execute();
+            $user = $stmtUser->get_result()->fetch_assoc();
+            $stmtUser->close();
             $orderData = [
                 'id'             => $order_id,
                 'customer_name'  => $user['name'],
@@ -88,329 +163,412 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 emailNewOrderAdmin($orderData, $emailItems)
             );
             header("Location: order_detail.php?id=$order_id&new=1"); exit;
+        } catch (Throwable $e) {
+            $conn->rollback();
+            error_log('Checkout order failed: ' . $e->getMessage());
+            $error = 'Could not place order because one or more products may have just been bought. Please review your cart and try again.';
         }
+    }
     }
 }
 ?>
 <div class="container py-5">
-    <h3 class="mb-4"><i class="bi bi-bag-check"></i> Checkout</h3>
     <?php if ($error): ?><div class="alert alert-danger"><?= htmlspecialchars($error) ?></div><?php endif; ?>
 
     <form method="POST" id="checkout-form">
+    <?= csrfField() ?>
+    <input type="hidden" name="address" id="main-address" value="<?= htmlspecialchars($_POST['address'] ?? '') ?>">
+    <input type="hidden" name="phone" id="main-phone" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
+    <input type="hidden" name="province" id="main-province" value="<?= htmlspecialchars($_POST['province'] ?? '') ?>">
+    <input type="hidden" name="payment" value="<?= htmlspecialchars($_POST['payment'] ?? 'momo') ?>">
+    <input type="hidden" name="momo_number" id="h-momo">
+    <input type="hidden" name="airtel_number" id="h-airtel">
+    <input type="hidden" name="card_name" id="h-card-name">
+    <input type="hidden" name="card_expiry" id="h-card-exp">
+    <input type="hidden" name="bank_ref" id="h-bank">
+
     <div class="row g-4">
-
-        <!-- LEFT: Shipping + Payment -->
-        <div class="col-lg-7">
-
-            <!-- Shipping -->
-            <div class="card p-4 mb-4">
-                <h5 class="mb-3"><i class="bi bi-geo-alt me-2 text-primary"></i>Delivery Address</h5>
-                <div class="mb-3">
-                    <label class="form-label">Full Delivery Address <span class="text-danger">*</span></label>
-                    <textarea name="address" class="form-control" rows="3"
-                        placeholder="e.g. KG 15 Ave, Gasabo District, Kigali" required><?= htmlspecialchars($_POST['address'] ?? '') ?></textarea>
-                </div>
-                <div class="row g-2">
-                    <div class="col-6">
-                        <label class="form-label">Province</label>
-                        <select name="province" class="form-select">
-                            <option>Kigali City</option>
-                            <option>Northern Province</option>
-                            <option>Southern Province</option>
-                            <option>Eastern Province</option>
-                            <option>Western Province</option>
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label">Phone (for delivery)</label>
-                        <input type="tel" name="phone" class="form-control" placeholder="+250 7XX XXX XXX"
-                               value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Payment Method -->
-            <div class="card p-4">
-                <h5 class="mb-3"><i class="bi bi-credit-card me-2 text-success"></i>Payment Method</h5>
-                <input type="hidden" name="payment" id="payment-input" value="<?= htmlspecialchars($_POST['payment'] ?? '') ?>" required>
-
-                <!-- Method selector cards -->
-                <div class="row g-2 mb-3" id="payment-methods">
-
-                    <div class="col-6 col-md-4">
-                        <div class="pay-method-card <?= ($_POST['payment']??'')==='cod' ? 'selected' : '' ?>" data-method="cod">
-                            <i class="bi bi-cash-coin fs-3 text-warning"></i>
-                            <div class="fw-semibold mt-1">Cash on Delivery</div>
-                            <small class="text-muted">Pay when delivered</small>
-                        </div>
-                    </div>
-
-                    <div class="col-6 col-md-4">
-                        <div class="pay-method-card <?= ($_POST['payment']??'')==='momo' ? 'selected' : '' ?>" data-method="momo">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/120px-MTN_Logo.svg.png"
-                                 style="height:32px;object-fit:contain" onerror="this.style.display='none'">
-                            <div class="fw-semibold mt-1">MTN MoMo</div>
-                            <small class="text-muted">Mobile Money</small>
-                        </div>
-                    </div>
-
-                    <div class="col-6 col-md-4">
-                        <div class="pay-method-card <?= ($_POST['payment']??'')==='airtel' ? 'selected' : '' ?>" data-method="airtel">
-                            <i class="bi bi-phone fs-3 text-danger"></i>
-                            <div class="fw-semibold mt-1">Airtel Money</div>
-                            <small class="text-muted">Mobile Money</small>
-                        </div>
-                    </div>
-
-                    <div class="col-6 col-md-4">
-                        <div class="pay-method-card <?= ($_POST['payment']??'')==='card' ? 'selected' : '' ?>" data-method="card">
-                            <i class="bi bi-credit-card-2-front fs-3 text-primary"></i>
-                            <div class="fw-semibold mt-1">Card</div>
-                            <small class="text-muted">Visa / Mastercard</small>
-                        </div>
-                    </div>
-
-                    <div class="col-6 col-md-4">
-                        <div class="pay-method-card <?= ($_POST['payment']??'')==='bank' ? 'selected' : '' ?>" data-method="bank">
-                            <i class="bi bi-bank fs-3 text-info"></i>
-                            <div class="fw-semibold mt-1">Bank Transfer</div>
-                            <small class="text-muted">BK, Equity, I&M</small>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- COD panel -->
-                <div class="pay-panel" id="panel-cod">
-                    <div class="alert alert-warning mb-0">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Cash on Delivery:</strong> Pay in cash when your order arrives at your door.
-                        Our delivery agent will collect the exact amount: <strong>RWF <?= number_format($grand) ?></strong>.
-                    </div>
-                </div>
-
-                <!-- MoMo panel -->
-                <div class="pay-panel" id="panel-momo">
-                    <div class="alert alert-info mb-3">
-                        <strong>📱 MTN Mobile Money Instructions:</strong><br>
-                        1. Dial <strong>*182#</strong> → Send Money → Enter merchant code <strong>182182</strong><br>
-                        2. Amount: <strong>RWF <?= number_format($grand) ?></strong><br>
-                        3. Enter your PIN and confirm<br>
-                        4. Enter the MoMo number you paid from below.
-                    </div>
-                    <div class="mb-0">
-                        <label class="form-label">MTN MoMo Number <span class="text-danger">*</span></label>
-                        <input type="tel" name="momo_number" class="form-control"
-                               placeholder="e.g. 0781234567"
-                               value="<?= htmlspecialchars($_POST['momo_number'] ?? '') ?>">
-                        <?php if (!empty($_POST['payment']) && $_POST['payment']==='momo' && empty($_POST['momo_number'])): ?>
-                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>Please enter your MTN MoMo number.</div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <!-- Airtel panel -->
-                <div class="pay-panel" id="panel-airtel">
-                    <div class="alert alert-danger mb-3" style="background:#fff5f5;border-color:#f5c6cb;color:#721c24">
-                        <strong>📱 Airtel Money Instructions:</strong><br>
-                        1. Dial <strong>*500#</strong> → Make Payment → Business Payment<br>
-                        2. Business number: <strong>500500</strong><br>
-                        3. Amount: <strong>RWF <?= number_format($grand) ?></strong><br>
-                        4. Enter your PIN and confirm<br>
-                        5. Enter the Airtel number you paid from below.
-                    </div>
-                    <div class="mb-0">
-                        <label class="form-label">Airtel Money Number <span class="text-danger">*</span></label>
-                        <input type="tel" name="airtel_number" id="airtel_number" class="form-control"
-                               placeholder="e.g. 0731234567"
-                               value="<?= htmlspecialchars($_POST['airtel_number'] ?? '') ?>">
-                        <?php if (!empty($_POST['payment']) && $_POST['payment']==='airtel' && empty($_POST['airtel_number'])): ?>
-                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>Please enter your Airtel Money number.</div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <!-- Card panel -->
-                <div class="pay-panel" id="panel-card">
-                    <div class="alert alert-primary mb-3" style="background:#f0f4ff;border-color:#b8d0ff;color:#1a1a2e">
-                        <i class="bi bi-shield-lock me-2"></i>
-                        Your card details are <strong>SSL encrypted</strong> and never stored on our servers.
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label">Card Number <span class="text-danger">*</span></label>
-                            <input type="text" name="card_number" class="form-control" id="card-number-input"
-                                   placeholder="1234 5678 9012 3456" maxlength="19"
-                                   value="<?= htmlspecialchars($_POST['card_number'] ?? '') ?>">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Cardholder Name <span class="text-danger">*</span></label>
-                            <input type="text" name="card_name" class="form-control"
-                                   placeholder="Name as on card"
-                                   value="<?= htmlspecialchars($_POST['card_name'] ?? '') ?>">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Expiry Date <span class="text-danger">*</span></label>
-                            <input type="text" name="card_expiry" class="form-control"
-                                   placeholder="MM/YY" maxlength="5"
-                                   value="<?= htmlspecialchars($_POST['card_expiry'] ?? '') ?>">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">CVV <span class="text-danger">*</span></label>
-                            <input type="password" name="card_cvv" class="form-control"
-                                   placeholder="3–4 digits" maxlength="4">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bank Transfer panel -->
-                <div class="pay-panel" id="panel-bank">
-                    <div class="alert alert-info mb-3" style="background:#f0faff;border-color:#b8e0ff;color:#0c3547">
-                        <strong>🏦 Bank Transfer Details:</strong><br>
-                        Bank: <strong>Bank of Kigali (BK)</strong><br>
-                        Account Name: <strong><?= SITE_NAME ?></strong><br>
-                        Account Number: <strong>00040-0123456-78</strong><br>
-                        Amount: <strong>RWF <?= number_format($grand) ?></strong><br>
-                        Reference: Use your <strong>name + phone number</strong> as reference.
-                    </div>
+        <!-- LEFT COLUMN -->
+        <div class="col-lg-8">
+            <!-- Section: Shipping Address -->
+            <div class="card border-0 shadow-sm mb-4" style="border-radius:16px">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-geo-alt text-primary me-2"></i>Shipping Address</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Bank Name</label>
-                            <select name="bank_name" class="form-select">
-                                <option value="">Select your bank</option>
-                                <option>Bank of Kigali (BK)</option>
-                                <option>Equity Bank</option>
-                                <option>I&M Bank</option>
-                                <option>Cogebanque</option>
-                                <option>GT Bank</option>
-                                <option>Ecobank</option>
-                                <option>Other</option>
+                            <label class="small fw-600 text-muted mb-1">Full Name</label>
+                            <input type="text" id="inp-name" class="form-control" value="<?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>" placeholder="Your full name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-600 text-muted mb-1">Phone Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">+250</span>
+                                <input type="tel" id="inp-phone" class="form-control" placeholder="78XXXXXXX" value="<?= htmlspecialchars(preg_replace('/^\+?250\s*/', '', $_POST['phone'] ?? '')) ?>">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="small fw-600 text-muted mb-1">Street Address</label>
+                            <input type="text" id="inp-street" class="form-control" placeholder="Street, house/apartment/unit">
+                        </div>
+                        <div class="col-md-5">
+                            <label class="small fw-600 text-muted mb-1">City</label>
+                            <input type="text" id="inp-city" class="form-control" placeholder="Kigali">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="small fw-600 text-muted mb-1">Province</label>
+                            <select id="inp-province" class="form-select">
+                                <option value="Kigali City">Kigali City</option>
+                                <option value="Northern Province">Northern Province</option>
+                                <option value="Southern Province">Southern Province</option>
+                                <option value="Eastern Province">Eastern Province</option>
+                                <option value="Western Province">Western Province</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Transfer Reference <span class="text-danger">*</span></label>
-                            <input type="text" name="bank_ref" class="form-control"
-                                   placeholder="e.g. JOHN0781234567"
-                                   value="<?= htmlspecialchars($_POST['bank_ref'] ?? '') ?>">
+                        <div class="col-md-3">
+                            <label class="small fw-600 text-muted mb-1">ZIP Code</label>
+                            <input type="text" id="inp-zip" class="form-control" placeholder="Optional">
                         </div>
                     </div>
                 </div>
+            </div>
 
-            </div><!-- /payment card -->
+            <!-- Section: Payment Method -->
+            <div class="card border-0 shadow-sm mb-4" style="border-radius:16px">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-credit-card text-primary me-2"></i>Payment Method</h5>
+                    <div class="row g-3" id="payment-methods">
+                        <!-- MTN MoMo -->
+                        <div class="col-md-6">
+                            <div class="pay-card selected" data-method="momo">
+                                <div class="d-flex align-items-center">
+                                    <div class="pay-radio me-3"></div>
+                                    <div>
+                                        <div class="fw-bold">MTN MoMo</div>
+                                        <div class="small text-muted">Pay with Mobile Money</div>
+                                    </div>
+                                    <span class="badge bg-primary ms-auto" style="font-size:0.6rem">POPULAR</span>
+                                </div>
+                                <div class="pay-fields" id="fields-momo">
+                                    <input type="tel" class="form-control mt-2" placeholder="078XXXXXXX" id="pay-momo">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Airtel Money -->
+                        <div class="col-md-6">
+                            <div class="pay-card" data-method="airtel">
+                                <div class="d-flex align-items-center">
+                                    <div class="pay-radio me-3"></div>
+                                    <div>
+                                        <div class="fw-bold">Airtel Money</div>
+                                        <div class="small text-muted">Pay with Airtel Money</div>
+                                    </div>
+                                </div>
+                                <div class="pay-fields" id="fields-airtel">
+                                    <input type="tel" class="form-control mt-2" placeholder="073XXXXXXX" id="pay-airtel">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card -->
+                        <div class="col-md-6">
+                            <div class="pay-card" data-method="card">
+                                <div class="d-flex align-items-center">
+                                    <div class="pay-radio me-3"></div>
+                                    <div>
+                                        <div class="fw-bold">Credit / Debit Card</div>
+                                        <div class="small text-muted">Visa, Mastercard</div>
+                                    </div>
+                                </div>
+                                <div class="pay-fields" id="fields-card">
+                                    <input type="text" class="form-control mt-2" placeholder="Cardholder Name" id="pay-card-name">
+                                    <input type="text" class="form-control mt-2" placeholder="MM/YY" id="pay-card-exp">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Bank Transfer -->
+                        <div class="col-md-6">
+                            <div class="pay-card" data-method="bank">
+                                <div class="d-flex align-items-center">
+                                    <div class="pay-radio me-3"></div>
+                                    <div>
+                                        <div class="fw-bold">Bank Transfer</div>
+                                        <div class="small text-muted">BK Account</div>
+                                    </div>
+                                </div>
+                                <div class="pay-fields" id="fields-bank">
+                                    <div class="small text-muted mt-2 mb-1">BK Acc: 00040-0123456-78</div>
+                                    <input type="text" class="form-control" placeholder="Transfer Reference Code" id="pay-bank">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Cash on Delivery -->
+                        <div class="col-12">
+                            <div class="pay-card" data-method="cod">
+                                <div class="d-flex align-items-center">
+                                    <div class="pay-radio me-3"></div>
+                                    <div>
+                                        <div class="fw-bold">Cash on Delivery</div>
+                                        <div class="small text-muted">Pay in cash upon delivery</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Order Items -->
+            <div class="card border-0 shadow-sm mb-4" style="border-radius:16px">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-bag text-primary me-2"></i>Order Items</h5>
+                    <?php $idx = 0; foreach ($rows as $r): $idx++; ?>
+                    <div class="d-flex justify-content-between align-items-center py-2 <?= $idx < count($rows) ? 'border-bottom' : '' ?>">
+                        <div>
+                            <span class="fw-600"><?= htmlspecialchars($r['name']) ?></span>
+                            <span class="text-muted ms-2">× <?= $r['quantity'] ?></span>
+                        </div>
+                        <span class="fw-bold">RWF <?= number_format($r['price'] * $r['quantity']) ?></span>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Place Order Button -->
+            <button type="button" class="btn btn-accent btn-lg w-100 py-3 fw-800 rounded-pill mb-4" id="btn-place-order">
+                <i class="bi bi-lock-fill me-2"></i>Place Order & Pay — RWF <?= number_format($grand) ?>
+            </button>
         </div>
 
-        <!-- RIGHT: Order Summary -->
-        <div class="col-lg-5">
-            <div class="card p-4 sticky-top" style="top:20px">
-                <h5 class="mb-3"><i class="bi bi-receipt me-2"></i>Order Summary</h5>
-                <hr>
-                <?php foreach ($rows as $r): ?>
-                <div class="d-flex justify-content-between mb-2 align-items-start">
-                    <span class="me-2" style="font-size:.9rem"><?= htmlspecialchars($r['name']) ?> <span class="badge bg-secondary">x<?= $r['quantity'] ?></span></span>
-                    <span class="text-nowrap">RWF <?= number_format($r['price'] * $r['quantity']) ?></span>
+        <!-- RIGHT COLUMN: Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top:20px; border-radius:16px">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">Order Summary</h6>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">Subtotal (<?= array_sum(array_column($rows, 'quantity')) ?> items)</span>
+                        <span>RWF <?= number_format($subtotal) ?></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 small">
+                        <span class="text-muted">Shipping</span>
+                        <span class="text-success fw-bold">FREE</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5 class="fw-800 mb-0">Total</h5>
+                        <h5 class="fw-800 mb-0" style="color:#f5a623">RWF <?= number_format($grand) ?></h5>
+                    </div>
+                    <div class="d-flex justify-content-center gap-2 mb-3">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/120px-MTN_Logo.svg.png" style="height:16px">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/100px-Visa_Inc._logo.svg.png" style="height:14px">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/80px-Mastercard-logo.svg.png" style="height:14px">
+                    </div>
+                    <div class="text-center small text-muted"><i class="bi bi-shield-check me-1"></i>256-bit SSL encrypted checkout</div>
                 </div>
-                <?php endforeach; ?>
-                <hr>
-                <div class="d-flex justify-content-between mb-1">
-                    <span>Subtotal</span><span>RWF <?= number_format($subtotal) ?></span>
+            </div>
+            <!-- Summary summary of summary: address preview -->
+            <div class="card border-0 shadow-sm mt-3" style="border-radius:16px">
+                <div class="card-body p-3" id="address-preview-box">
+                    <div class="text-muted small mb-1"><i class="bi bi-geo-alt me-1"></i>Shipping to</div>
+                    <div class="fw-600 small" id="preview-name">-</div>
+                    <div class="small text-muted" id="preview-address">Not set yet</div>
+                    <div class="small text-muted" id="preview-phone"></div>
                 </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Shipping</span>
-                    <?php if ($shipping === 0): ?>
-                        <span class="text-success fw-semibold">FREE 🎉</span>
-                    <?php else: ?>
-                        <span>RWF <?= number_format($shipping) ?></span>
-                    <?php endif; ?>
-                </div>
-                <hr>
-                <div class="d-flex justify-content-between mb-4">
-                    <strong class="fs-5">Total</strong>
-                    <strong class="fs-5 price-tag">RWF <?= number_format($grand) ?></strong>
-                </div>
-                <?php if ($shipping === 0): ?>
-                <div class="alert alert-success py-2 small mb-3">🎉 You qualify for <strong>free shipping!</strong></div>
-                <?php else: ?>
-                <div class="alert alert-light py-2 small mb-3">💡 Add RWF <?= number_format(50000 - $subtotal) ?> more for <strong>free shipping</strong></div>
-                <?php endif; ?>
-                <button type="submit" class="btn btn-dark btn-lg w-100" id="place-order-btn">
-                    <i class="bi bi-check-circle me-2"></i>Place Order
-                </button>
-                <a href="cart.php" class="btn btn-outline-secondary w-100 mt-2">
-                    <i class="bi bi-arrow-left me-1"></i>Back to Cart
-                </a>
             </div>
         </div>
-
     </div>
     </form>
 </div>
 
+<!-- PIN Confirmation Modal -->
+<div class="modal fade" id="pinModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:20px; overflow:hidden">
+            <div class="modal-body p-4 text-center">
+                <div id="pin-initial">
+                    <div class="mb-3">
+                        <i class="bi bi-shield-lock text-primary" style="font-size:2.5rem"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1" id="pin-method-label">Confirm Payment</h5>
+                    <p class="text-muted small mb-3">Enter your <span id="pin-type-text">PIN</span> to authorize<br><strong class="text-dark">RWF <?= number_format($grand) ?></strong></p>
+                    <input type="password" id="pin-input" class="form-control form-control-lg text-center fw-bold mx-auto mb-3" placeholder="••••••" maxlength="6" style="max-width:200px; letter-spacing:8px; font-size:1.4rem; border-radius:12px; background:#f8f9fa" autocomplete="off">
+                    <div id="pin-error" class="text-danger small mb-3 d-none"><i class="bi bi-exclamation-circle me-1"></i>Please enter your PIN</div>
+                    <button type="button" class="btn btn-dark btn-lg w-100 fw-700 rounded-pill" id="btn-confirm-pin">Confirm & Pay</button>
+                    <button type="button" class="btn btn-link btn-sm text-muted mt-2 text-decoration-none" data-bs-dismiss="modal">Cancel</button>
+                </div>
+                <div id="pin-processing" class="d-none py-4">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width:2.5rem; height:2.5rem"></div>
+                    <h6 class="fw-700">Processing...</h6>
+                    <p class="text-muted small mb-0">Please wait while we process your payment.</p>
+                </div>
+                <div id="pin-success" class="d-none py-4">
+                    <i class="bi bi-check-circle-fill text-success mb-3" style="font-size:3rem"></i>
+                    <h5 class="fw-bold">Payment Confirmed!</h5>
+                    <p class="text-muted small mb-0">Placing your order now...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
-.pay-method-card {
-    border: 2px solid #dee2e6;
-    border-radius: 10px;
-    padding: 14px 10px;
-    text-align: center;
+.pay-card {
+    border: 1.5px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 14px;
     cursor: pointer;
-    transition: all .2s;
+    transition: all 0.2s;
     background: #fff;
     height: 100%;
 }
-.pay-method-card:hover { border-color: #0f3460; background: #f0f4ff; }
-.pay-method-card.selected { border-color: #0f3460; background: #e8eeff; box-shadow: 0 0 0 3px rgba(15,52,96,.15); }
-.pay-panel { display: none; margin-top: 16px; }
-.pay-panel.active { display: block; }
+.pay-card:hover { border-color: #0f3460; background: #fafcff; }
+.pay-card.selected { border-color: #e94560; background: #fff5f6; }
+.pay-radio { width: 18px; height: 18px; border: 2px solid #ddd; border-radius: 50%; flex-shrink: 0; }
+.pay-card.selected .pay-radio { border-color: #e94560; border-width: 5px; }
+.pay-fields { display: none; margin-top: 4px; }
+.pay-card.selected .pay-fields { display: block; }
+.pay-fields input { font-size: 0.85rem; }
+.pay-fields .form-control:focus { border-color: #e94560 !important; box-shadow: 0 0 0 3px rgba(233,69,96,0.1) !important; }
+.btn-accent { background: linear-gradient(135deg, #e94560, #f5a623); color: #fff; border: none; transition: all 0.3s; }
+.btn-accent:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(233,69,96,0.35); color: #fff; }
+.form-control, .form-select { border-radius: 10px !important; border: 1.5px solid #e0e0e0 !important; }
+.form-control:focus, .form-select:focus { border-color: #0f3460 !important; box-shadow: 0 0 0 3px rgba(15,52,96,0.08) !important; }
+.input-group .form-control:focus { box-shadow: none !important; border-color: #0f3460 !important; }
 </style>
 
 <script>
-const panels  = document.querySelectorAll('.pay-panel');
-const cards   = document.querySelectorAll('.pay-method-card');
-const input   = document.getElementById('payment-input');
+document.addEventListener('DOMContentLoaded', function () {
+    const checkoutForm = document.getElementById('checkout-form');
+    const pinModal = new bootstrap.Modal(document.getElementById('pinModal'));
 
-function selectMethod(method) {
-    input.value = method;
-    cards.forEach(c => c.classList.toggle('selected', c.dataset.method === method));
-    panels.forEach(p => p.classList.remove('active'));
-    const panel = document.getElementById('panel-' + method);
-    if (panel) panel.classList.add('active');
-}
+    // ── Address auto-save ──
+    function saveAddress() {
+        const name = document.getElementById('inp-name').value.trim();
+        const phone = document.getElementById('inp-phone').value.trim();
+        const street = document.getElementById('inp-street').value.trim();
+        const city = document.getElementById('inp-city').value.trim();
+        const province = document.getElementById('inp-province').value;
+        const zip = document.getElementById('inp-zip').value.trim();
 
-cards.forEach(c => c.addEventListener('click', () => selectMethod(c.dataset.method)));
+        if (!name || !phone || !street || !city) return;
 
-// Restore selection on page reload (validation error)
-const preSelected = input.value;
-if (preSelected) {
-    selectMethod(preSelected);
-    // Scroll to payment section so customer sees the error field
-    setTimeout(() => {
-        const panel = document.getElementById('panel-' + preSelected);
-        if (panel) panel.scrollIntoView({behavior: 'smooth', block: 'center'});
-    }, 300);
-}
+        const full = [street, city, province].filter(Boolean).join(', ');
+        document.getElementById('main-address').value = full;
+        document.getElementById('main-phone').value = '+250 ' + phone;
+        document.getElementById('main-province').value = province;
 
-// Card number auto-format
-const cardInput = document.getElementById('card-number-input');
-if (cardInput) {
-    cardInput.addEventListener('input', function () {
-        let v = this.value.replace(/\D/g, '').substring(0, 16);
-        this.value = v.replace(/(.{4})/g, '$1 ').trim();
-    });
-}
-
-// Expiry auto-format
-document.querySelector('[name="card_expiry"]')?.addEventListener('input', function () {
-    let v = this.value.replace(/\D/g, '').substring(0, 4);
-    if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
-    this.value = v;
-});
-
-// Validate payment selected before submit
-document.getElementById('checkout-form').addEventListener('submit', function (e) {
-    if (!input.value) {
-        e.preventDefault();
-        alert('Please select a payment method.');
-        document.getElementById('payment-methods').scrollIntoView({behavior:'smooth'});
+        document.getElementById('preview-name').innerText = name;
+        document.getElementById('preview-address').innerText = full;
+        document.getElementById('preview-phone').innerText = '+250 ' + phone;
     }
+
+    ['inp-name','inp-phone','inp-street','inp-city','inp-province'].forEach(id => {
+        document.getElementById(id).addEventListener('input', saveAddress);
+        document.getElementById(id).addEventListener('change', saveAddress);
+    });
+    saveAddress();
+
+    // ── Payment method selection ──
+    const payCards = document.querySelectorAll('.pay-card');
+    function selectPayMethod(el) {
+        payCards.forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        const method = el.dataset.method;
+        document.querySelector('input[name="payment"]').value = method;
+    }
+    payCards.forEach(c => c.addEventListener('click', function () {
+        selectPayMethod(this);
+        // Auto-focus the first field
+        const first = this.querySelector('.pay-fields input');
+        if (first) setTimeout(() => first.focus(), 200);
+    }));
+    // Select default
+    selectPayMethod(document.querySelector('.pay-card.selected') || payCards[0]);
+
+    // ── Payment field sync to hidden inputs (for PHP POST) ──
+    function bindPayField(inputId, hiddenId) {
+        const inp = document.getElementById(inputId);
+        const hid = document.getElementById(hiddenId);
+        if (!inp || !hid) return;
+        inp.addEventListener('input', function () { hid.value = this.value; });
+    }
+    bindPayField('pay-momo', 'h-momo');
+    bindPayField('pay-airtel', 'h-airtel');
+    bindPayField('pay-card-name', 'h-card-name');
+    bindPayField('pay-card-exp', 'h-card-exp');
+    bindPayField('pay-bank', 'h-bank');
+
+    // ── Validation helper ──
+    function validate() {
+        const addr = document.getElementById('main-address').value;
+        const phone = document.getElementById('main-phone').value;
+        if (!addr || !phone) return 'Please fill in your shipping address.';
+        const method = document.querySelector('input[name="payment"]').value;
+        if (method === 'momo' && !document.getElementById('h-momo').value) return 'Enter your MTN MoMo number.';
+        if (method === 'airtel' && !document.getElementById('h-airtel').value) return 'Enter your Airtel Money number.';
+        if (method === 'card' && (!document.getElementById('h-card-name').value || !document.getElementById('h-card-exp').value)) return 'Fill in cardholder name and expiry.';
+        if (method === 'bank' && !document.getElementById('h-bank').value) return 'Enter your bank transfer reference.';
+        return null;
+    }
+
+    // ── Place order / PIN modal flow ──
+    function showPinModal() {
+        const err = validate();
+        if (err) { alert(err); return; }
+
+        const method = document.querySelector('input[name="payment"]').value;
+        const methodLabel = document.querySelector('.pay-card.selected .fw-bold').innerText;
+        document.getElementById('pin-method-label').innerText = methodLabel;
+        const typeMap = { momo: 'Mobile Money PIN', airtel: 'Airtel Money PIN', card: '3D Secure Password', bank: 'Banking PIN', cod: 'confirmation' };
+        document.getElementById('pin-type-text').innerText = typeMap[method] || 'PIN';
+
+        document.getElementById('pin-input').value = '';
+        document.getElementById('pin-error').classList.add('d-none');
+        document.getElementById('pin-initial').classList.remove('d-none');
+        document.getElementById('pin-processing').classList.add('d-none');
+        document.getElementById('pin-success').classList.add('d-none');
+        pinModal.show();
+        setTimeout(() => document.getElementById('pin-input').focus(), 300);
+    }
+
+    document.getElementById('btn-place-order').addEventListener('click', showPinModal);
+
+    document.getElementById('btn-confirm-pin').addEventListener('click', function () {
+        const method = document.querySelector('input[name="payment"]').value;
+        if (method !== 'cod') {
+            const pin = document.getElementById('pin-input').value;
+            if (!pin) {
+                document.getElementById('pin-error').classList.remove('d-none');
+                return;
+            }
+        }
+        document.getElementById('pin-error').classList.add('d-none');
+        document.getElementById('pin-initial').classList.add('d-none');
+        document.getElementById('pin-processing').classList.remove('d-none');
+
+        setTimeout(() => {
+            document.getElementById('pin-processing').classList.add('d-none');
+            document.getElementById('pin-success').classList.remove('d-none');
+
+            setTimeout(() => {
+                pinModal.hide();
+                // Submit the form
+                checkoutForm.submit();
+            }, 1000);
+        }, 1500);
+    });
+
+    // Also allow Enter key on PIN input
+    document.getElementById('pin-input').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') document.getElementById('btn-confirm-pin').click();
+    });
+
+    // ── Keyboard shortcut: Enter on any field triggers place order ──
+    checkoutForm.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (document.querySelector('.modal.show')) return;
+            showPinModal();
+        }
+    });
 });
 </script>
 

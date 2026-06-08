@@ -6,13 +6,20 @@ if (isset($_SESSION['user_id'])) { header('Location: index.php'); exit; }
 $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
-    $user  = $conn->query("SELECT id, name FROM users WHERE email='" . $conn->real_escape_string($email) . "' LIMIT 1")->fetch_assoc();
+    $stmt = $conn->prepare("SELECT id, name FROM users WHERE email=? LIMIT 1");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $user  = $stmt->get_result()->fetch_assoc();
     if ($user) {
         $token   = bin2hex(random_bytes(32));
         $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
-        $safeEmail = $conn->real_escape_string($email);
-        $conn->query("DELETE FROM password_resets WHERE email='$safeEmail'");
-        $conn->query("INSERT INTO password_resets (email, token, expires_at) VALUES ('$safeEmail', '$token', '$expires')");
+        $safeEmail = $email;
+        $stmt = $conn->prepare("DELETE FROM password_resets WHERE email=?");
+        $stmt->bind_param("s", $safeEmail);
+        $stmt->execute();
+        $stmt = $conn->prepare("INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $safeEmail, $token, $expires);
+        $stmt->execute();
         $resetLink = SITE_URL . '/reset_password.php?token=' . $token;
         require_once 'includes/mailer.php';
         sendMail($email, $user['name'], '[' . SITE_NAME . '] Password Reset Request',
@@ -68,5 +75,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body></html>

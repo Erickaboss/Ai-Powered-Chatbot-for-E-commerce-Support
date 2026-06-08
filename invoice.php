@@ -133,6 +133,20 @@ body { background:#f0f2f5; font-family:'Segoe UI',Arial,sans-serif; }
             <?php endwhile; ?>
             </tbody>
             <tfoot>
+                <tr>
+                    <td colspan="4" style="padding:8px 14px;text-align:right;color:#888">Subtotal</td>
+                    <td style="padding:8px 14px;text-align:right">RWF <?= number_format($grand) ?></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="padding:8px 14px;text-align:right;color:#888">Shipping</td>
+                    <td style="padding:8px 14px;text-align:right">
+                        <?php if ((float)$order['shipping_fee'] > 0): ?>
+                            RWF <?= number_format((float)$order['shipping_fee']) ?>
+                        <?php else: ?>
+                            <span style="color:#28a745;font-weight:600">FREE</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
                 <tr style="background:#f8f9fa">
                     <td colspan="4" style="padding:14px;text-align:right;font-weight:700;font-size:1rem">TOTAL</td>
                     <td style="padding:14px;text-align:right;font-weight:800;font-size:1.1rem;color:#e94560">
@@ -153,6 +167,6 @@ body { background:#f0f2f5; font-family:'Segoe UI',Arial,sans-serif; }
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body>
 </html>

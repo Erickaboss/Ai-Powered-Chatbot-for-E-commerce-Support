@@ -2,7 +2,7 @@
 require_once 'includes/admin_header.php';
 
 // Verify admin access
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
     header('Location: login.php');
     exit;
 }
@@ -81,7 +81,7 @@ $escalatedChats = $conn->query("
 ?>
 
 <!-- Chart.js Library -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
 
 <div class="container-fluid py-4">
     <!-- Page Header -->

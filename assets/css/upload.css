@@ -1,0 +1,310 @@
+/* Upload Handler Styles */
+
+.upload-zone-container {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    display: none;
+}
+
+.upload-zone-container.active {
+    display: block;
+}
+
+.upload-zone {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #fafafa;
+}
+
+.upload-zone:hover {
+    border-color: #0f3460;
+    background-color: #f0f5ff;
+}
+
+.upload-zone.drag-over {
+    border-color: #0f3460;
+    background-color: #e8f1ff;
+    box-shadow: 0 0 10px rgba(15, 52, 96, 0.2);
+    transform: scale(1.02);
+}
+
+.upload-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.upload-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 5px 0;
+}
+
+.upload-subtext {
+    font-size: 12px;
+    color: #999;
+    margin: 5px 0;
+}
+
+#upload-progress {
+    margin-top: 15px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0f3460, #1f8a70);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+#progress-text {
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+}
+
+/* Product Matches Display */
+
+.product-matches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.product-match-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    background: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.product-match-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.product-match-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.product-match-card h4 {
+    font-size: 12px;
+    margin: 5px 0;
+    color: #333;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.product-match-card .price {
+    font-weight: bold;
+    color: #0f3460;
+    margin: 5px 0;
+    font-size: 13px;
+}
+
+.product-match-card .match-score {
+    font-size: 11px;
+    color: #666;
+    margin: 3px 0;
+    background: #f0f0f0;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.product-match-card .match-reason {
+    font-size: 10px;
+    color: #999;
+    margin: 3px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.product-match-card .stock-status {
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    margin: 3px 0;
+}
+
+.product-match-card .stock-status.in-stock {
+    background: #d4edda;
+    color: #155724;
+}
+
+.product-match-card .stock-status.out-of-stock {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.product-match-card button {
+    width: 100%;
+    padding: 6px;
+    background-color: #0f3460;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    margin-top: 8px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.product-match-card button:hover {
+    background-color: #1f8a70;
+    transform: scale(1.05);
+}
+
+.product-match-card button:active {
+    transform: scale(0.95);
+}
+
+/* Upload Button in Chat */
+
+.chat-btn.upload-btn {
+    position: relative;
+}
+
+.chat-btn.upload-btn:hover {
+    background-color: #1f8a70;
+}
+
+.chat-btn.upload-btn.active {
+    background-color: #1f8a70;
+}
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+    .product-matches {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    .upload-zone {
+        padding: 20px 15px;
+    }
+    
+    .upload-icon {
+        font-size: 24px;
+    }
+    
+    .upload-text {
+        font-size: 12px;
+    }
+    
+    .upload-subtext {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-matches {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+    
+    .product-match-card {
+        padding: 8px;
+    }
+    
+    .product-match-card img {
+        height: 100px;
+    }
+    
+    .product-match-card h4 {
+        font-size: 11px;
+    }
+    
+    .product-match-card .price {
+        font-size: 12px;
+    }
+}
+
+/* Animation */
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.product-match-card {
+    animation: slideIn 0.3s ease;
+}
+
+/* Loading State */
+
+.upload-zone.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.upload-zone.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #0f3460;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Success/Error States */
+
+.upload-success {
+    border-color: #28a745;
+    background-color: #d4edda;
+}
+
+.upload-error {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.upload-error .upload-text {
+    color: #721c24;
+}
+
+.upload-error .upload-subtext {
+    color: #721c24;
+}

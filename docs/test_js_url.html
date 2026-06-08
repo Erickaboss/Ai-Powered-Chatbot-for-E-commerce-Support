@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test JS URL</title>
+</head>
+<body>
+    <h1>Testing CHATBOT_API_URL</h1>
+    <p id="result"></p>
+    
+    <script>
+        // Simulate what the footer.php does
+        const SITE_URL = 'http://localhost/ecommerce-chatbot';
+        const CHATBOT_API_URL = SITE_URL + '/api/chatbot_simple.php';
+        const CHATBOT_STREAM_API_URL = SITE_URL + '/api/chatbot_streaming.php';
+        
+        document.getElementById('result').innerHTML = `
+            <strong>CHATBOT_API_URL:</strong> ${CHATBOT_API_URL}<br>
+            <strong>CHATBOT_STREAM_API_URL:</strong> ${CHATBOT_STREAM_API_URL}
+        `;
+        
+        // Test the API
+        fetch(CHATBOT_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: 'hello',
+                session_id: 'test123456789abcdef123456789abcdef'
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log('API Response:', data);
+            document.getElementById('result').innerHTML += `<br><br><strong>API Response:</strong><br>${JSON.stringify(data, null, 2)}`;
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            document.getElementById('result').innerHTML += `<br><br><strong>Error:</strong> ${err.message}`;
+        });
+    </script>
+</body>
+</html>

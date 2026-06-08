@@ -1,360 +1,558 @@
-# 🚀 FINAL DEPLOYMENT GUIDE
-**Complete Implementation & Launch**  
-*April 3, 2026*
+# System Integration & Deployment Guide
+
+## 🏗️ System Architecture Visualization
+
+```
+╔══════════════════════════════════════════════════════════════════════════╗
+║                         E-COMMERCE CHATBOT SYSTEM                        ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         FRONTEND LAYER (Client)                          │
+│                                                                           │
+│  Browser/App                                                              │
+│  ├─ Chat Widget (JavaScript)                                             │
+│  ├─ Product Pages                                                        │
+│  ├─ Order Tracking                                                       │
+│  └─ User Account                                                         │
+│                                                                           │
+│  [User types] → [JavaScript sends] → [API request]                       │
+└─────────────────┬───────────────────────────────────────────────────────┘
+                  │ HTTP POST /api/chatbot.php
+                  │ {"message": "what do you have for 75k"}
+                  ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│                       PHP APPLICATION LAYER                              │
+│                      (Apache/XAMPP on port 80)                          │
+│                                                                           │
+│  api/chatbot.php (3,700+ lines)                                          │
+│  ├─ Input validation & sanitization                                      │
+│  ├─ Language detection                                                   │
+│  ├─ Intent pattern matching (25+ patterns)                               │
+│  ├─ Parameter extraction:                                                │
+│  │  ├─ parseBudgetAmount() → 75000                                       │
+│  │  ├─ detectCategory() → category_id                                    │
+│  │  └─ extractKeywords() → search terms                                  │
+│  ├─ Routing logic (decision tree)                                        │
+│  └─ Response formatting                                                  │
+│                                                                           │
+│  Supporting files:                                                       │
+│  ├─ config/db.php (MySQL connection)                                     │
+│  ├─ includes/*.php (helper functions)                                    │
+│  ├─ includes/chatbot_gemini_gate.php (Gemini integration)               │
+│  └─ includes/mailer.php (email notifications)                            │
+│                                                                           │
+└─────────────────┬───────────────────────────────────────────────────────┘
+                  │
+         ┌────────┴────────┬──────────────┐
+         │                 │              │
+    [DB Path]      [ML Path]       [Gemini Path]
+    (98%)          (1%)            (<1%)
+         │                 │              │
+         ↓                 ↓              ↓
+    ┌─────────┐   ┌──────────┐   ┌─────────────┐
+    │ MySQL   │   │  Flask   │   │   Google    │
+    │ Database│   │  ML API  │   │   Gemini    │
+    │ Port:   │   │ Port:    │   │   Cloud API │
+    │ 3306    │   │ 5000     │   │             │
+    └─────────┘   └──────────┘   └─────────────┘
+         │                 │              │
+         └────────┬────────┴──────────────┘
+                  │
+                  ↓
+        ┌──────────────────┐
+        │  Response JSON   │
+        │  {               │
+        │    "response":   │
+        │      "Products..",
+        │    "quick_replies"
+        │      ["Show more"]
+        │  }               │
+        └────────┬─────────┘
+                 │ HTTP 200
+                 ↓
+        ┌─────────────────────────────────────────────────────────────┐
+        │             FRONTEND RECEIVES & RENDERS                     │
+        │                                                             │
+        │   ✅ Products matching your search under RWF 75,000        │
+        │                                                             │
+        │   • Indomie Instant Noodles 70g                            │
+        │     RWF 1,200 ✅ In Stock                                   │
+        │     [View Details] [Add to Cart]                           │
+        │                                                             │
+        │   [Show more] [Change budget] [Browse all]                 │
+        └─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## ✅ **PRE-DEPLOYMENT CHECKLIST**
+## 🔌 Component Interactions
 
-### Files Ready:
-- ✅ All PHP files modified
-- ✅ JavaScript enhanced with voice input
-- ✅ Database migration script ready
-- ✅ Admin analytics dashboard created
-- ✅ Documentation complete
-
-### Database Tables:
-- ✅ `chatbot_context` - Context tracking
-- ✅ Enhanced `chatbot_logs` - Sentiment columns
-- ✅ Enhanced `wishlists` - Sharing tokens
-- ✅ Enhanced `products` - Rating cache
-- ✅ `admin_dashboard_stats` - Analytics view
-- ✅ `customer_segments` - Segmentation view
-
----
-
-## 🎯 **DEPLOYMENT STEPS**
-
-### Option A: Automated Deployment (Recommended)
-
-**Run the deployment script:**
-```bash
-cd c:\xampp\htdocs\ecommerce-chatbot
-deploy.bat
+### 1. Frontend → PHP (Request)
+```javascript
+// assets/js/chatbot-widget.js
+fetch('/api/chatbot.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+        message: "what do you have for 75k",
+        session_id: "abc123...",
+        image: null  // optional
+    })
+})
+.then(response => response.json())
+.then(data => {
+    // Render response
+    displayChatMessage(data.response);
+    displayQuickReplies(data.quick_replies);
+});
 ```
 
-This will:
-1. ✅ Check XAMPP status
-2. ✅ Backup current database
-3. ✅ Run feature_enhancements.sql
-4. ✅ Verify tables created
-5. ✅ Clear cache
-
-### Option B: Manual Deployment
-
-**Step 1: Backup Database**
-```bash
-"C:\xampp\mysql\bin\mysqldump.exe" -u root ecommerce_chatbot > backup_$(date).sql
-```
-
-**Step 2: Run Migration**
-```bash
-Get-Content feature_enhancements.sql | "C:\xampp\mysql\bin\mysql.exe" -u root ecommerce_chatbot
-```
-
-**Step 3: Verify Tables**
-```sql
-USE ecommerce_chatbot;
-SHOW TABLES;
-DESCRIBE chatbot_context;
-SELECT * FROM admin_dashboard_stats;
-```
-
----
-
-## 🔧 **POST-DEPLOYMENT CONFIGURATION**
-
-### 1. Update Admin Navigation
-
-Edit `admin/includes/admin_header.php`:
+### 2. PHP → MySQL (Query)
 ```php
-// Add after existing menu items
-<li class="nav-item">
-    <a class="nav-link" href="analytics.php">
-        <i class="bi bi-speedometer2"></i> Analytics
-    </a>
-</li>
+// api/chatbot.php
+$sql = "SELECT p.id, p.name, p.brand, p.price, p.stock, p.description
+        FROM products p
+        LEFT JOIN categories c ON p.category_id = c.id
+        WHERE p.stock > 0 AND p.price <= $budget
+        ORDER BY p.price DESC LIMIT 8";
+
+$result = $conn->query($sql);
+while ($row = $result->fetch_assoc()) {
+    $products[] = $row;
+}
 ```
 
-### 2. Test Features
+### 3. PHP → Flask (ML Fallback)
+```php
+// When database returns no results
+$mlPayload = json_encode([
+    'message' => $msg,
+    'model' => 'best',
+    'context' => []
+]);
 
-**Test Chatbot:**
-```
-1. Open main site
-2. Click chatbot button
-3. Test sentiment: "This is terrible!"
-4. Test context: Ask about products, then reference them
-5. Test voice: Click microphone, speak
-```
+$ch = curl_init('http://localhost:5000/predict');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => $mlPayload,
+    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+    CURLOPT_TIMEOUT => 5
+]);
 
-**Test Wishlist:**
-```
-1. Login as user
-2. Add items to wishlist
-3. Select and share via link
-4. Open link in incognito window
-```
-
-**Test Filters:**
-```
-1. Go to products page
-2. Apply brand filter
-3. Apply rating filter
-4. Apply price range
+$mlResponse = json_decode(curl_exec($ch), true);
 ```
 
-**Test Analytics:**
-```
-1. Login as admin
-2. Go to /admin/analytics.php
-3. Verify charts display
-4. Check real-time data
-```
+### 4. PHP → Gemini (Complex Queries)
+```php
+// For unclear intent or multilingual support
+$geminiPayload = json_encode([
+    'contents' => [[
+        'parts' => [['text' => $msg]]
+    ]]
+]);
 
----
+$ch = curl_init("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}");
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => $geminiPayload,
+    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+    CURLOPT_TIMEOUT => 10
+]);
 
-## 📊 **ANALYTICS DASHBOARD FEATURES**
-
-### Real-Time Metrics:
-- Total Sales Count
-- Revenue Today (RWF)
-- Pending Orders
-- Low Stock Alerts
-
-### Charts:
-1. **Sales Trend** - 30-day revenue & orders
-2. **Customer Segments** - VIP/Regular/New distribution
-3. **Sentiment Analysis** - 7-day chatbot emotion tracking
-4. **Top Products** - Best sellers table
-
-### Alerts:
-- Low stock products (critical < 5, warning < 10)
-- Escalated chatbot conversations
-- Negative sentiment detection
-
-### Auto-Refresh:
-- Dashboard refreshes every 30 seconds
-- Manual refresh button available
-
----
-
-## 🎯 **FEATURE TESTING GUIDE**
-
-### Sentiment Analysis Testing:
-
-**Negative Messages:**
-```
-"This is awful service!"
-"I'm very disappointed"
-"Your product is broken"
-"I want to sue you"
-```
-
-**Positive Messages:**
-```
-"Thank you so much!"
-"This is amazing!"
-"Really helpful, thanks!"
-"Perfect, love it!"
-```
-
-**Expected Results:**
-- Negative → Bot apologizes + offers human agent
-- Positive → Friendly response
-- Escalation triggers → Support ticket created
-
-### Context Awareness Testing:
-
-**Conversation Flow:**
-```
-User: "Show me Samsung phones under 500k"
-Bot: [shows products]
-
-User: "What about the first one?"
-Bot: Should reference Samsung phone from previous message
-
-User: "Tell me more about it"
-Bot: Should provide details using context
-```
-
-### Voice Input Testing:
-
-**Browser Requirements:**
-- Chrome/Edge: Full support ✅
-- Safari: iOS 14.5+ ✅
-- Firefox: Limited support ❌
-
-**Test Scenarios:**
-```
-1. Click mic button → Should pulse
-2. Speak clearly → Text appears
-3. Auto-sends after 0.5s
-4. Error handling (no mic, no speech)
+$geminiResponse = json_decode(curl_exec($ch), true);
 ```
 
 ---
 
-## 🐛 **TROUBLESHOOTING**
+## 📦 Deployment Checklist
 
-### Issue: Analytics page shows errors
-**Solution:** 
+### Pre-Deployment
+- [ ] All PHP syntax is valid (`php -l api/chatbot.php`)
+- [ ] Database connection works
+- [ ] Flask API is running (port 5000 accessible)
+- [ ] Gemini API key is valid
+- [ ] CORS headers are configured
+- [ ] Session handling is secure
+- [ ] Error logging is enabled
+
+### Configuration Files
+```php
+// config/db.php - Must have:
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', 'password');
+define('DB_NAME', 'ecommerce_chatbot');
+
+// Also needs:
+define('ADMIN_EMAIL', 'admin@shopai.rw');
+define('ADMIN_PHONE', '+250XXXXXXXXX');
+define('SITE_URL', 'http://localhost:80');
+define('SITE_NAME', 'ShopAI');
+define('GEMINI_API_KEY', 'your-key-here');
+```
+
+### Database Setup
+```bash
+# Create database
+mysql -u root -p < database.sql
+
+# Check tables exist
+mysql -u root -p ecommerce_chatbot -e "SHOW TABLES;"
+
+# Expected tables:
+# - users
+# - products
+# - categories
+# - orders
+# - chatbot_logs
+# - support_tickets
+# - stock_notifications
+```
+
+### Flask API Setup
+```bash
+cd chatbot-ml
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Train models (if not trained)
+python train.py
+
+# Start Flask API
+python app.py
+# Should output: Running on http://127.0.0.1:5000
+```
+
+### Testing
+```bash
+# Test chatbot endpoint
+curl -X POST http://localhost/api/chatbot.php \
+  -H "Content-Type: application/json" \
+  -d '{"message": "what do you have for 75k"}'
+
+# Expected response:
+# {"response": "✅ Products...", "quick_replies": [...]}
+
+# Test ML API
+curl -X POST http://localhost:5000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"message": "show me phones"}'
+
+# Expected response:
+# {"intent": "product_search", "confidence": 0.92}
+```
+
+---
+
+## 🚀 Deployment Steps
+
+### 1. Stop Current Services
+```bash
+# Stop Apache
+sudo systemctl stop apache2  # Linux
+net stop Apache2.4          # Windows
+
+# Stop Flask (if running)
+pkill -f "python app.py"    # Linux
+taskkill /IM python.exe     # Windows
+```
+
+### 2. Deploy Files
+```bash
+# Backup current version
+cp -r /xampp/htdocs/ecommerce-chatbot /xampp/htdocs/ecommerce-chatbot.backup
+
+# Copy new files
+cp api/chatbot.php /xampp/htdocs/ecommerce-chatbot/api/
+
+# Check permissions
+chmod 755 api/chatbot.php
+chmod 777 assets/images/chat_uploads/
+chmod 755 includes/
+```
+
+### 3. Validate Installation
+```bash
+# Check PHP syntax
+php -l /xampp/htdocs/ecommerce-chatbot/api/chatbot.php
+
+# Check database connectivity
+php -r "require 'config/db.php'; echo 'DB OK';"
+
+# Check Flask API
+curl http://localhost:5000/health
+```
+
+### 4. Start Services
+```bash
+# Start Apache
+sudo systemctl start apache2    # Linux
+net start Apache2.4            # Windows
+
+# Start Flask
+cd chatbot-ml
+nohup python app.py > logs/flask.log 2>&1 &  # Linux
+python app.py                                  # Windows
+
+# Verify running
+curl -s http://localhost/api/chatbot.php | head -c 50
+curl -s http://localhost:5000/models/performance | head -c 50
+```
+
+### 5. Monitor
+```bash
+# Check error logs
+tail -f /xampp/apache/logs/error.log
+
+# Check PHP logs
+tail -f /var/log/php-errors.log
+
+# Monitor chatbot performance
+mysql ecommerce_chatbot -e "
+  SELECT 
+    DATE_FORMAT(created_at, '%H:00') as hour,
+    COUNT(*) as queries,
+    AVG(processing_time_ms) as avg_time
+  FROM chatbot_logs
+  WHERE created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)
+  GROUP BY hour
+  ORDER BY created_at DESC;
+"
+```
+
+---
+
+## 🔍 Monitoring & Health Checks
+
+### Database Health
 ```sql
--- Recreate views
-SOURCE feature_enhancements.sql;
+-- Check if database is accessible
+SELECT 1 as status;
+
+-- Check product inventory
+SELECT COUNT(*) as total_products, 
+       SUM(stock) as total_stock
+FROM products;
+
+-- Check for errors in logs
+SELECT COUNT(*) as error_count
+FROM chatbot_logs
+WHERE response LIKE '%error%'
+  AND created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR);
 ```
 
-### Issue: Voice button not appearing
-**Solution:**
-- Use Chrome/Edge browser
-- Check browser console for errors
-- Ensure HTTPS (or localhost)
+### API Health Checks
+```bash
+#!/bin/bash
+# health_check.sh
 
-### Issue: Sentiment not logging
-**Solution:**
+echo "=== Chatbot System Health Check ==="
+
+# 1. MySQL
+echo -n "MySQL: "
+mysql -u root -p$DB_PASS -e "SELECT 1" > /dev/null 2>&1 && echo "✅ UP" || echo "❌ DOWN"
+
+# 2. PHP API
+echo -n "PHP API: "
+curl -s http://localhost/api/chatbot.php -d '{"message":"test"}' > /dev/null 2>&1 && echo "✅ UP" || echo "❌ DOWN"
+
+# 3. Flask ML API
+echo -n "Flask API: "
+curl -s http://localhost:5000/health > /dev/null 2>&1 && echo "✅ UP" || echo "❌ DOWN"
+
+# 4. Gemini API connectivity
+echo -n "Gemini API: "
+curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash?key=$GEMINI_KEY" | grep -q "models" && echo "✅ UP" || echo "❌ DOWN"
+
+echo "=== Check Complete ==="
+```
+
+---
+
+## 📊 Performance Tuning
+
+### MySQL Optimization
 ```sql
--- Check columns exist
-DESCRIBE chatbot_logs;
--- Should show: sentiment_score, sentiment_label, escalated
+-- Add indexes for fast queries
+ALTER TABLE products ADD INDEX idx_price (price);
+ALTER TABLE products ADD INDEX idx_stock (stock);
+ALTER TABLE products ADD INDEX idx_category (category_id);
+ALTER TABLE products ADD INDEX idx_name (name);
+
+-- Enable query cache
+SET GLOBAL query_cache_size = 262144;
+SET GLOBAL query_cache_type = 1;
+
+-- Check query performance
+EXPLAIN SELECT * FROM products WHERE price <= 75000 AND stock > 0 LIMIT 8;
 ```
 
-### Issue: Share links not working
-**Solution:**
-- Ensure session_start() at top of shared_wishlist.php
-- Check token generation in wishlist.php
+### PHP Optimization
+```php
+// Enable OPcache (cache compiled PHP)
+// In php.ini:
+opcache.enable=1
+opcache.memory_consumption=128
+opcache.interned_strings_buffer=8
+opcache.max_accelerated_files=4000
+opcache.revalidate_freq=60
 
-### Issue: Charts not displaying
-**Solution:**
-- Check Chart.js CDN loaded
-- Verify browser console for JS errors
-- Clear browser cache
+// Use persistent connections
+$conn = new mysqli(..., null, MYSQLI_CLIENT_COMPRESS);
 
----
+// Enable compression for large responses
+ob_start('ob_gzhandler');
+```
 
-## 📈 **MONITORING & MAINTENANCE**
+### Flask Optimization
+```python
+# Use production WSGI server (gunicorn)
+pip install gunicorn
+gunicorn -w 4 -b 127.0.0.1:5000 app:app
 
-### Daily Tasks:
-- Check escalated chats count
-- Review sentiment scores
-- Monitor voice input usage
-- Check error logs
+# Load models once at startup
+model = joblib.load('models/best_model.pkl')
 
-### Weekly Tasks:
-- Analyze sales trends
-- Review customer segments
-- Update low stock alerts
-- Fine-tune sentiment thresholds
-
-### Monthly Tasks:
-- Export analytics reports
-- A/B test chatbot responses
-- Update product recommendations
-- Review feature adoption rates
-
----
-
-## 🎉 **SUCCESS METRICS**
-
-### Week 1 Targets:
-- ✅ All features deployed successfully
-- ✅ No critical bugs
-- ✅ Analytics dashboard loads
-- ✅ Chatbot sentiment working
-- ✅ Voice input functional
-
-### Month 1 Targets:
-- 500+ wishlist shares
-- 200+ product reviews
-- 60% filter adoption
-- 85% sentiment accuracy
-- 30% voice trial rate
-
----
-
-## 📞 **SUPPORT RESOURCES**
-
-### Documentation Files:
-1. `COMPLETE_IMPLEMENTATION_SUMMARY.md` - Full overview
-2. `ADVANCED_CHATBOT_FEATURES_COMPLETE.md` - AI features guide
-3. `FEATURE_ENHANCEMENTS_GUIDE.md` - Detailed implementation
-4. `QUICK_START_NEW_FEATURES.md` - Quick reference
-5. `DEPLOYMENT_GUIDE.md` - This file
-
-### Key URLs:
-- Main Site: http://localhost/ecommerce-chatbot
-- Admin Dashboard: http://localhost/ecommerce-chatbot/admin/index.php
-- Analytics: http://localhost/ecommerce-chatbot/admin/analytics.php
-- Chatbot Logs: http://localhost/ecommerce-chatbot/admin/chatbot_logs.php
-
-### Database Queries:
-```sql
--- Check escalated chats
-SELECT COUNT(*) FROM chatbot_logs WHERE escalated = 1;
-
--- View sentiment trends
-SELECT DATE(created_at), AVG(sentiment_score) 
-FROM chatbot_logs 
-GROUP BY DATE(created_at);
-
--- Monitor voice usage (via chat frequency)
-SELECT COUNT(*) FROM chatbot_logs 
-WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY);
+# Use model caching
+from functools import lru_cache
+@lru_cache(maxsize=1000)
+def cached_predict(message):
+    return model.predict([message])
 ```
 
 ---
 
-## 🚀 **GO-LIVE CHECKLIST**
+## 🚨 Troubleshooting
 
-### Pre-Launch (Day Before):
-- [ ] Complete database backup
-- [ ] Test all features in staging
-- [ ] Verify SMTP configuration
-- [ ] Check error logging enabled
-- [ ] Document current metrics
+### Issue: "Can't connect to MySQL server"
+```php
+// Check config/db.php
+echo DB_HOST . " | " . DB_USER . " | " . DB_NAME;
 
-### Launch Day:
-- [ ] Run deploy.bat script
-- [ ] Verify database migration
-- [ ] Test critical paths (checkout, chatbot)
-- [ ] Monitor error logs hourly
-- [ ] Check analytics dashboard
+// Test connection
+$test = @mysqli_connect(DB_HOST, DB_USER, DB_PASS);
+if (!$test) {
+    echo "Error: " . mysqli_connect_error();
+} else {
+    echo "Connected OK";
+}
+```
 
-### Post-Launch (Week 1):
-- [ ] Daily sentiment review
-- [ ] Weekly analytics report
-- [ ] User feedback collection
-- [ ] Performance optimization
-- [ ] Bug fixes if needed
+### Issue: Flask API not responding
+```bash
+# Check if Flask is running
+ps aux | grep "python app.py"
+
+# Check if port 5000 is listening
+netstat -tlnp | grep 5000
+
+# Restart Flask
+pkill -f "python app.py"
+cd chatbot-ml && python app.py
+```
+
+### Issue: Gemini API quota exceeded
+```php
+// Check remaining quota in logs
+error_log("Gemini quota: " . json_encode($response));
+
+// Fallback to local response
+if ($geminiQuotaExceeded) {
+    return reply(
+        "Our AI is temporarily at capacity. Please try again in a moment.",
+        ['Show me products', 'Contact support']
+    );
+}
+```
+
+### Issue: Slow database queries
+```php
+// Enable query logging
+error_log("Query: $sql | Time: " . $time . "ms");
+
+// Use EXPLAIN to analyze
+$explain = $conn->query("EXPLAIN $sql");
+
+// Add missing indexes
+$conn->query("ALTER TABLE products ADD INDEX idx_budget_stock (price, stock)");
+```
 
 ---
 
-## 🎊 **CONGRATULATIONS!**
+## 📈 Scaling Considerations
 
-You now have a fully-featured, AI-powered e-commerce platform with:
+### For 1,000+ Concurrent Users
 
-✅ Smart chatbot that remembers conversations  
-✅ Emotion-aware customer service  
-✅ Voice-enabled shopping assistant  
-✅ Social wishlist sharing  
-✅ Customer reviews & ratings  
-✅ Advanced product filtering  
-✅ Real-time analytics dashboard  
-✅ Automated support escalation  
-✅ Customer segmentation  
-✅ And much more!
+1. **Database**
+   - Set up read replicas
+   - Use connection pooling
+   - Implement query caching
 
-**Total Features Delivered: 13/13 (100%)**
+2. **PHP**
+   - Deploy on multiple app servers
+   - Use load balancer (nginx/HAProxy)
+   - Enable OPcache
 
-**Ready for production launch! 🚀**
+3. **Flask**
+   - Run multiple worker processes
+   - Use gunicorn with 4-8 workers
+   - Implement model caching
+
+4. **Infrastructure**
+   - Set up CDN for static assets
+   - Use sessions in Redis (not file)
+   - Implement rate limiting
 
 ---
 
-## 📧 **CONTACT & SUPPORT**
+## ✅ Success Criteria
 
-For questions or issues:
-1. Check documentation files first
-2. Review inline code comments
-3. Inspect browser console for errors
-4. Check xampp/logs/error.log
-5. Review database query results
+After deployment, verify:
 
-**Happy selling! 🎉**
+- ✅ Chatbot responds to test queries in <200ms
+- ✅ Budget queries work: "what do you have for 75k"
+- ✅ Category queries work: "show me phones"
+- ✅ Products display correctly with prices
+- ✅ "Add to Cart" buttons function
+- ✅ Order tracking works: "track order 5"
+- ✅ Database queries are logged
+- ✅ No JSON errors in response
+- ✅ Mobile responsive design works
+- ✅ Images load correctly
+
+---
+
+## 📞 Support
+
+If issues occur:
+
+1. **Check error logs**
+   ```bash
+   tail -f /xampp/apache/logs/error.log
+   tail -f chatbot-ml/logs/*.log
+   ```
+
+2. **Enable debug mode**
+   ```php
+   define('DEBUG_CHATBOT', true);
+   ```
+
+3. **Test individual components**
+   ```bash
+   # Test DB
+   mysql -u root -e "SELECT COUNT(*) FROM products;"
+   
+   # Test Flask
+   curl http://localhost:5000/health
+   
+   # Test Gemini
+   curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash/generateContent?key=YOUR_KEY"
+   ```
+
+4. **Contact support**
+   - 📧 admin@shopai.rw
+   - 📱 +250 XXX XXX XXX

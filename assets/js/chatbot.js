@@ -5,11 +5,20 @@ let historyLoaded = false;
 let isProcessing = false;
 
 // ── Persistent session ID stored in localStorage ──
+function generateHex32() {
+    try {
+        return Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                    .map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch (e) {
+        return Array.from({length: 16}, () =>
+            Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join('');
+    }
+}
+
 function getChatSessionId() {
     let sid = localStorage.getItem('chat_session_id');
     if (!sid || !/^[a-f0-9]{32}$/.test(sid)) {
-        sid = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-                   .map(b => b.toString(16).padStart(2, '0')).join('');
+        sid = generateHex32();
         localStorage.setItem('chat_session_id', sid);
     }
     return sid;
@@ -58,7 +67,10 @@ async function loadChatHistory() {
         const res = await fetch(CHATBOT_API_URL + '?action=history', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ session_id: sid })
+            body: JSON.stringify({
+                session_id: sid,
+                user_id: (typeof CHATBOT_USER_ID !== 'undefined' && CHATBOT_USER_ID) ? CHATBOT_USER_ID : null
+            })
         });
         if (!res.ok) return;
         const data = await res.json();
@@ -98,17 +110,16 @@ function clearChatHistory() {
         <i class="bi bi-robot"></i> Hi! I'm your AI shopping assistant.<br>
         I can help you find products, track orders, and answer any question.<br>
         <div class="quick-replies">
-            <button class="qr-btn" onclick="quickReply('Show me products')">🛍️ Products</button>
-            <button class="qr-btn" onclick="quickReply('Track my order')">📦 Track Order</button>
-            <button class="qr-btn" onclick="quickReply('Delivery info')">🚚 Delivery</button>
-            <button class="qr-btn" onclick="quickReply('Payment methods')">💳 Payment</button>
+            <button class="qr-btn" onclick="quickReply('Show me products')">🛍️ Show me products</button>
+            <button class="qr-btn" onclick="quickReply('Track my order')">📦 Track my order</button>
+            <button class="qr-btn" onclick="quickReply('I have a budget')">💰 I have a budget</button>
+            <button class="qr-btn" onclick="quickReply('How to order?')">🛒 How to order?</button>
+            <button class="qr-btn" onclick="quickReply('Contact support')">📞 Contact support</button>
         </div>
     </div>`;
     historyLoaded = false;
     // Regenerate session ID
-    const newSid = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-                        .map(b => b.toString(16).padStart(2, '0')).join('');
-    localStorage.setItem('chat_session_id', newSid);
+    localStorage.setItem('chat_session_id', generateHex32());
 }
 
 function toggleChat() {
@@ -129,12 +140,15 @@ function handleKey(e) {
 }
 
 const chatSuggestions = [
-    'Show me phones under 200k',
-    'Show me laptops',
+    'Phones under 300k',
+    'Compare Samsung Galaxy A14 and Samsung Galaxy A24',
     'Track my order',
+    'How do I place an order?',
     'My orders',
     'Delivery info',
     'Payment methods',
+    'I forgot my password',
+    'Start a return request',
     'Return policy',
     'I have 50000 RWF',
     'Price of Samsung Galaxy',
@@ -172,13 +186,88 @@ function quickReply(text) {
     sendMessage();
 }
 
-function appendMessage(text, type, quickReplies, logId = null) {
+function renderProductCards(products) {
+    if (!products || products.length === 0) return '';
+    const container = document.createElement('div');
+    container.className = 'chat-product-grid';
+    products.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'chat-product-card';
+        const imgUrl = p.image || '/ecommerce-chatbot/assets/images/placeholder.jpg';
+
+        const link = document.createElement('a');
+        link.href = '/ecommerce-chatbot/product.php?id=' + encodeURIComponent(p.id);
+        link.className = 'chat-product-img-link';
+        const img = document.createElement('img');
+        img.src = imgUrl;
+        img.alt = p.name || '';
+        img.className = 'chat-product-img';
+        img.onerror = function () { this.src = '/ecommerce-chatbot/assets/images/placeholder.jpg'; };
+        link.appendChild(img);
+        card.appendChild(link);
+
+        const body = document.createElement('div');
+        body.className = 'chat-product-body';
+
+        const nameLink = document.createElement('a');
+        nameLink.href = '/ecommerce-chatbot/product.php?id=' + encodeURIComponent(p.id);
+        nameLink.className = 'chat-product-name';
+        nameLink.textContent = p.name;
+        body.appendChild(nameLink);
+
+        if (p.brand) {
+            const brandSpan = document.createElement('span');
+            brandSpan.className = 'chat-product-brand';
+            brandSpan.textContent = '(' + p.brand + ')';
+            body.appendChild(brandSpan);
+        }
+
+        const priceDiv = document.createElement('div');
+        priceDiv.className = 'chat-product-price';
+        priceDiv.textContent = p.price_formatted || 'RWF ' + Number(p.price).toLocaleString();
+        body.appendChild(priceDiv);
+
+        const stockSpan = document.createElement('span');
+        stockSpan.className = 'chat-product-stock ' + (p.in_stock ? 'in-stock' : 'out-of-stock');
+        stockSpan.textContent = p.in_stock ? '✅ In Stock' : '❌ Out of Stock';
+        body.appendChild(stockSpan);
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'chat-product-actions';
+
+        const viewBtn = document.createElement('a');
+        viewBtn.href = '/ecommerce-chatbot/product.php?id=' + encodeURIComponent(p.id);
+        viewBtn.className = 'chat-product-btn view-btn';
+        viewBtn.textContent = 'View';
+        actionsDiv.appendChild(viewBtn);
+
+        if (p.in_stock) {
+            const cartBtn = document.createElement('a');
+            cartBtn.href = '/ecommerce-chatbot/cart.php?action=add&id=' + encodeURIComponent(p.id);
+            cartBtn.className = 'chat-product-btn cart-btn';
+            cartBtn.textContent = '🛒 Add to Cart';
+            actionsDiv.appendChild(cartBtn);
+        }
+
+        body.appendChild(actionsDiv);
+        card.appendChild(body);
+        container.appendChild(card);
+    });
+    return container;
+}
+
+function appendMessage(text, type, quickReplies, logId = null, meta = {}) {
     const messages = document.getElementById('chat-messages');
     const div = document.createElement('div');
     div.className = type === 'user' ? 'user-msg' : 'bot-msg';
-    div.innerHTML = type === 'bot'
-        ? `<i class="bi bi-robot"></i> ${normalizeBotMessageHtml(text)}`
-        : text;
+    if (type === 'bot') {
+        const icon = document.createElement('i');
+        icon.className = 'bi bi-robot';
+        div.appendChild(icon);
+        div.innerHTML += ' ' + String(text || '').replace(/\n/g, '<br>');
+    } else {
+        div.textContent = text;
+    }
 
     if (quickReplies && quickReplies.length > 0) {
         const qrDiv = document.createElement('div');
@@ -193,16 +282,7 @@ function appendMessage(text, type, quickReplies, logId = null) {
         div.appendChild(qrDiv);
     }
 
-    // ── Rating buttons (only for bot messages) ──
-    if (type === 'bot' && logId) {
-        const rateDiv = document.createElement('div');
-        rateDiv.className = 'chat-rating';
-        rateDiv.style.cssText = 'margin-top:4px;font-size:.72rem;color:rgba(255,255,255,.5)';
-        rateDiv.innerHTML = `<span style="margin-right:4px">Was this helpful?</span>
-            <button onclick="rateResponse(${logId}, 1, this.parentElement)" style="background:none;border:none;cursor:pointer;font-size:.9rem;padding:0 3px" title="Yes">👍</button>
-            <button onclick="rateResponse(${logId}, 0, this.parentElement)" style="background:none;border:none;cursor:pointer;font-size:.9rem;padding:0 3px" title="No">👎</button>`;
-        div.appendChild(rateDiv);
-    }
+
 
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
@@ -231,15 +311,18 @@ async function fetchStandardChatResponse(msg) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             message: msg,
-            session_id: localStorage.getItem('chat_session_id') || CHAT_SESSION_ID
+            session_id: localStorage.getItem('chat_session_id') || CHAT_SESSION_ID,
+            user_id: (typeof CHATBOT_USER_ID !== 'undefined' && CHATBOT_USER_ID) ? CHATBOT_USER_ID : null
         })
     });
 
     if (!res.ok) {
+        console.error('API returned status:', res.status);
         throw new Error('HTTP ' + res.status);
     }
 
     const text = await res.text();
+    // console.log('API Response:', text);
     try {
         return JSON.parse(text);
     } catch (e) {
@@ -248,75 +331,10 @@ async function fetchStandardChatResponse(msg) {
     }
 }
 
+
 async function fetchStreamingChatResponse(msg) {
-    const streamUrl = getStreamingApiUrl();
-    if (!streamUrl) {
-        return fetchStandardChatResponse(msg);
-    }
-
-    const res = await fetch(streamUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            message: msg,
-            session_id: localStorage.getItem('chat_session_id') || CHAT_SESSION_ID
-        })
-    });
-
-    if (!res.ok) {
-        throw new Error('HTTP ' + res.status);
-    }
-
-    if (!res.body || typeof res.body.getReader !== 'function') {
-        return fetchStandardChatResponse(msg);
-    }
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-    let finalEvent = null;
-
-    const processLine = (line) => {
-        if (!line) return;
-
-        let event;
-        try {
-            event = JSON.parse(line);
-        } catch (err) {
-            console.warn('Skipping invalid stream event:', line);
-            return;
-        }
-
-        if (event.type === 'typing' || event.type === 'processing' || event.type === 'gemini_complete') {
-            updateTyping(getProcessingMessage(event));
-        }
-
-        if (event.type === 'response' || event.type === 'error') {
-            finalEvent = event;
-        }
-    };
-
-    while (true) {
-        const { value, done } = await reader.read();
-        buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
-
-        const lines = buffer.split(/\r?\n/);
-        buffer = lines.pop() || '';
-
-        lines.forEach(line => processLine(line.trim()));
-
-        if (done) {
-            break;
-        }
-    }
-
-    processLine(buffer.trim());
-
-    if (!finalEvent) {
-        throw new Error('Stream completed without a final response');
-    }
-
-    return finalEvent;
+    // Skip streaming, use standard response
+    return fetchStandardChatResponse(msg);
 }
 
 async function sendMessage() {
@@ -333,6 +351,8 @@ async function sendMessage() {
     appendMessage(msg, 'user');
     
     input.value = '';
+    // Adapt voice recognition to detected language
+    setVoiceLanguage(detectLanguage(msg));
     showTyping();
 
     try {
@@ -354,10 +374,16 @@ async function sendMessage() {
                 data.response || 'Sorry, I could not process that.',
                 'bot',
                 data.quick_replies || [],
-                data.log_id || null
+                data.log_id || null,
+                {
+                    response_source: data.response_source || '',
+                    intent: data.intent || '',
+                    confidence: data.confidence || 0,
+                    products: data.products || []
+                }
             );
             if (data.processing_time_ms) {
-                console.log(`Response time: ${data.processing_time_ms}ms`);
+                // console.log(`Response time: ${data.processing_time_ms}ms`);
             }
         } else {
             appendMessage('Sorry, I could not process that.', 'bot', ['Show me products', 'Contact support']);
@@ -404,18 +430,34 @@ async function rateResponse(logId, rating, el) {
 let isListening = false;
 let recognition = null;
 
+// Detect language from text (simple client-side check)
+function detectLanguage(text) {
+    const t = text.toLowerCase();
+    const rwWords = ['mwaramutse','mwiriwe','muraho','yego','oya','urakoze','murakoze','angahe','amafaranga','ibiciro','gusaba','kugura','fasha','mfasha'];
+    const frWords = ['bonjour','salut','merci','combien','prix','livraison','commande','paiement','retour','produit','cherche','besoin','voulez','voudriez'];
+    let rw = 0, fr = 0;
+    const tokens = t.split(/\s+/);
+    for (const token of tokens) {
+        if (rwWords.includes(token)) rw++;
+        if (frWords.includes(token)) fr++;
+    }
+    if (rw > fr && rw > 0) return 'rw-RW';
+    if (fr > 0) return 'fr-FR';
+    return 'en-US';
+}
+
 // Initialize voice recognition if supported
 function initVoiceRecognition() {
     // Check browser support
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
-        console.log('Voice input not supported in this browser');
+        // console.log('Voice input not supported in this browser');
         return null;
     }
     
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US'; // Default to English
+    recognition.lang = detectLanguage(document.getElementById('chat-input')?.value) || 'en-US';
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
@@ -429,7 +471,7 @@ function initVoiceRecognition() {
         const transcript = event.results[0][0].transcript;
         const confidence = event.results[0].confidence;
         
-        console.log(`🎤 Voice input: "${transcript}" (${(confidence * 100).toFixed(0)}% confidence)`);
+        // console.log(`🎤 Voice input: "${transcript}" (${(confidence * 100).toFixed(0)}% confidence)`);
         
         // Set the transcribed text in chat input
         const input = document.getElementById('chat-input');
@@ -594,15 +636,35 @@ function handleChatFileUpload(input) {
     if (isImage) {
         const reader = new FileReader();
         reader.onload = e => {
-            preview.innerHTML = `<img src="${e.target.result}" style="height:40px;border-radius:6px;object-fit:cover">
-                <span>📷 ${file.name}</span>
-                <button onclick="clearFileUpload()" style="background:none;border:none;color:#e94560;cursor:pointer;margin-left:auto">✕</button>`;
+            preview.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.cssText = 'height:40px;border-radius:6px;object-fit:cover';
+            preview.appendChild(img);
+            const span = document.createElement('span');
+            span.textContent = '📷 ' + file.name;
+            preview.appendChild(span);
+            const btn = document.createElement('button');
+            btn.onclick = clearFileUpload;
+            btn.style.cssText = 'background:none;border:none;color:#e94560;cursor:pointer;margin-left:auto';
+            btn.textContent = '✕';
+            preview.appendChild(btn);
         };
         reader.readAsDataURL(file);
     } else {
-        preview.innerHTML = `<i class="bi bi-file-earmark-text" style="font-size:1.2rem"></i>
-            <span>📄 ${file.name}</span>
-            <button onclick="clearFileUpload()" style="background:none;border:none;color:#e94560;cursor:pointer;margin-left:auto">✕</button>`;
+        preview.innerHTML = '';
+        const icon = document.createElement('i');
+        icon.className = 'bi bi-file-earmark-text';
+        icon.style.fontSize = '1.2rem';
+        preview.appendChild(icon);
+        const span = document.createElement('span');
+        span.textContent = '📄 ' + file.name;
+        preview.appendChild(span);
+        const btn = document.createElement('button');
+        btn.onclick = clearFileUpload;
+        btn.style.cssText = 'background:none;border:none;color:#e94560;cursor:pointer;margin-left:auto';
+        btn.textContent = '✕';
+        preview.appendChild(btn);
     }
 
     // Don't auto-fill — let user type their own message

@@ -25,6 +25,11 @@ if (!$hideChat):
                     <button class="qr-btn" onclick="quickReply('Track my order')">📦 Track Order</button>
                     <button class="qr-btn" onclick="quickReply('Delivery info')">🚚 Delivery</button>
                     <button class="qr-btn" onclick="quickReply('Payment methods')">💳 Payment</button>
+                    <button class="qr-btn" onclick="quickReply('Phones under 300k')">Phones under 300k</button>
+                    <button class="qr-btn" onclick="quickReply('Compare Samsung Galaxy A14 and Samsung Galaxy A24')">Compare</button>
+                    <button class="qr-btn" onclick="quickReply('How do I place an order?')">Place Order</button>
+                    <button class="qr-btn" onclick="quickReply('I forgot my password')">Password Help</button>
+                    <button class="qr-btn" onclick="quickReply('Start a return request')">Return Request</button>
                 </div>
             </div>
         </div>
@@ -110,17 +115,19 @@ if (!$hideChat):
     </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 <?php if (!$hideChat): ?>
 <!-- TensorFlow.js and MobileNet for FREE image recognition -->
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js" integrity="sha384-vE8hbVJ4lezako5rlvE7bY0BVzWlFhZncPlckrqNwcUQpVtgbENTgZ8TBbnPjZre" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js" integrity="sha384-7ZhlpAW9lptV643xV0jWb+SkDEsvvzCa2kT+UhVnD/RFvNyOJZRNHrs9UBDkzyuW" crossorigin="anonymous"></script>
 <script src="<?= SITE_URL ?>/assets/js/free_image_recognition.js?v=<?= filemtime(__DIR__ . '/../assets/js/free_image_recognition.js') ?>"></script>
 <script>
-const CHATBOT_API_URL = '<?= SITE_URL ?>/api/chatbot.php';
+const CHATBOT_API_URL = '<?= SITE_URL ?>/api/chatbot_simple.php';
 const CHATBOT_STREAM_API_URL = '<?= SITE_URL ?>/api/chatbot_streaming.php';
+const CHATBOT_USER_ID = <?= isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 'null' ?>;
+const CHATBOT_USER_NAME = <?= isset($_SESSION['user_name']) ? json_encode($_SESSION['user_name']) : 'null' ?>;
 </script>
-<script src="<?= SITE_URL ?>/assets/js/chatbot.js?v=<?= filemtime(__DIR__ . '/../assets/js/chatbot.js') ?>"></script>
+<script src="<?= SITE_URL ?>/assets/js/chatbot.js?v=<?= time() ?>"></script>
 <?php endif; ?>
 </body>
 </html>

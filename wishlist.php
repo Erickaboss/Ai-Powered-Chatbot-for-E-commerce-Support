@@ -1,7 +1,7 @@
 <?php
 require_once 'includes/header.php';
 if (!isset($_SESSION['user_id'])) { header('Location: login.php'); exit; }
-$uid = $_SESSION['user_id'];
+$uid = (int)$_SESSION['user_id'];
 
 // Handle share actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['share_action'])) {
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $items = $conn->query("SELECT p.*, c.name as cat_name, p.avg_rating, p.review_count FROM wishlists w
     JOIN products p ON w.product_id=p.id
     LEFT JOIN categories c ON p.category_id=c.id
-    WHERE w.user_id=$uid ORDER BY w.created_at DESC");
+    WHERE w.user_id=$uid AND p.stock>0 ORDER BY w.created_at DESC");
 $rows = $items->fetch_all(MYSQLI_ASSOC);
 ?>
 

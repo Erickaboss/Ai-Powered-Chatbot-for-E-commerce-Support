@@ -164,7 +164,7 @@ $cat_icons  = ['bi-phone','bi-laptop','bi-tv','bi-house-door','bi-person','bi-ba
                     <div class="badge-pill mb-3"><i class="bi bi-robot me-1"></i>AI Assistant — Available 24/7</div>
                     <h3 class="fw-800 mb-2">Need Help? Our AI Assistant is Ready</h3>
                     <p style="color:rgba(255,255,255,.7);margin-bottom:24px">
-                        Ask in English, French, or Kinyarwanda. Find products, track orders, get instant answers — 24/7.
+                        Ask in English. Find products, track orders, get instant answers — 24/7.
                     </p>
                     <div class="d-flex flex-wrap gap-2">
                         <?php foreach (['"Show me phones under 200k"','"Track order 5"','"Return policy"','"Delivery time"'] as $ex): ?>

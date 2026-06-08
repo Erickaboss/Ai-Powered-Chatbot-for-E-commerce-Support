@@ -1,6 +1,18 @@
 <?php
 require_once 'config/db.php';
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once 'includes/security.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '',
+        'secure' => isset($_SERVER['HTTPS']),
+        'httponly' => true,
+        'samesite' => 'Strict',
+    ]);
+    session_start();
+}
+sendSecurityHeaders();
 if (isset($_SESSION['user_id'])) {
     header('Location: ' . ($_SESSION['user_role'] === 'admin' ? 'admin/index.php' : 'index.php'));
     exit;
@@ -8,19 +20,30 @@ if (isset($_SESSION['user_id'])) {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
-    $pass  = $_POST['password'] ?? '';
-    $stmt  = $conn->prepare("SELECT id, name, password, role FROM users WHERE email=?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $user = $stmt->get_result()->fetch_assoc();
-    if ($user && password_verify($pass, $user['password'])) {
-        $_SESSION['user_id']   = $user['id'];
-        $_SESSION['user_name'] = $user['name'];
-        $_SESSION['user_role'] = $user['role'];
-        header('Location: ' . ($user['role']==='admin' ? 'admin/index.php' : 'index.php')); exit;
+    // CSRF check
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? null)) {
+        $error = 'Invalid session token. Please try again.';
     }
-    $error = 'Invalid email or password.';
+    // Rate limiting
+    elseif (!checkRateLimit('login_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'), 5, 300)) {
+        $error = 'Too many login attempts. Please wait 5 minutes.';
+    }
+    else {
+        $email = trim($_POST['email'] ?? '');
+        $pass  = $_POST['password'] ?? '';
+        $stmt  = $conn->prepare("SELECT id, name, password, role FROM users WHERE email=?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $user = $stmt->get_result()->fetch_assoc();
+        if ($user && password_verify($pass, $user['password'])) {
+            session_regenerate_id(true);
+            $_SESSION['user_id']   = $user['id'];
+            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_role'] = $user['role'];
+            header('Location: ' . ($user['role']==='admin' ? 'admin/index.php' : 'index.php')); exit;
+        }
+        $error = 'Invalid email or password.';
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -46,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST">
+            <?= csrfField() ?>
             <div class="mb-3">
                 <label class="form-label small fw-600">Email Address</label>
                 <div class="input-group">
@@ -80,6 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body>
 </html>
